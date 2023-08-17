@@ -1,0 +1,68 @@
+
+.labelsContent {
+    margin-top:5%;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    width: 100%;
+    height: 100%;
+}
+.labelsContent > .label {
+    display:flex;
+    align-items:center;
+    width:80%;
+    font-size:20px;
+    font-weight:bold;
+}
+.labelsContent > * {
+    margin-top:5px;
+    margin-right:5%;
+}
+.labelsContent p {
+    min-width:100%;
+    min-height:2%;
+    text-align:end;
+    font-size:18px;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+    .labelsContent > p > input {
+        min-width: 80%;
+        max-width: 100%;
+        min-height: 2rem;
+        font-size: 24px;
+        color:white;
+        text-shadow: -2px 2px 0 #000, 2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000;
+        letter-spacing:3px;
+        text-align:center;
+    }
+
+    .labelsContent .categoryHolder, .labelsContent .allergensHolder {
+        width:80%;
+        margin-left:auto;
+        font-size:18px;
+        font-weight:normal;
+
+    }
+    .labelsContent .allergensUL, .labelsContent .categoryUL {
+        width: 20rem;
+    }
+
+
+    input.bulgarian {
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(42, 170, 2,0.6), rgba(255,0,0,0.6));
+    }
+input.english {
+    background-image: linear-gradient(to bottom,rgba(0, 0, 255,0.6),rgba(255, 255, 255, 0.6), rgba(255, 0, 0,0.6),rgba(255, 0, 0,0.6),rgba(255, 255, 255, 0.6),rgba(0, 0, 255,0.6));
+}
+input.deutsch {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(255,0,0,0.6), rgba(255, 255, 0,0.6));
+}
+input.russian {
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255,0.5),rgba(0, 0, 255,0.5),rgba(255, 0, 0,0.5));
+}
+
+.labelsContent .preview {
+    align-self:center;
+    margin-bottom:5%;
+}

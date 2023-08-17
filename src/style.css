@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html {
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+button {
+    border-radius:10px;
+    border:1px solid black;
+    min-height: 20px;
+    min-width: 20px;
+}
+
+
+    #pdf {
+        display:none;
+        width:100%;
+        height:100%;
+    }
+#loadSignsButton {
+    margin-left: auto;
+    float: right;
+}
+    #createPDFbutton{
+        margin-left:auto;
+        float:right;
+    }
+#SignPreview {
+    display: relative;
+    margin-left:auto;
+    margin-right:auto;
+    width: 60%;
+}
+
+    #SignPreview canvas {
+        margin-top: 1%;
+        margin-bottom: auto;
+        width: 95%;
+    }
+
+    #btnDeleteLabels{
+        float:right;
+        margin-left:auto;
+        padding:1px;
+        border-radius:3px;
+    }
+    #AddedLabels input{
+        width:100%;
+    }
+   
+
+.labelsTable > tr > td:first-child {
+    text-align:center;
+}

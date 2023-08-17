@@ -1,0 +1,44 @@
+#searchContainer {
+    display: flex;
+    width: 100%;
+    height: 6%;
+}
+#searchInput {
+    width: 100%;
+}
+#searchButton {
+    border-radius: 0;
+    min-width: 6%;
+    background-color: #1c5b72;
+}
+    #searchButton svg {
+        fill: #fff;
+    }
+#filterContainer {
+    display: flex;
+    padding: 1px;
+}
+    #filterContainer, #filterContainer > * {
+        font-size: 15px;
+        margin: 1px;
+    }
+        #filterContainer #addSelectedLabels {
+            margin-top: 0;
+            padding: 0;
+            height: 1.5em;
+            width: 1.5em;
+            border-radius: 5px;
+            text-align: center;
+        }
+.editButton, .previewButton {
+    min-width: 60px;
+    float: right;
+    text-align: center;
+    vertical-align: central;
+}
+.editButton {
+    margin-left: auto;
+    margin-right: 0;
+}
+.previewButton {
+}

@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\content",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\LeftSide\\SaveLabel",
+    "\\src\\content\\MidSide",
+    "\\src\\content\\UI",
+    "\\src\\nav",
+    "\\toMigrate"
+  ],
+  "SelectedNode": "\\src\\content\\LeftSide\\SaveLabel\\index.css",
+  "PreviewInSolutionExplorer": false
+}

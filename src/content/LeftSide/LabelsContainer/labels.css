@@ -1,0 +1,21 @@
+#Signs {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    overflow: auto;
+    white-space: nowrap;
+    margin-left: 1px;
+}
+#Signs span {
+    display: flex;
+    align-items: center;
+    vertical-align: central;
+    margin: 0px;
+    padding: 0px;
+    flex-direction: row;
+}
+
+#Signs span input {
+    margin: 1px;
+    margin-right: 2px;
+}

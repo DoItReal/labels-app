@@ -1,0 +1,29 @@
+#mainContent {
+    display: flex;
+    flex-direction: row;
+    height: 85vh;
+    min-height: 600px;
+}
+
+#leftSide {
+    margin: 0;
+    height: 100%;
+    width: 40%;
+}
+
+
+
+#midSide {
+    margin: 0;
+    height: 100%;
+    width: 30%;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+#rightSide {
+    margin: 0;
+    height: 100%;
+    width: 30%;
+    border: 1px solid black;
+}
