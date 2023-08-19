@@ -5,12 +5,8 @@
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\content\\LeftSide\\SaveLabel",
-    "\\src\\content\\MidSide",
-    "\\src\\content\\UI",
-    "\\src\\nav",
-    "\\toMigrate"
+    "\\src\\content\\MidSide"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\SaveLabel\\index.css",
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\labelTable.css",
   "PreviewInSolutionExplorer": false
 }

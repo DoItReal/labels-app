@@ -1,0 +1,16 @@
+.addedLabels input {
+    width: 100%;
+}
+.addedLabels > table > tbody > tr >td{
+    border:1px solid black;
+    
+}
+.addedLabels > table > tbody tr:nth-child(2n+1) {
+    background-color: lightgray;
+}
+.addedLabels > table {
+    justify-content:center;
+}
+.addedLabels > table > tbody > tr > td{
+    vertical-align:middle;
+}

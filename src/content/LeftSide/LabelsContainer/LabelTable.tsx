@@ -4,9 +4,9 @@ import { labelDataType, labelDataArrType } from '../../../db';
 import { useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import Draggable from 'react-draggable';
-export function Filter(dbData: labelDataArrType, filterText: string, filterCategory: Array<string>) {
+export function Filter(dbData: labelDataArrType | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataArrType = [];
-
+    if (!dbData || dbData.length == 0) return [];
 
     filterCategory.forEach((item) => {
         if (item === "all") {
@@ -51,9 +51,12 @@ export function Filter(dbData: labelDataArrType, filterText: string, filterCateg
 
 export function LabelTable({ dbData, filterText, filterCategory }: { dbData: labelDataArrType | undefined, filterText: string, filterCategory:Array<string> }) {
     const rows: Array<React.ReactNode> = [];
+   
     const [selectAll, setSelectAll] = useState(false);
     const [editLabel, setEditLabel] = useState <labelDataType| null>();
     const [saveEnable, setSaveEnable] = useState(false);
+    const data = Filter(dbData, filterText, filterCategory);
+
     const setEdit = (label: labelDataType) => {
         setEditLabel({ ...label });
         if (saveEnable) setSaveEnable(false);
@@ -71,17 +74,23 @@ export function LabelTable({ dbData, filterText, filterCategory }: { dbData: lab
         }
         setSelectAll(!selectAll);
     };
-    if (dbData) {
-        const data = Filter(dbData, filterText, filterCategory);
-        //filter
+    const checked = () => {
+        data.forEach((label: labelDataType) => {
+            //@ts-ignore
+            if (document.getElementById('mainList:' + label._id).checked) console.log(label);
+        });
+    }
+    
+    if (data.length > 0) {
         data.forEach((data: labelDataType) => {
             rows.push(
                 <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit } />
             )
         });
     } else {
-        rows.push(<tr data-key="empty"> <td colSpan={3 } >No Labels Loaded</td></tr>)
+        rows.push(<tr data-key="empty" key="empty"><td colSpan={3} >No Labels Loaded</td></tr>)
     }
+
     return (
        <>
         <table className="labelTable">
@@ -89,26 +98,25 @@ export function LabelTable({ dbData, filterText, filterCategory }: { dbData: lab
                 <tr>
                     <th className="headInput"><input type="checkbox" onChange={changeCheckbox} /></th>
                     <th className="headLabel">Label</th>
-                        <th className="headOptions">Options</th>
+                        <th className="headOptions">Options <button onClick={checked}></button></th>
                 </tr>
             </thead>
             <tbody>
-                {rows}
-                </tbody>
-             
+                {rows.length > 0 && rows}
+                </tbody>   
         </table>
             <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null) } />: null }</>
-        </>
-    );
+        </>);
 }
 function LabelRow({ label, dataKey, setEdit }: { label: labelDataType, dataKey: string, setEdit: (arg:labelDataType)=>void }) {
     return (
         <tr data-key={dataKey }>
-            <td><InputCheckbox id={label._id } /></td>
+            <td><InputCheckbox id={'mainList:'+dataKey } /></td>
             <LabelCell bg={label.bg} key={label.bg} />
             <td>
                 <EditButton label={label} setEdit={ setEdit }/>
-                <PreviewButton label={ label }/>
+                <PreviewButton label={label} />
+                
             </td>
         </tr>
     );
