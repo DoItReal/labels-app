@@ -1,7 +1,7 @@
 import { ReactComponent as FetchButtonSVG } from './fetchButtonSVG.svg';
 import { ReactComponent as SearchButtonSVG } from './searchButtonSVG.svg';
 import { db } from '../../../App';
-import { MouseEvent} from 'react';
+import { MouseEvent, useEffect, useRef, useState} from 'react';
 import React from 'react';
 import './fetchButton.css';
 import { labelDataType, labelDataArrType } from '../../../db';
@@ -18,20 +18,43 @@ export default function SearchContainer({ filterText, setFilterText, setDbData, 
 }
 
 function FetchButton({setDbData}: { setDbData: (arg: labelDataArrType) => void }) {
-  
-  const  fetch=  (e: MouseEvent) => {
+    const [disabled, setDisabled] = useState(false);
+    const [degrees, setDegrees] = useState(0);  
+    const animID = useRef<number|null>(null);
+
+    const  fetch = async (e: MouseEvent) => {
       e.preventDefault();
-      
-      db.fetchSigns( setDbData  );
-        document.querySelector("#fetchSignsButton")?.setAttribute('disabled', 'true');         
+      try {
+          animID.current = requestAnimationFrame(anim);
+          await db.fetchSigns(setDbData);
+          setDisabled(true);
+          stopAnim();
+      } catch (err) {
+          console.log(err);
+          stopAnim();
+      }
     }
+    const anim = () => {
+        setDegrees(current => current + 10);
+        if (degrees > 360) setDegrees(0);
+        animID.current = requestAnimationFrame(anim);
+    };
+    const stopAnim = () => {
+        if (animID.current !== null) cancelAnimationFrame(animID.current);
+        animID.current = null;
+    }
+   
+    const style = {
+        transform: 'rotate(' + degrees + 'deg)'
+    };
 
   return (
-        <button id="fetchSignsButton" onClick={(e) => fetch(e)}>
-            <FetchButtonSVG />
+      <button className="fetchSignsButton" onClick={(e) => fetch(e)} disabled={disabled }>
+          <FetchButtonSVG style={style }/>
         </button>
    );
 }
+
 function SearchButton() {
 
     return (

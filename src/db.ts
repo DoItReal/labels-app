@@ -21,18 +21,31 @@ export default class DB {
     }
     fetchSigns(setDbData: (arg: labelDataArrType) => void) {
         
-        var svg: any = document.querySelector('#fetchSignsButton svg');
-        var i = 0;
-        var animID = requestAnimationFrame(anim);
+
         //get data from db
-        fetch(this.address + 'signs/').then(response => response.json()).then(Getdata => { this.data = Getdata }).then(() => setDbData(this.data)).then(() => cancelAnimationFrame(animID));
-        
-        function anim() {
-            svg.setAttribute('transform', 'rotate(' + i + ')');
-            i += 10;
-            if (i > 360) i = 0;
-            animID = requestAnimationFrame(anim);
-        }  
+       // fetch(this.address + 'signs/').then(response => response.json()).then(Getdata => { this.data = Getdata }).then(() => setDbData(this.data)).then(() => cancelAnimationFrame(animID));
+        return (new Promise<void>((resolve, reject)=> {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", this.address + 'signs', true);
+      //  xhr.setRequestHeader("Accept", "application/json");
+      //  xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = () => {
+  
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    this.data = JSON.parse(xhr.responseText);
+                    setDbData(this.data);
+                 
+                    resolve();
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in fetching DB'));
+                }
+     
+        };
+        xhr.onerror = () => console.log('error');
+        xhr.send();
+        }));
+       
     }  
     getSignById(id: string) {
         fetch(this.address + 'signs/' + id).then(response => response.json()).then(sign => { return sign });

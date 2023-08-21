@@ -1,7 +1,7 @@
 import { Label } from '../../../labels';
 import './labelTable.css';
 import { labelDataType, labelDataArrType } from '../../../db';
-import { useState } from 'react';
+import { EventHandler, useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import Draggable from 'react-draggable';
 export function Filter(dbData: labelDataArrType | undefined, filterText: string, filterCategory: Array<string>) {
@@ -33,23 +33,20 @@ export function Filter(dbData: labelDataArrType | undefined, filterText: string,
         }
         return filteredList;
     });
-    let tmp: labelDataArrType = [];
-    filteredList.forEach((data: labelDataType) => {
-        if (
-
-            data.bg.toLowerCase().indexOf(
-                filterText.toLowerCase()
-            ) === -1
-        ) {
-            return;
-        }
-        tmp.push(data)
-    });
-    if (tmp && tmp.length > 0) filteredList = tmp;
-    return filteredList
+  
+    return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory }: { dbData: labelDataArrType | undefined, filterText: string, filterCategory:Array<string> }) {
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll }:
+    {
+        dbData: labelDataArrType | undefined,
+        filterText: string,
+        filterCategory: Array<string>,
+        selectLabel: (arg: labelDataType) => void,
+        unSelectLabel: (arg: labelDataType) => void,
+        generateList: () => void,
+        unSelectAll: () => void
+    }) {
     const rows: Array<React.ReactNode> = [];
    
     const [selectAll, setSelectAll] = useState(false);
@@ -63,28 +60,14 @@ export function LabelTable({ dbData, filterText, filterCategory }: { dbData: lab
             setSaveEnable(true);
     }
     const changeCheckbox = () => {
-        if (!selectAll) {
-            document.querySelectorAll('.listRowCheckbox').forEach(e => {
-                e.setAttribute('checked', 'true');
-            });
-        } else {
-            document.querySelectorAll('.listRowCheckbox').forEach(e => {
-                e.removeAttribute('checked');
-            });
-        }
+        if (selectAll) unSelectAll();
         setSelectAll(!selectAll);
     };
-    const checked = () => {
-        data.forEach((label: labelDataType) => {
-            //@ts-ignore
-            if (document.getElementById('mainList:' + label._id).checked) console.log(label);
-        });
-    }
-    
+
     if (data.length > 0) {
         data.forEach((data: labelDataType) => {
             rows.push(
-                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit } />
+                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll } />
             )
         });
     } else {
@@ -98,7 +81,7 @@ export function LabelTable({ dbData, filterText, filterCategory }: { dbData: lab
                 <tr>
                     <th className="headInput"><input type="checkbox" onChange={changeCheckbox} /></th>
                     <th className="headLabel">Label</th>
-                        <th className="headOptions">Options <button onClick={checked}></button></th>
+                        <th className="headOptions">Options <button onClick={generateList}></button></th>
                 </tr>
             </thead>
             <tbody>
@@ -108,10 +91,11 @@ export function LabelTable({ dbData, filterText, filterCategory }: { dbData: lab
             <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null) } />: null }</>
         </>);
 }
-function LabelRow({ label, dataKey, setEdit }: { label: labelDataType, dataKey: string, setEdit: (arg:labelDataType)=>void }) {
+function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll }: { label: labelDataType, dataKey: string, setEdit: (arg: labelDataType) => void, selectLabel: (arg: labelDataType) => void, unSelectLabel: (arg: labelDataType)=>void, selectAll:boolean }) {
+   
     return (
         <tr data-key={dataKey }>
-            <td><InputCheckbox id={'mainList:'+dataKey } /></td>
+            <td><InputCheckbox selectLabel={selectLabel} unSelectLabel={unSelectLabel} label={label} selectAll={selectAll } /></td>
             <LabelCell bg={label.bg} key={label.bg} />
             <td>
                 <EditButton label={label} setEdit={ setEdit }/>
@@ -122,9 +106,32 @@ function LabelRow({ label, dataKey, setEdit }: { label: labelDataType, dataKey: 
     );
 
 }
-function InputCheckbox({ id }: {id:string}) {
+function InputCheckbox({ label, selectLabel, unSelectLabel, selectAll }: { label: labelDataType, selectLabel: (arg: labelDataType) => void, unSelectLabel: (arg: labelDataType) => void, selectAll: boolean }) {
+    const ref = useRef < HTMLInputElement >(null);
+    const firstRender = useRef(true);
+    const [checked, setChecked] = useState(false);;
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            selectLabel(label);
+            
+        } else {
+            unSelectLabel(label);
+        }
+        setChecked(current => !current);
+    }
+    useEffect(() => {
+        if (firstRender.current) { firstRender.current = false; return };
+        if (selectAll) {
+            setChecked(true);
+            selectLabel(label);
+        } else {
+            setChecked(false);
+        }
+    }, [selectAll])
+    if (ref && ref.current) ref.current.checked = checked;
+
     return (
-        <input id={ id } className="listRowCheckbox"  type="checkbox" />
+        <input ref={ref} onChange={ handleChange } className="listRowCheckbox"  type="checkbox" />
     );
 }
 function LabelCell({ bg }: { bg: string }) {
