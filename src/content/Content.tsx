@@ -1,5 +1,6 @@
 import LeftSide from './LeftSide/index';
 import MidSide from './MidSide/index';
+import RightSide from './RightSide/index';
 import './content.css';
 
 import { IenableStates } from '../App';
@@ -13,7 +14,6 @@ export default function Content({ enableStates, updateStates }: IenableStates) {
         let tmpList = [...addedLabels];
         tmpList.push(label);
         setAddedLabels(tmpList);
-        console.log(tmpList);
     };
     const addLabels = (labels: labelDataArrType) => {
         let tmpList = [...addedLabels];
@@ -24,19 +24,12 @@ export default function Content({ enableStates, updateStates }: IenableStates) {
         <div id="mainContent">
             <LeftSide enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addLabel} addLabels={addLabels }/>
             <MidSide labels={addedLabels} setLabels={setAddedLabels} />
-            <RightSide />
+            <RightSide enable={enableStates} setEnable={updateStates} labels={addedLabels }/>
             <CreateLabel enable={enableStates} setEnable={updateStates} />
         </div>
         );
 }
 
 
-function RightSide() {
-    return (
-        <div id="rightSide">
-            <div className="previewList" />
-            <iframe id="pdf" />
-        </div>
-        );
-}
+
 

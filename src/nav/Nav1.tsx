@@ -62,7 +62,6 @@ function NavList({enableStates,updateStates }:IenableStates) {
         setActive(event);
         updateHori();
         let key = event.currentTarget.querySelector('i')?.className.slice(7, event.currentTarget.querySelector('i')?.className.length);
-        console.log(key);
         switch (key) {
             case "overview":
                 document.querySelectorAll('.focus').forEach((e) => e.classList.remove('focus'));
@@ -82,10 +81,13 @@ function NavList({enableStates,updateStates }:IenableStates) {
         document.querySelectorAll('#navbarSupportedContent ul li').forEach((item) => item.classList.remove("active"));
         event.currentTarget.className += ' active';
     };
-    const createPDF = (event: React.MouseEvent) => console.log('pdf');
+    const createPDF = (event: React.MouseEvent) => {
+        log(event);
+        let k = "createPDF";
+        updateStates(k, true);
+    };
     const createNewLabel = (event: React.MouseEvent) => {
         log(event);
-
         let k = "createLabel"; 
         updateStates(k, true);
 
@@ -97,8 +99,8 @@ function NavList({enableStates,updateStates }:IenableStates) {
             <ul className="navbar-nav ml-auto">
                 <div className="hori-selector"><div className="left"></div><div className="right"></div></div>
                 <NavItem active="active" func={log} nameClass="overview" name="Overview" />
-                <NavItem active="" func={ createNewLabel } nameClass="create-label" name="Create Label" />
-                <NavItem active="" func={log} nameClass="pdf" name="Create PDF" />
+                <NavItem active="" func={createNewLabel} nameClass="create-label" name="Create Label" />
+                <NavItem active="" func={createPDF} nameClass="pdf" name="Create PDF" />
                 <NavItem active="" func={log} nameClass="load-labels" name="Test" />
                 <NavItem active="" func={ log} nameClass="Test2" name="Test 2" />
                 <NavItem active="" func={ log } nameClass="-chart-bar" name="Charts" />

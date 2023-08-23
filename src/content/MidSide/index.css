@@ -1,16 +1,17 @@
-.addedLabels input {
+.addedLabels > table > tbody > tr > td input {
     width: 100%;
+    box-sizing:border-box;
 }
-.addedLabels > table > tbody > tr >td{
-    border:1px solid black;
-    
-}
-.addedLabels > table > tbody tr:nth-child(2n+1) {
-    background-color: lightgray;
-}
-.addedLabels > table {
-    justify-content:center;
-}
+
 .addedLabels > table > tbody > tr > td{
     vertical-align:middle;
+}
+.addedLabels .headRemove {
+    width:4em;
+}
+.addedLabels .headCount {
+    width:5em;
+}
+.addedLabels > table > input {
+    margin-right: 5px;
 }

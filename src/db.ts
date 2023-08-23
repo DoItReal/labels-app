@@ -23,13 +23,10 @@ export default class DB {
         
 
         //get data from db
-       // fetch(this.address + 'signs/').then(response => response.json()).then(Getdata => { this.data = Getdata }).then(() => setDbData(this.data)).then(() => cancelAnimationFrame(animID));
         return (new Promise<void>((resolve, reject)=> {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", this.address + 'signs', true);
-      //  xhr.setRequestHeader("Accept", "application/json");
-      //  xhr.setRequestHeader("Content-Type", "application/json");
-
+     
         xhr.onreadystatechange = () => {
   
                 if (xhr.readyState === 4 && xhr.status === 200) {

@@ -4,7 +4,6 @@ import Labels from './Labels';
 import { Dispatch, SetStateAction, useState } from 'react';
 import './index.css';
 import { labelDataType, labelDataArrType } from '../../../db';
-import { IenableStates } from '../../../App';
 import { IlabelsContainerStates } from '../index';
 interface Tprops {
     filterText: string,
@@ -38,7 +37,7 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         if (index != -1) {
             tmpList.splice(index, 1);
             props.setSelectedLabels([...tmpList]);
-        } else
+        } else  
         console.log('the label is not in the list');
     }
     const unSelectAll = () => {

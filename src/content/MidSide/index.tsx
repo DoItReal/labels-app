@@ -24,7 +24,14 @@ function AddedLabels({ labels, setLabels }: { labels: labelDataType[], setLabels
         });
     return (
         <div className="addedLabels">
-            <table>
+            <table className="labelTable">
+                <thead>
+                    <tr>
+                        <th className="headRemove">Remove</th>
+                        <th className="headLabel">Label</th>
+                        <th className="headCount">Count</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {rows}
                     </tbody>

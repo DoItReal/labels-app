@@ -4,6 +4,7 @@ import { labelDataType, labelDataArrType } from '../../../db';
 import { EventHandler, useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import Draggable from 'react-draggable';
+
 export function Filter(dbData: labelDataArrType | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataArrType = [];
     if (!dbData || dbData.length == 0) return [];
