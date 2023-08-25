@@ -4,8 +4,9 @@ import { LabelContent } from '../LeftSide/SaveLabel/LabelContent';
 import './index.css';
 import * as PDFLib from 'pdf-lib';
 import { useState } from 'react';
+import { IaddedLabels } from '../Content';
 
-export default function RightSide({ enable, setEnable, labels }: { enable: Map<string, boolean>, setEnable: (key: string, value: boolean) => void, labels: labelDataType[] }) {
+export default function RightSide({ enable, setEnable, labels }: { enable: Map<string, boolean>, setEnable: (key: string, value: boolean) => void, labels: IaddedLabels[] }) {
     if (!enable.get('createPDF')) return null;
 
     return (
@@ -16,7 +17,7 @@ export default function RightSide({ enable, setEnable, labels }: { enable: Map<s
     );
 }
 
-function CreatePDF({ labels }: { labels: labelDataType[] }) {
+function CreatePDF({ labels }: { labels: IaddedLabels[] }) {
     const [pdf, setPdf] = useState('');
     const canvasArr: Array<HTMLCanvasElement> = [];
     for (const entry of labels) {
@@ -29,18 +30,18 @@ function CreatePDF({ labels }: { labels: labelDataType[] }) {
         sign.setContent(entry.allergens, { bg: decodeURI(entry.bg), en: entry.en, de: entry.de, rus: entry.rus });
         sign.setId(entry._id);
 
-        let canvas = sign.generate();
-        canvasArr.push(canvas);
-        //if (entry.count && entry.count > 1) {
-        //    for (let i = 1; i <= entry.count; i++) {
-        //       signs.push(sign.generate());
-        //    }
-        //   } else {
-        //   signs.push(sign.generate());
-        //  }
+        if (entry.count && entry.count > 1) {
+            for (let i = 1; i <= entry.count; i++) {
+               canvasArr.push(sign.generate());
+            }
+           } else {
+           canvasArr.push(sign.generate());
+          }
     }
+
    PDF(canvasArr, setPdf);
     return (<div>
+
         <iframe className="pdf" src={pdf}></iframe>
     </div>
     );
@@ -106,4 +107,14 @@ async function PDF(signs: Array<HTMLCanvasElement>, setPdf:(arg: string) => void
         console.log(e);
         setPdf('');
     }
+   /* 
+// Save the PDF document to a file
+const pdfBytes = await doc.save();
+
+// Use the pdfBytes to save the PDF document or perform further operations
+// Example: Save the PDF to a file
+    var file = new Blob([pdfBytes], { type: 'application/pdf' });
+    var fileURL = URL.createObjectURL(file);
+    window.open(fileURL);
+    */
     }

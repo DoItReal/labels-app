@@ -6,24 +6,57 @@ import './content.css';
 import { IenableStates } from '../App';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState } from 'react';
-import {labelDataType, labelDataArrType } from '../db';
+import { labelDataType, labelDataArrType } from '../db';
+export interface IaddedLabels extends labelDataType {
+    count:number
+};
 export default function Content({ enableStates, updateStates }: IenableStates) {
     const [dbData, setDbData]: [dbData: labelDataArrType | undefined, setDbData: (arg: labelDataArrType|undefined) => void] = useState();
-    const [addedLabels, setAddedLabels] = useState<labelDataType[]>([]);
-    const addLabel = (label: labelDataType) => {
-        let tmpList = [...addedLabels];
-        tmpList.push(label);
-        setAddedLabels(tmpList);
+    const [addedLabels, setAddedLabels] = useState<IaddedLabels[]>([]);
+    const addLabel = (label: IaddedLabels) => {  
+        setAddedLabels(current => [...current].map(lbl => {
+            if (lbl._id === label._id) {
+                return {
+                    ...lbl,
+                    count: label.count
+                }
+            }
+            else return lbl;
+        }));       
+    };
+    const addNewLabel = (label: labelDataType) => {
+        if (findId(label._id) !== -1) {
+            setAddedLabels(current => [...current].map(lbl => {
+                if (lbl._id === label._id) {
+                    return {
+                        ...lbl,
+                        count: lbl.count + 1
+                    }
+                }
+                else return lbl;
+            }));
+        } else {
+            let tmpList = [...addedLabels];
+            let tmp = structuredClone(label);
+            tmp.count = 1;
+            tmpList.push(tmp);
+            console.log(tmpList);
+            setAddedLabels(current => current.concat([tmp]));
+        }
     };
     const addLabels = (labels: labelDataArrType) => {
-        let tmpList = [...addedLabels];
-        tmpList = tmpList.concat(labels);
-        setAddedLabels(tmpList);
+        labels.forEach(label => addNewLabel(label));
+    };
+    const findId = (id: string) => {
+        for (let i = 0; i < addedLabels.length; i++) {
+            if (addedLabels[i]._id === id) return i;
+        }
+        return -1;
     };
     return (
         <div id="mainContent">
-            <LeftSide enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addLabel} addLabels={addLabels }/>
-            <MidSide labels={addedLabels} setLabels={setAddedLabels} />
+            <LeftSide enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addNewLabel} addLabels={addLabels }/>
+            <MidSide labels={addedLabels} addLabel={addLabel} />
             <RightSide enable={enableStates} setEnable={updateStates} labels={addedLabels }/>
             <CreateLabel enable={enableStates} setEnable={updateStates} />
         </div>

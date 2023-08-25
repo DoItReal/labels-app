@@ -1,25 +1,24 @@
-import { Dispatch, SetStateAction } from 'react';
+import { ChangeEvent, ChangeEventHandler, Dispatch, SetStateAction } from 'react';
 import { labelDataType } from '../../db';
+import { IaddedLabels } from '../Content';
 import './index.css';
-export default function MidSide({ labels, setLabels }: { labels: labelDataType[], setLabels: Dispatch<SetStateAction<labelDataType[]>> }) {
+export default function MidSide({ labels, addLabel }: { labels: IaddedLabels[], addLabel: (arg: IaddedLabels)=>void }) {
     return (
         <div id="midSide">
             <div id="SignPreview" />
-            <AddedLabels labels={labels} setLabels={setLabels } />
+            <AddedLabels labels={labels} updateLabel={addLabel } />
         </div>
     );
 }
 
 
-function AddedLabels({ labels, setLabels }: { labels: labelDataType[], setLabels: Dispatch<SetStateAction<labelDataType[]>> }) {
+function AddedLabels({ labels, updateLabel }: { labels: IaddedLabels[], updateLabel: (arg: IaddedLabels)=>void }) {
     const rows: Array<React.ReactNode> = [];
+   
     labels && labels.map(label => {
        
-        rows.push(<tr key={label._id }>
-                <td><button> Remove </button></td>
-                <td><label>{label.bg}</label></td>
-                <td><input type="number" min="1" max="20"></input></td>
-            </tr>
+        rows.push(
+            <LabelRow label={label} updateLabel={updateLabel} />
             );
         });
     return (
@@ -39,4 +38,20 @@ function AddedLabels({ labels, setLabels }: { labels: labelDataType[], setLabels
         </div>
         );
 
+}
+function LabelRow({ label, updateLabel }: { label: IaddedLabels, updateLabel: (arg: IaddedLabels)=>void }) {
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        let tmp = { ...label };
+        tmp.count = Number(event.target.value);
+        updateLabel(tmp);
+    }
+    return (
+        <tr key={label._id}>
+            <td><button> Remove </button></td>
+            <td><label>{label.bg}</label></td>
+            <td><input type="number" min="1" max="20" value={label.count} onChange={(event)=>handleInputChange(event)}></input></td>
+        </tr>
+        );
 }

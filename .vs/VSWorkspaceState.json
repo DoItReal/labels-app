@@ -4,11 +4,8 @@
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\content\\LeftSide\\SaveLabel",
-    "\\src\\content\\RightSide",
-    "\\src\\nav"
+    "\\src\\content\\MidSide"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\SaveLabel\\LabelContent.tsx",
+  "SelectedNode": "\\src\\content\\Content.tsx",
   "PreviewInSolutionExplorer": false
 }
