@@ -10,7 +10,7 @@ export default function SearchContainer({ filterText, setFilterText, setDbData, 
     return (
         <form id="searchContainer">
             <FetchButton setDbData = { setDbData } />
-            <input id="searchInput" type="text" value={filterText} onChange={(e) => setFilterText && setFilterText(e.target.value)} placeholder="Search..." />
+            <input id="searchInput" type="search" value={filterText} onChange={(e) => setFilterText && setFilterText(e.target.value)} placeholder="Search..." />
             <SearchButton />
         </form>
     );

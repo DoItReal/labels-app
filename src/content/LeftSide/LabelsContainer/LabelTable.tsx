@@ -38,7 +38,7 @@ export function Filter(dbData: labelDataArrType | undefined, filterText: string,
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll }:
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview }:
     {
         dbData: labelDataArrType | undefined,
         filterText: string,
@@ -46,7 +46,10 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
         selectLabel: (arg: labelDataType) => void,
         unSelectLabel: (arg: labelDataType) => void,
         generateList: () => void,
-        unSelectAll: () => void
+        unSelectAll: () => void,
+        enableStates: Map<string, boolean>,
+        updateStates: (key: string, value: boolean) => void,
+        setPreview: (label:labelDataType)=>void
     }) {
     const rows: Array<React.ReactNode> = [];
    
@@ -68,7 +71,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
     if (data.length > 0) {
         data.forEach((data: labelDataType) => {
             rows.push(
-                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll } />
+                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} updateStates={updateStates} setPreview={setPreview }/>
             )
         });
     } else {
@@ -92,7 +95,17 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
             <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null) } />: null }</>
         </>);
 }
-function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll }: { label: labelDataType, dataKey: string, setEdit: (arg: labelDataType) => void, selectLabel: (arg: labelDataType) => void, unSelectLabel: (arg: labelDataType)=>void, selectAll:boolean }) {
+function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, updateStates, setPreview }:
+    {
+        label: labelDataType,
+        dataKey: string,
+        setEdit: (arg: labelDataType) => void,
+        selectLabel: (arg: labelDataType) => void,
+        unSelectLabel: (arg: labelDataType) => void,
+        selectAll: boolean,
+        updateStates: (key: string, value: boolean) => void,
+        setPreview: (label:labelDataType)=>void
+    }) {
    
     return (
         <tr data-key={dataKey }>
@@ -100,7 +113,7 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
             <LabelCell bg={label.bg} key={label.bg} />
             <td>
                 <EditButton label={label} setEdit={ setEdit }/>
-                <PreviewButton label={label} />
+                <PreviewButton label={label} updateStates={updateStates} setPreview={setPreview } />
                 
             </td>
         </tr>
@@ -151,24 +164,12 @@ function EditButton({ label, setEdit }: { label: labelDataType, setEdit: (arg:la
         <button id="editButton" onClick={setEditButton }>Edit</button>
         );
 }
-function PreviewButton({ label }: { label: labelDataType }) {
+function PreviewButton({ label, updateStates, setPreview }: { label: labelDataType, updateStates: (key: string, value: boolean) => void, setPreview:(label:labelDataType)=>void }) {
   
-    //to do Get width and height of A4 page, signsInPage from PDF class
-    let width = 720;
-    let height = 920;
-    let signsInPage = 8;
-
     function preview() {
-        const tmp = document.querySelector('#SignPreview');
-        if (!tmp || !(tmp instanceof HTMLDivElement)) {
-            throw new Error('Failed to get canvas');
-        }
-        let previewDiv = tmp;
-        let sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
-        sign.setContent(label.allergens, { bg: decodeURI(label.bg), en: label.en, de: label.de, rus: label.rus });
-        sign.setId(label._id);
-        previewDiv.innerHTML = '';
-        previewDiv.append(sign.generate());
+        updateStates('preview', true);
+        setPreview(label);
+        
     }
     return (
         <button id="previewButton" onClick={preview }>Preview</button>

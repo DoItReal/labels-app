@@ -52,10 +52,10 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
             <div className="preview">{preview && preview || 'no preview loaded'}</div>
             <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
             <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
-            <p>BG: <input type="text" className="bulgarian" value={translation.bg } onChange={(e)=>setBG(e) }/></p>
-            <p>EN: <input type="text" className="english" value={translation.en}  onChange={(e) => setEN(e)} /></p>
-            <p>DE: <input type="text" className="deutsch" value={translation.de}  onChange={(e) => setDE(e)} /></p>
-            <p>RUS: <input type="text" className="russian" value={translation.rus}  onChange={(e) => setRUS(e)} /></p>
+            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg } onChange={(e)=>setBG(e) }/></p>
+            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en}  onChange={(e) => setEN(e)} /></p>
+            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de}  onChange={(e) => setDE(e)} /></p>
+            <p>RUS: <input type="text" spellCheck="true" lang="ru"  className="russian" value={translation.rus}  onChange={(e) => setRUS(e)} /></p>
             
         </div>
             

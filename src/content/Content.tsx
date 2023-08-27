@@ -13,6 +13,10 @@ export interface IaddedLabels extends labelDataType {
 export default function Content({ enableStates, updateStates }: IenableStates) {
     const [dbData, setDbData]: [dbData: labelDataArrType | undefined, setDbData: (arg: labelDataArrType|undefined) => void] = useState();
     const [addedLabels, setAddedLabels] = useState<IaddedLabels[]>([]);
+    const [previewLabel, setPreviewLabel] = useState<labelDataType | undefined>();
+    const setPreview = (label: labelDataType) => {
+        setPreviewLabel(label);
+    };
     const addLabel = (label: IaddedLabels) => {  
         setAddedLabels(current => [...current].map(lbl => {
             if (lbl._id === label._id) {
@@ -55,8 +59,8 @@ export default function Content({ enableStates, updateStates }: IenableStates) {
     };
     return (
         <div id="mainContent">
-            <LeftSide enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addNewLabel} addLabels={addLabels }/>
-            <MidSide labels={addedLabels} addLabel={addLabel} />
+            <LeftSide enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addNewLabel} addLabels={addLabels} setPreview={setPreview }/>
+            <MidSide labels={addedLabels} addLabel={addLabel} enableStates={enableStates} updateStates={updateStates} previewLabel={previewLabel }/>
             <RightSide enable={enableStates} setEnable={updateStates} labels={addedLabels }/>
             <CreateLabel enable={enableStates} setEnable={updateStates} />
         </div>

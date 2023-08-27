@@ -15,3 +15,12 @@
 .addedLabels > table > input {
     margin-right: 5px;
 }
+
+.closeButton {
+    float:right;
+    width:2rem;
+    height:2rem;
+    border-radius:0;
+    background:red;
+    font-weight:bold;
+}

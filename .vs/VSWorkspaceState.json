@@ -4,8 +4,11 @@
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\MidSide"
+    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\MidSide",
+    "\\src\\content\\RightSide",
+    "\\src\\nav"
   ],
-  "SelectedNode": "\\src\\content\\Content.tsx",
+  "SelectedNode": "\\src\\content\\RightSide\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

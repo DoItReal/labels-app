@@ -8,12 +8,13 @@ export interface IlabelsContainerStates extends IenableStates {
     dbData: labelDataArrType | undefined,
     setDbData: (arg: labelDataArrType) => void
     addLabel: (arg: labelDataType) => void,
-    addLabels: (arg: labelDataArrType) => void
+    addLabels: (arg: labelDataArrType) => void,
+    setPreview: (label:labelDataType)=>void
 }
-export default function LeftSide({ enableStates, updateStates, dbData, setDbData,addLabel, addLabels}: IlabelsContainerStates) {
+export default function LeftSide({ enableStates, updateStates, dbData, setDbData,addLabel, addLabels, setPreview}: IlabelsContainerStates) {
     return (
         <div id="leftSide">
-            <LabelsContainerStates enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addLabel} addLabels={addLabels }/>
+            <LabelsContainerStates enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addLabel} addLabels={addLabels} setPreview={setPreview }/>
         </div>
     );
 }
