@@ -1,21 +1,18 @@
-import { Label } from '../../../labels';
 import './labelTable.css';
-import { labelDataType, labelDataArrType } from '../../../db';
-import { EventHandler, useEffect, useRef, useState } from 'react';
+import { labelDataType } from '../../../db';
+import { useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
-import Draggable from 'react-draggable';
-
-export function Filter(dbData: labelDataArrType | undefined, filterText: string, filterCategory: Array<string>) {
-    let filteredList: labelDataArrType = [];
-    if (!dbData || dbData.length == 0) return [];
-
+import { IlabelsProps } from './index';
+export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
+    let filteredList: labelDataType[] = [];
+    if (!dbData || dbData.length === 0) return [];
     filterCategory.forEach((item) => {
         if (item === "all") {
             filteredList = dbData;
             return;
         }
         dbData.forEach(e => {
-            if (e.category && e.category.length == 0) {
+            if (e.category && e.category.length === 0) {
                 return;
             } else {
                 for (let i = 0; i < e.category.length; i++) {
@@ -38,19 +35,7 @@ export function Filter(dbData: labelDataArrType | undefined, filterText: string,
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview }:
-    {
-        dbData: labelDataArrType | undefined,
-        filterText: string,
-        filterCategory: Array<string>,
-        selectLabel: (arg: labelDataType) => void,
-        unSelectLabel: (arg: labelDataType) => void,
-        generateList: () => void,
-        unSelectAll: () => void,
-        enableStates: Map<string, boolean>,
-        updateStates: (key: string, value: boolean) => void,
-        setPreview: (label:labelDataType)=>void
-    }) {
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview }: IlabelsProps) {
     const rows: Array<React.ReactNode> = [];
    
     const [selectAll, setSelectAll] = useState(false);
@@ -85,7 +70,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
                 <tr>
                     <th className="headInput"><input type="checkbox" onChange={changeCheckbox} /></th>
                     <th className="headLabel">Label</th>
-                        <th className="headOptions">Options <button onClick={generateList}></button></th>
+                        <th className="headOptions">Options</th>
                 </tr>
             </thead>
             <tbody>

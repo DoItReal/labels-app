@@ -1,5 +1,5 @@
-import { LegacyRef, MutableRefObject, useRef } from 'react';
-import { IaddedLabels } from '../Content';
+import { useRef } from 'react';
+import { IaddedLabel, IcontentProps } from '../Content';
 import AddedLabels from './AddedLabels';
 import './index.css';
 import { IenableStates } from '../../App';
@@ -7,25 +7,28 @@ import { Label } from '../../labels';
 import { labelDataType } from '../../db';
 
 interface states extends IenableStates {
-    labels: IaddedLabels[],
-    addLabel: (arg: IaddedLabels) => void,
+    labels: IaddedLabel[],
+    addLabel: (arg: IaddedLabel) => void,
     previewLabel: labelDataType | undefined
 }
 
-export default function MidSide({ labels, addLabel, enableStates, updateStates, previewLabel }: states) {
+export default function MidSide({ addedLabels, addLabel, enableStates, updateStates, previewLabel }: IcontentProps) {
     const closePreview = () => {
         updateStates('preview', false);
     }
     return (
         <div id="midSide">
             {enableStates.get('preview') ? <Preview label={ previewLabel} handleClose={closePreview } />:null}
-            <AddedLabels labels={labels} updateLabel={addLabel } />
+            <AddedLabels labels={addedLabels} updateLabel={addLabel } />
         </div>
     );
 }
 
-function Preview({ label, handleClose }: { label: labelDataType | undefined, handleClose: () => void }) {
+function Preview({ label, handleClose }:
+    { label: labelDataType | undefined, handleClose: () => void }) {
+
     const previewURL = useRef<string>('');
+
     if (label !== undefined) {
         //to do Get width and height of A4 page, signsInPage from PDF class
         let width = 720;

@@ -1,11 +1,11 @@
 import { ReactComponent as FetchButtonSVG } from './fetchButtonSVG.svg';
 import { ReactComponent as SearchButtonSVG } from './searchButtonSVG.svg';
 import { db } from '../../../App';
-import { MouseEvent, useEffect, useRef, useState} from 'react';
-import React from 'react';
+import { MouseEvent, useRef, useState} from 'react';
 import './fetchButton.css';
-import { labelDataType, labelDataArrType } from '../../../db';
-interface Tprops { filterText: string, setFilterText: (arg: string) => void, setDbData: (arg: labelDataArrType) => void, filterCategory: Array<string>, setFilterCategory: (arg: Array<string>)=>void };
+import { labelDataType } from '../../../db';
+
+interface Tprops { filterText: string, setFilterText: (arg: string) => void, setDbData: (arg: labelDataType[]) => void, filterCategory: Array<string>, setFilterCategory: (arg: Array<string>)=>void };
 export default function SearchContainer({ filterText, setFilterText, setDbData, filterCategory, setFilterCategory  }: Tprops  ) {
     return (
         <form id="searchContainer">
@@ -17,7 +17,7 @@ export default function SearchContainer({ filterText, setFilterText, setDbData, 
 
 }
 
-function FetchButton({setDbData}: { setDbData: (arg: labelDataArrType) => void }) {
+function FetchButton({setDbData}: { setDbData: (arg: labelDataType[]) => void }) {
     const [disabled, setDisabled] = useState(false);
     const [degrees, setDegrees] = useState(0);  
     const animID = useRef<number|null>(null);

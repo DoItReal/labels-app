@@ -6,9 +6,8 @@
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\content\\MidSide",
-    "\\src\\content\\RightSide",
-    "\\src\\nav"
+    "\\src\\content\\RightSide"
   ],
-  "SelectedNode": "\\src\\content\\RightSide\\index.tsx",
+  "SelectedNode": "\\src\\db.ts",
   "PreviewInSolutionExplorer": false
 }

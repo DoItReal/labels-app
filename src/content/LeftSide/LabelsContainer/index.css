@@ -1,17 +1,12 @@
 #SignsContainer {
-    display: none;
+    display: flex;
     margin: 0px;
     padding: 1px;
     height: 100%;
     width: 100%;
     flex-direction: column;
     border: 1px dotted green;
-    opacity: 0;
+    opacity: 1;
     transition: 0.3s;
+    overflow:auto;
 }
-
-    #SignsContainer.focus {
-        display: flex;
-        opacity: 1;
-        overflow: auto;
-    }

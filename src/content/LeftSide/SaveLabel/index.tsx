@@ -6,16 +6,17 @@ import { db } from '../../../App';
 import { labelDataType } from '../../../db';
 import { Label } from '../../../labels';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
+import { IcontentProps } from '../../Content';
 export interface IsaveLabelInput {
     currentAllergens: number[], setCurrentAllergens: Dispatch<SetStateAction<number[]>>,
     filterCategory: string[], setFilterCategory: Dispatch<SetStateAction<string[]>>,
     translation: { bg: string, en: string, de: string, rus: string }, setTranslation: Dispatch<SetStateAction<{ bg: string, en: string, de: string, rus: string }>>
 }
-export function CreateLabel({ enable, setEnable }:{ enable: Map<string,boolean>, setEnable: (key:string,value:boolean) => void }) {
+export function CreateLabel({ enableStates, updateStates }: IcontentProps ) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
     const [filterCategory, setFilterCategory] = useState<string[]>(["all"]);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: '', en: '', de: '', rus: '' });
-    if (!enable.get('createLabel')) return null;
+    if (!enableStates.get('createLabel')) return null;
     const createLabel = () => {
         var label = {
             allergens: currentAllergens,
@@ -30,10 +31,10 @@ export function CreateLabel({ enable, setEnable }:{ enable: Map<string,boolean>,
     };
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };//console.log(e);
     return (
-        enable.get("createLabel") ?
+        enableStates.get("createLabel") ?
         <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}><div className="draggedDiv">
         <div className="saveLabel">
-                    <Header handleClick={() => setEnable("createLabel", false) } />
+                    <Header handleClick={() => updateStates("createLabel", false) } />
             <LabelContent currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} filterCategory={filterCategory} setFilterCategory={setFilterCategory} translation={translation} setTranslation={setTranslation} />
             
             <button className="saveButton" onClick={createLabel }>Create Label</button>

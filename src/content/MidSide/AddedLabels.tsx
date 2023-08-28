@@ -1,6 +1,6 @@
 import { ChangeEvent } from 'react';
-import { IaddedLabels } from '../Content';
-export default function AddedLabels({ labels, updateLabel }: { labels: IaddedLabels[], updateLabel: (arg: IaddedLabels) => void }) {
+import { IaddedLabel } from '../Content';
+export default function AddedLabels({ labels, updateLabel }: { labels: IaddedLabel[], updateLabel: (arg: IaddedLabel) => void }) {
     const rows: Array<React.ReactNode> = [];
 
     labels && labels.map(label => {
@@ -27,7 +27,7 @@ export default function AddedLabels({ labels, updateLabel }: { labels: IaddedLab
     );
 
 }
-function LabelRow({ label, updateLabel }: { label: IaddedLabels, updateLabel: (arg: IaddedLabels) => void }) {
+function LabelRow({ label, updateLabel }: { label: IaddedLabel, updateLabel: (arg: IaddedLabel) => void }) {
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         event.stopPropagation();

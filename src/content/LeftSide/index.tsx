@@ -1,20 +1,21 @@
 import { LabelsContainerStates } from './LabelsContainer/index';
-import { CreateLabel } from './SaveLabel/index';
 import './style.css';
 import { IenableStates } from '../../App';
-import  { labelDataArrType, labelDataType } from '../../db';
-import { Dispatch, SetStateAction } from 'react';
-export interface IlabelsContainerStates extends IenableStates {
-    dbData: labelDataArrType | undefined,
-    setDbData: (arg: labelDataArrType) => void
-    addLabel: (arg: labelDataType) => void,
-    addLabels: (arg: labelDataArrType) => void,
+import  { labelDataType } from '../../db';
+import { IaddedLabel, IcontentProps } from '../Content';
+
+export interface IlabelsContainerProps extends IenableStates {
+    dbData: labelDataType[] | undefined,
+    setDbData: (arg: labelDataType[]) => void
+    addLabel: (arg: IaddedLabel) => void,
+    addLabels: (arg: labelDataType[]) => void,
     setPreview: (label:labelDataType)=>void
 }
-export default function LeftSide({ enableStates, updateStates, dbData, setDbData,addLabel, addLabels, setPreview}: IlabelsContainerStates) {
+export default function LeftSide({ enableStates, updateStates, dbData, setDbData, addLabel, addLabels, setPreview }: IcontentProps) {
+    const props = { enableStates, updateStates, dbData, setDbData, addLabel, addLabels, setPreview };
     return (
         <div id="leftSide">
-            <LabelsContainerStates enableStates={enableStates} updateStates={updateStates} dbData={dbData} setDbData={setDbData} addLabel={addLabel} addLabels={addLabels} setPreview={setPreview }/>
+            <LabelsContainerStates {...props} />
         </div>
     );
 }

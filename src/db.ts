@@ -9,17 +9,16 @@ export interface labelDataType {
     de: string,
     rus: string
 }
-export type labelDataArrType = Array<labelDataType>;
 
 const labels = new Labels();
 export default class DB {
     address: string;
-    data:any;
+    data:labelDataType[];
     constructor() {
         this.address = "https://labels-service-392708.lm.r.appspot.com/";
         this.data = [];
     }
-    fetchSigns(setDbData: (arg: labelDataArrType) => void) {
+    fetchSigns(setDbData: (arg: labelDataType[]) => void) {
         
 
         //get data from db
@@ -28,19 +27,17 @@ export default class DB {
         xhr.open("GET", this.address + 'signs', true);
      
         xhr.onreadystatechange = () => {
-  
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     this.data = JSON.parse(xhr.responseText);
-                    setDbData(this.data);
-                 
+                    setDbData(this.data);              
                     resolve();
                 } else if (xhr.status !== 200) {
                     reject(new Error('Error in fetching DB'));
                 }
-     
         };
-        xhr.onerror = () => console.log('error');
-        xhr.send();
+            xhr.onerror = () => reject(new Error('Error in fetching DB'));
+
+            xhr.send();
         }));
        
     }  

@@ -4,3 +4,13 @@
     height: 100%;
     min-height:80vmin;
 }
+.refreshPDF {
+    width:2rem;
+    height:2rem;
+    border-radius:0;
+    background: lightblue;
+    float:left;
+}
+.headBar {
+    background-color:dimgray;
+}

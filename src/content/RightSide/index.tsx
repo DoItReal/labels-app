@@ -1,23 +1,37 @@
-import { labelDataArrType, labelDataType } from '../../db';
 import { Label } from '../../labels';
-import { LabelContent } from '../LeftSide/SaveLabel/LabelContent';
 import './index.css';
 import * as PDFLib from 'pdf-lib';
-import { useState } from 'react';
-import { IaddedLabels } from '../Content';
+import { useRef, useState } from 'react';
+import { IaddedLabel, IcontentProps } from '../Content';
+import { ReactComponent as FetchButtonSVG } from '../LeftSide/LabelsContainer/fetchButtonSVG.svg';
 
-export default function RightSide({ enable, setEnable, labels }: { enable: Map<string, boolean>, setEnable: (key: string, value: boolean) => void, labels: IaddedLabels[] }) {
-    if (!enable.get('createPDF')) return null;
-
+export default function RightSide({ enableStates, updateStates, addedLabels }: IcontentProps ) {
+    const PDFrow = useRef<JSX.Element| null>(null);
+    if (!enableStates.get('createPDF')) return null;
+    const handleClose = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        updateStates('createPDF', false);
+    }
+    const update = () => {
+        updateStates('updatePDF', true);
+    }
+    if (enableStates.get('updatePDF')) {
+        PDFrow.current = <CreatePDF labels={addedLabels} />;
+        updateStates('updatePDF', false);
+    }
+    
     return (
         <div id="rightSide">
+            <div className="headBar">
+                <button className="refreshPDF" onClick={update} ><FetchButtonSVG /></button><button className="closeButton" onClick={handleClose}>X</button>
+            </div>
             <div className="previewList" />
-            <CreatePDF labels={labels }/>
+            {PDFrow.current}
         </div>
     );
 }
 
-function CreatePDF({ labels }: { labels: IaddedLabels[] }) {
+function CreatePDF({ labels }: { labels: IaddedLabel[] }) {
     const [pdf, setPdf] = useState('');
     const canvasArr: Array<HTMLCanvasElement> = [];
     for (const entry of labels) {

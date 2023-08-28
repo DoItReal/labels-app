@@ -1,6 +1,4 @@
 import './Nav1.css';
-import { CreateLabel } from '../content/LeftSide/SaveLabel/index';
-import { useState } from 'react';
 //import 'bootstrap/dist/css/bootstrap.css';
 import { IenableStates } from '../App'; 
 export function Nav({enableStates, updateStates }: IenableStates) {
@@ -58,23 +56,9 @@ const updateHori = () => {
 };
 function NavList({enableStates,updateStates }:IenableStates) {
     const log = (event: React.MouseEvent) => {
-        console.log(event);
         setActive(event);
         updateHori();
-        let key = event.currentTarget.querySelector('i')?.className.slice(7, event.currentTarget.querySelector('i')?.className.length);
-        switch (key) {
-            case "overview":
-                document.querySelectorAll('.focus').forEach((e) => e.classList.remove('focus'));
-                document.querySelector('#SignsContainer')?.classList.add('focus');
-                break;
-            case "create-label":
-                document.querySelectorAll('.focus').forEach((e) => e.classList.remove('focus'));
-                break;
-            default:
-                console.log(event.currentTarget.querySelector('i')?.className.slice(7, event.currentTarget.querySelector('i')?.className.length));
-                break;
-        }
-    };
+    }
 
 
     const setActive = (event: React.MouseEvent) => {
@@ -85,6 +69,7 @@ function NavList({enableStates,updateStates }:IenableStates) {
         log(event);
         let k = "createPDF";
         updateStates(k, true);
+        updateStates("updatePDF", true);
     };
     const createNewLabel = (event: React.MouseEvent) => {
         log(event);

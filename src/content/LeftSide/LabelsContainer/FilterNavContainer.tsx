@@ -1,7 +1,6 @@
 import React, { SetStateAction } from "react";
 import './filterNavContainer.css';
 import { Category } from '../../UI/CategoryUI';
-import { labelDataType } from "../../../db";
 
 export default function FilterNavContainer({ filterCategory, setFilterCategory, generateList }: { filterCategory: Array<string>, setFilterCategory: React.Dispatch<SetStateAction<string[]>>, generateList: () => void }) {
 

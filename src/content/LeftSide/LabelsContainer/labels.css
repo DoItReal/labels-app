@@ -1,4 +1,4 @@
-#Signs {
+#LabelsContainer {
     display: flex;
     flex-direction: column;
     border: 1px solid black;
@@ -6,7 +6,7 @@
     white-space: nowrap;
     margin-left: 1px;
 }
-#Signs span {
+#LabelsContainer span {
     display: flex;
     align-items: center;
     vertical-align: central;
@@ -15,7 +15,7 @@
     flex-direction: row;
 }
 
-#Signs span input {
+#LabelsContainer span input {
     margin: 1px;
     margin-right: 2px;
 }
