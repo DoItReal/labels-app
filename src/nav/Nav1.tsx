@@ -1,6 +1,7 @@
 import './Nav1.css';
 //import 'bootstrap/dist/css/bootstrap.css';
 import { IenableStates } from '../App'; 
+import { useEffect, useRef } from 'react';
 export function Nav({enableStates, updateStates }: IenableStates) {
     return (
         <nav className="navbar navbar-expand-custom navbar-mainbg">
@@ -24,42 +25,49 @@ function ButtonToogle() {
         </button>
         );
 }
-window.addEventListener('load', () => { updateHori(); });
-const updateHori = () => {
-    let tmp = document.querySelector('#navbarSupportedContent');
-    if (!tmp || !(tmp instanceof HTMLElement)) {
-        throw new Error('Failed to get HTML Element #navbarSuppoertedContent');
-    }
-    
-    var tabsNewAnim = tmp;
-    tmp = tabsNewAnim.querySelector('ul .active');
-    if (!tmp || !(tmp instanceof HTMLElement)) {
-        throw new Error('Failed to get HTML Element #navbarSuppoertedContent ul .active');
-    }
-    var activeItemNewAnim = tmp;
-    var activeWidthNewAnimWidth = activeItemNewAnim.getBoundingClientRect().width;
-    var activeWidthNewAnimHeight = activeItemNewAnim.getBoundingClientRect().height;
-    var itemPosNewAnimTop = activeItemNewAnim.getBoundingClientRect().top;
 
-    tmp = document.querySelector('.navbar-logo');
-    if (!tmp || !(tmp instanceof HTMLElement)) {
-        throw new Error('Failed to get HTML Element .navbar-logo');
-    }
-    var itemPosNewAnimLeft = activeItemNewAnim.getBoundingClientRect().left - tmp.getBoundingClientRect().width -20;
-
-    tmp = document.querySelector(".hori-selector");
-    if (!tmp || !(tmp instanceof HTMLElement)) {
-        throw new Error('Failed to get HTML Element .hori-selector');
-    }
-    tmp.setAttribute('style', 'top: ' + itemPosNewAnimTop + 'px; left: ' + itemPosNewAnimLeft + 'px; height: ' + activeWidthNewAnimHeight + 'px; width: ' + activeWidthNewAnimWidth + 'px;');
-
-};
 function NavList({enableStates,updateStates }:IenableStates) {
+    const init = useRef(false);
     const log = (event: React.MouseEvent) => {
         setActive(event);
         updateHori();
     }
+    useEffect(() => {
+        if (!init.current) {
+            updateHori();
+            init.current = true;
+        }
+    });
+    const updateHori = () => {
 
+        let tmp = document.querySelector('#navbarSupportedContent');
+        if (!tmp || !(tmp instanceof HTMLElement)) {
+            throw new Error('Failed to get HTML Element #navbarSuppoertedContent');
+        }
+
+        var tabsNewAnim = tmp;
+        tmp = tabsNewAnim.querySelector('ul .active');
+        if (!tmp || !(tmp instanceof HTMLElement)) {
+            throw new Error('Failed to get HTML Element #navbarSuppoertedContent ul .active');
+        }
+        var activeItemNewAnim = tmp;
+        var activeWidthNewAnimWidth = activeItemNewAnim.getBoundingClientRect().width;
+        var activeWidthNewAnimHeight = activeItemNewAnim.getBoundingClientRect().height;
+        var itemPosNewAnimTop = activeItemNewAnim.getBoundingClientRect().top;
+
+        tmp = document.querySelector('.navbar-logo');
+        if (!tmp || !(tmp instanceof HTMLElement)) {
+            throw new Error('Failed to get HTML Element .navbar-logo');
+        }
+        var itemPosNewAnimLeft = activeItemNewAnim.getBoundingClientRect().left - tmp.getBoundingClientRect().width - 20;
+
+        tmp = document.querySelector(".hori-selector");
+        if (!tmp || !(tmp instanceof HTMLElement)) {
+            throw new Error('Failed to get HTML Element .hori-selector');
+        }
+        tmp.setAttribute('style', 'top: ' + itemPosNewAnimTop + 'px; left: ' + itemPosNewAnimLeft + 'px; height: ' + activeWidthNewAnimHeight + 'px; width: ' + activeWidthNewAnimWidth + 'px;');
+
+    };
 
     const setActive = (event: React.MouseEvent) => {
         document.querySelectorAll('#navbarSupportedContent ul li').forEach((item) => item.classList.remove("active"));

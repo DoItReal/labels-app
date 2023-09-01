@@ -45,13 +45,14 @@ export default class DB {
         fetch(this.address + 'signs/' + id).then(response => response.json()).then(sign => { return sign });
     }
     createNewLabel(label:any, data = this.data) {
+        return (new Promise<void>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", this.address + 'signs');
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
+        xhr.onreadystatechange =  () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
                 console.log(xhr.status);
                 console.log(xhr.responseText);
                 let startIndex = xhr.responseText.search('_id') + 6;
@@ -60,9 +61,14 @@ export default class DB {
                 label._id = id;
                 data.push(label);
                 labels.update();
+                resolve();
+            } else if (xhr.status !== 200) {
+              //  if (this.getSignByBG(label._id) !== null) reject(new Error('Error: Label: "' + label.bg + '" already exist!')); 
+                reject(new Error('Error in creating new Label'));
             }
         };
-        xhr.send(JSON.stringify(label));
+            xhr.send(JSON.stringify(label));
+        }));
     }
     saveLabel(label: any, data = this.data) {
         let id = label._id;
@@ -79,7 +85,6 @@ export default class DB {
 
                 let index = findIndexByProperty(data, '_id', id);
                 if (index !== -1) data[index] = JSON.parse(xhr.responseText);
-            //    search();
                 labels.update();
             }
         };

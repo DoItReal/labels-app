@@ -14,10 +14,17 @@ export interface IsaveLabelInput {
 }
 export function CreateLabel({ enableStates, updateStates }: IcontentProps ) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
-    const [filterCategory, setFilterCategory] = useState<string[]>(["all"]);
+    const [filterCategory, setFilterCategory] = useState<string[]>([]);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: '', en: '', de: '', rus: '' });
-    if (!enableStates.get('createLabel')) return null;
-    const createLabel = () => {
+    const clear = () => {
+        setCurrentAllergens([]);
+        setFilterCategory([]);
+        setTranslation({ bg: '', en: '', de: '', rus: '' });
+    };
+    if (!enableStates.get('createLabel')) {
+        return null;
+    }
+    const createLabel = async () => {
         var label = {
             allergens: currentAllergens,
             category: filterCategory,
@@ -26,8 +33,12 @@ export function CreateLabel({ enableStates, updateStates }: IcontentProps ) {
             de: translation.de,
             rus: translation.rus
         };
-
-        db.createNewLabel(label);
+        try {
+            await db.createNewLabel(label);
+            clear();
+        } catch (error) {
+            console.log(error);
+        }
     };
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };//console.log(e);
     return (

@@ -5,6 +5,7 @@
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\LeftSide\\SaveLabel",
     "\\src\\content\\MidSide",
     "\\src\\content\\RightSide"
   ],
