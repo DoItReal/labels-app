@@ -207,3 +207,23 @@ nav {
             left: -25px;
         }
 }
+
+.nav-user {
+    display:flex;
+    flex-direction:column;
+    border:1px solid black;
+    color:darkred;
+    float:right;
+    margin-left:auto;
+    margin-right:5px;
+    background-color:aqua;
+    text-align:left;
+    padding:5px;
+    padding-top: 0;
+    font-size:0.8em;
+}
+.nav-user > p > label {
+    color: black;
+    font-size: 1em;
+    font-weight:bold;
+}

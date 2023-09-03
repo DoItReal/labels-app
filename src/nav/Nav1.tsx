@@ -1,17 +1,32 @@
 import './Nav1.css';
 //import 'bootstrap/dist/css/bootstrap.css';
 import { IenableStates } from '../App'; 
+import { Iuser } from '../Login/Login';
 import { useEffect, useRef } from 'react';
-export function Nav({enableStates, updateStates }: IenableStates) {
+
+interface Inav extends IenableStates {
+    user: Iuser
+    logout: ()=>void
+};
+export function Nav({enableStates, updateStates, user, logout }: Inav) {
     return (
         <nav className="navbar navbar-expand-custom navbar-mainbg">
             <Logo />
             <ButtonToogle />
             <NavList enableStates={enableStates} updateStates={updateStates } />
-            
+            <User user={user} logout={logout } />
         </nav>
      
     );
+}
+function User({ user, logout }: { user: Iuser, logout:()=>void }) {
+    return (
+        <div className="nav-user">
+            <p><label>User: </label> {user.username}</p>
+            <p><label>Email: </label>{user.email}</p>
+            <button onClick={logout }>Logout</button>
+            </div>
+        );
 }
 function Logo() {
     return (

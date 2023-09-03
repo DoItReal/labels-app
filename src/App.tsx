@@ -5,6 +5,7 @@ import './style.css';
 import DB from './db';
 import { useState, Fragment } from 'react';
 import { Route, Link, Routes, BrowserRouter, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import Login, { useUser, Iuser } from './Login/Login';
 export var db = new DB();
 
 export interface IenableStates {
@@ -14,21 +15,22 @@ export interface IenableStates {
 
 
 function App() {
-  
-    return (
+    const { user, setUser, logout } = useUser();
+    if (!user.token || user.token === '') return <Login setUser={setUser} />;
 
+    return (
+        
         <BrowserRouter>
-            <div>
-               
+            <div>      
                 <Routes>
-                    <Route path="/" element={
+                    <Route path="labels-app/" element={
                         <RequireAuth>
-                        <Index />
+                            <Index user={user} logout={logout } />
                         </RequireAuth>
                     } />
        
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<h1>Register</h1> } />
+                    <Route path="labels-app/login" element={<Login setUser={setUser }/>} />
+                    <Route path="labels-app/register" element={<h1>Register</h1> } />
                     </Routes>
                  </div>
             </BrowserRouter>
@@ -36,11 +38,8 @@ function App() {
 }
 
 export default App;
-function Login() {
 
-    return <h1>Login</h1>;
-}
-function Index() {
+function Index({ user, logout }: { user: Iuser, logout: ()=>void } ) {
     const [enableStates, setEnableStates] = useState<Map<string, boolean>>(new Map());
     const updateStates = (key: string, value: boolean) => {
 
@@ -53,7 +52,7 @@ function Index() {
             <script type="text/javascript" src="https://unpkg.com/jquery" />
 
 
-            <Nav enableStates={enableStates} updateStates={updateStates} />
+            <Nav enableStates={enableStates} updateStates={updateStates} user={user} logout={logout } />
             <Content enableStates={enableStates} updateStates={updateStates} />
 
         </div>

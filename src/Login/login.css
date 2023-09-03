@@ -1,0 +1,45 @@
+.login-wrapper {
+    position:absolute;
+    top:10%;
+    left:40%;
+    border: 1px double black;
+    margin: 1px;
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    border: 1px solid black;
+    margin: 5px;
+    padding: 5px;
+    padding-bottom: 0px;
+    align-items: center;
+    background-color: deepskyblue;
+}
+.login-wrapper > h1 {
+   
+}
+.login-wrapper > form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid black;
+    margin: 0;
+    padding: 5px;
+    align-items: center;
+ 
+}
+.login-wrapper > form button {
+    width: 5rem;
+    text-align: center;
+    background-color: cornflowerblue;
+}
+.login-wrapper > form > * {
+    padding: 5px;
+}
+.login-wrapper > form input {
+     width: 100%;
+     background-color:lightskyblue;
+ }
+.login-wrapper > form > label {
+    
+     width: 80%;
+ }

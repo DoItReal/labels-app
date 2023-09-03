@@ -2,13 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\content",
-    "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\content\\LeftSide\\SaveLabel",
-    "\\src\\content\\MidSide",
-    "\\src\\content\\RightSide"
+    "\\src\\Login",
+    "\\src\\nav"
   ],
-  "SelectedNode": "\\src\\db.ts",
+  "SelectedNode": "\\src\\Login\\login.css",
   "PreviewInSolutionExplorer": false
 }
