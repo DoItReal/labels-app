@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/labels-app/static/css/main.754d27b0.css",
-    "main.js": "/labels-app/static/js/main.85f38550.js",
+    "main.css": "/labels-app/static/css/main.9d983631.css",
+    "main.js": "/labels-app/static/js/main.4a92c6bf.js",
     "static/js/787.722e7600.chunk.js": "/labels-app/static/js/787.722e7600.chunk.js",
     "static/media/fetchButtonSVG.svg": "/labels-app/static/media/fetchButtonSVG.69a42296ef2092f0de4493911972d7d3.svg",
     "index.html": "/labels-app/index.html",
     "static/media/searchButtonSVG.svg": "/labels-app/static/media/searchButtonSVG.848b83bfb135d4c903a2ea01c0347e8b.svg",
     "static/media/arrow.svg": "/labels-app/static/media/arrow.d77e058c64842e4eea74cab05f8de71d.svg",
-    "main.754d27b0.css.map": "/labels-app/static/css/main.754d27b0.css.map",
-    "main.85f38550.js.map": "/labels-app/static/js/main.85f38550.js.map",
+    "main.9d983631.css.map": "/labels-app/static/css/main.9d983631.css.map",
+    "main.4a92c6bf.js.map": "/labels-app/static/js/main.4a92c6bf.js.map",
     "787.722e7600.chunk.js.map": "/labels-app/static/js/787.722e7600.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.754d27b0.css",
-    "static/js/main.85f38550.js"
+    "static/css/main.9d983631.css",
+    "static/js/main.4a92c6bf.js"
   ]
 }
