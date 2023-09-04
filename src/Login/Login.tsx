@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import './login.css';
+import { Link, Navigate } from 'react-router-dom';
 
 export interface Iuser {
     username: string, email: string, token: string
 };
 
-async function loginUser(credentials: {email:string,password:string}) {
-    return fetch('http://localhost:8080/auth/login', {
+export async function loginUser(credentials: {email:string,password:string}) {
+    return fetch('https://labels-service-392708.lm.r.appspot.com/auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -17,26 +18,31 @@ async function loginUser(credentials: {email:string,password:string}) {
 }
 
 
-export default function Login({ setUser }: { setUser: (arg: {username:string, email:string, token:string})=>void}) {
+export default function Login({ user, setUser }: { user:Iuser, setUser: (arg: {username:string, email:string, token:string})=>void}) {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const handleSubmit = async (e:React.FormEvent) => {
         e.preventDefault();
         try {
-            const token = await loginUser({
+            const user = await loginUser({
                 email,
                 password
             });
-            setUser({ username: token.username, email: token.email, token: token.authentication.sessionToken });
+            setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
         }
         catch (error) {
             console.log('Failed to login. Invalid email or password!');
         }
     }
-
+ 
     return (
+        
         <div className="login-wrapper">
+            {user.token && user.token !== '' ? <Navigate to="../" replace={true } /> : null }
             <h1>Please Log In </h1>
+            <Link to="../register" >
+                Register
+            </Link>
             <form onSubmit={handleSubmit}>
             <label>
                     <p>Email:</p>

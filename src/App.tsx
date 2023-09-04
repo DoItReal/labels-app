@@ -4,8 +4,9 @@ import Content from './content/Content';
 import './style.css';
 import DB from './db';
 import { useState, Fragment } from 'react';
-import { Route, Link, Routes, BrowserRouter, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Link, Routes, BrowserRouter, Navigate, useLocation, useNavigate, HashRouter } from 'react-router-dom';
 import Login, { useUser, Iuser } from './Login/Login';
+import Register from './Login/Register';
 export var db = new DB();
 
 export interface IenableStates {
@@ -13,27 +14,26 @@ export interface IenableStates {
 }
 
 
-
 function App() {
     const { user, setUser, logout } = useUser();
-    if (!user.token || user.token === '') return <Login setUser={setUser} />;
 
     return (
         
-        <BrowserRouter>
+        <HashRouter basename="/">
+            
             <div>      
                 <Routes>
-                    <Route path="labels-app/" element={
-                        <RequireAuth>
+                    <Route path="/" element={
+                        <RequireAuth user={user }>
                             <Index user={user} logout={logout } />
                         </RequireAuth>
                     } />
        
-                    <Route path="labels-app/login" element={<Login setUser={setUser }/>} />
-                    <Route path="labels-app/register" element={<h1>Register</h1> } />
+                    <Route path="/login" element={<Login user={user} setUser={setUser }/>} />
+                    <Route path="/register" element={<Register user={user}  setUser={setUser } /> } />
                     </Routes>
                  </div>
-            </BrowserRouter>
+            </HashRouter>
         );
 }
 
@@ -59,12 +59,12 @@ function Index({ user, logout }: { user: Iuser, logout: ()=>void } ) {
     );
 }
 
-function RequireAuth({ children }: { children: any }) {
-    const isAuthenticated = true; // your logic here
+function RequireAuth({ user, children }: {user:Iuser, children: any }) {
+    const isAuthenticated = user.token && user.token !== ''; // your logic here
     const location = useLocation();
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" state={{ from: location }} />;
+        return <Navigate to="../login" state={{ from: location }} />;
     }
 
     return children;

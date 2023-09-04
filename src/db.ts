@@ -16,6 +16,7 @@ export default class DB {
     data:labelDataType[];
     constructor() {
         this.address = "https://labels-service-392708.lm.r.appspot.com/";
+       // this.address = "http://localhost:8080/";
         this.data = [];
     }
     fetchSigns(setDbData: (arg: labelDataType[]) => void) {
