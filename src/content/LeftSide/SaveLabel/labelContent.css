@@ -27,7 +27,7 @@
     letter-spacing:1px;
 }
     .labelsContent > p > input {
-        min-width: 80%;
+        min-width: 75%;
         max-width: 100%;
         min-height: 2rem;
         font-size: 24px;
@@ -35,11 +35,13 @@
         text-shadow: -2px 2px 0 #000, 2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000;
         letter-spacing:3px;
         text-align:center;
+        margin-top:5px;
     }
 
     .labelsContent .categoryHolder, .labelsContent .allergensHolder {
         width:80%;
         margin-left:auto;
+        margin-top:5px;
         font-size:18px;
         font-weight:normal;
 
@@ -65,4 +67,10 @@ input.russian {
 .labelsContent .preview {
     align-self:center;
     margin-bottom:5%;
+}
+.labelsContent .button-translate {
+    background-color: green;
+    height: 2em;
+    margin:0;
+    margin-left:5px;
 }

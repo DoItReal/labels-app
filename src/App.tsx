@@ -7,6 +7,7 @@ import { useState, Fragment } from 'react';
 import { Route, Link, Routes, BrowserRouter, Navigate, useLocation, useNavigate, HashRouter } from 'react-router-dom';
 import Login, { useUser, Iuser } from './Login/Login';
 import Register from './Login/Register';
+
 export var db = new DB();
 
 export interface IenableStates {
@@ -16,7 +17,7 @@ export interface IenableStates {
 
 function App() {
     const { user, setUser, logout } = useUser();
-
+    
     return (
         
         <HashRouter basename="/">

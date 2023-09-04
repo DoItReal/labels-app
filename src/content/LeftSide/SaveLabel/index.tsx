@@ -7,6 +7,8 @@ import { labelDataType } from '../../../db';
 import { Label } from '../../../labels';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
+
+
 export interface IsaveLabelInput {
     currentAllergens: number[], setCurrentAllergens: Dispatch<SetStateAction<number[]>>,
     filterCategory: string[], setFilterCategory: Dispatch<SetStateAction<string[]>>,

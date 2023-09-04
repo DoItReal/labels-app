@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@google-cloud/translate": "^8.0.1",
     "@types/react": "^18.2.18",
     "@types/react-dom": "^18.2.7",
     "gh-pages": "^6.0.0"

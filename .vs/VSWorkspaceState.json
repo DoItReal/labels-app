@@ -3,8 +3,9 @@
     "",
     "\\src",
     "\\src\\Login",
-    "\\src\\nav"
+    "\\src\\nav",
+    "\\src\\tools"
   ],
-  "SelectedNode": "\\src\\db.ts",
+  "SelectedNode": "\\src\\tools\\translate.ts",
   "PreviewInSolutionExplorer": false
 }

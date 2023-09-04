@@ -4,6 +4,17 @@ import { Allergens } from "../../UI/AllergensUI";
 import './labelContent.css';
 import { Label } from '../../../labels';
 import { IsaveLabelInput } from './index';
+import { translate } from '../../../tools/translate';
+
+const handleTranslate = (text: string, targetLanguage: string) => {
+    try {
+        const translation = translate(text, targetLanguage);
+        return translation;
+    } catch (error) {
+        console.log(error);
+        return '';
+    }
+}
 
 export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation }: IsaveLabelInput) {
     
@@ -14,6 +25,43 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
         tmp.bg = e.target.value;
         inputChange(tmp);
     };
+    const  handleTranslate = async (text:string) => {
+        let tmp = { ...translation };
+
+        if (tmp.bg === '') {
+            try {
+                let translation = await translate(text, 'bg');
+                tmp.bg = translation.replace(/["]/g, '');
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        if (tmp.en === '') {
+            try {
+                let translation = await translate(text, 'en');
+                tmp.en = translation.replace(/["]/g, '');
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        if (tmp.de === '') {
+            try {
+                let translation = await translate(text, 'de');
+                tmp.de = translation.replace(/["]/g, '');
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        if (tmp.rus === '') {
+            try {
+                let translation =  await translate(text, 'ru');
+                tmp.rus = translation.replace(/["]/g, '');
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        inputChange(tmp);
+    }
     const setEN = (e: ChangeEvent<HTMLInputElement>) => {
         let tmp = { ...translation };
         tmp.en = e.target.value;
@@ -52,10 +100,10 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
             <div className="preview">{preview && preview || 'no preview loaded'}</div>
             <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
             <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
-            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg } onChange={(e)=>setBG(e) }/></p>
-            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en}  onChange={(e) => setEN(e)} /></p>
-            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de}  onChange={(e) => setDE(e)} /></p>
-            <p>RUS: <input type="text" spellCheck="true" lang="ru"  className="russian" value={translation.rus}  onChange={(e) => setRUS(e)} /></p>
+            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg} onChange={(e) => setBG(e)} /><button className="button-translate" onClick={ ()=>handleTranslate(translation.bg) }>Translate</button></p>
+            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en} onChange={(e) => setEN(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.en)}>Translate</button></p>
+            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de} onChange={(e) => setDE(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.de)}>Translate</button></p>
+            <p>RUS: <input type="text" spellCheck="true" lang="ru" className="russian" value={translation.rus} onChange={(e) => setRUS(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.rus)}>Translate</button></p>
             
         </div>
             
