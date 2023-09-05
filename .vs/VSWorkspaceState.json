@@ -2,10 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Login",
+    "\\src\\content",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\MidSide",
     "\\src\\nav",
     "\\src\\tools"
   ],
-  "SelectedNode": "\\src\\tools\\translate.ts",
+  "SelectedNode": "\\src\\content\\MidSide\\AddedLabels.tsx",
   "PreviewInSolutionExplorer": false
 }

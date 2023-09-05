@@ -5,6 +5,7 @@ import './labelContent.css';
 import { Label } from '../../../labels';
 import { IsaveLabelInput } from './index';
 import { translate } from '../../../tools/translate';
+import { ReactComponent as TranslateButtonSVG } from './translateSVG.svg';
 
 const handleTranslate = (text: string, targetLanguage: string) => {
     try {
@@ -100,10 +101,10 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
             <div className="preview">{preview && preview || 'no preview loaded'}</div>
             <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
             <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
-            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg} onChange={(e) => setBG(e)} /><button className="button-translate" onClick={ ()=>handleTranslate(translation.bg) }>Translate</button></p>
-            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en} onChange={(e) => setEN(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.en)}>Translate</button></p>
-            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de} onChange={(e) => setDE(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.de)}>Translate</button></p>
-            <p>RUS: <input type="text" spellCheck="true" lang="ru" className="russian" value={translation.rus} onChange={(e) => setRUS(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.rus)}>Translate</button></p>
+            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg} onChange={(e) => setBG(e)} /><button className="button-translate" onClick={ ()=>handleTranslate(translation.bg) } title="Translate"><TranslateButtonSVG /></button></p>
+            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en} onChange={(e) => setEN(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.en)} title="Translate"><TranslateButtonSVG /></button></p>
+            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de} onChange={(e) => setDE(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.de)} title="Translate"><TranslateButtonSVG /></button></p>
+            <p>RUS: <input type="text" spellCheck="true" lang="ru" className="russian" value={translation.rus} onChange={(e) => setRUS(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.rus)} title="Translate"><TranslateButtonSVG /></button></p>
             
         </div>
             

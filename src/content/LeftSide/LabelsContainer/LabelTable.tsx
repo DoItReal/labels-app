@@ -3,6 +3,10 @@ import { labelDataType } from '../../../db';
 import { useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import { IlabelsProps } from './index';
+import { ReactComponent as EditButtonSVG } from './editButtonSVG.svg';
+import { ReactComponent as PreviewButtonSVG } from './previewButtonSVG.svg';
+import { ReactComponent as AddLabelButtonSVG } from './addLabelButtonSVG.svg';
+import { IaddedLabel } from '../../Content';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -35,7 +39,7 @@ export function Filter(dbData: labelDataType[] | undefined, filterText: string, 
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview }: IlabelsProps) {
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview, addLabel }: IlabelsProps) {
     const rows: Array<React.ReactNode> = [];
    
     const [selectAll, setSelectAll] = useState(false);
@@ -56,7 +60,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
     if (data.length > 0) {
         data.forEach((data: labelDataType) => {
             rows.push(
-                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} updateStates={updateStates} setPreview={setPreview }/>
+                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} updateStates={updateStates} setPreview={setPreview} addLabel={addLabel }/>
             )
         });
     } else {
@@ -80,7 +84,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
             <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null) } />: null }</>
         </>);
 }
-function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, updateStates, setPreview }:
+function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, updateStates, setPreview, addLabel }:
     {
         label: labelDataType,
         dataKey: string,
@@ -89,9 +93,12 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
         unSelectLabel: (arg: labelDataType) => void,
         selectAll: boolean,
         updateStates: (key: string, value: boolean) => void,
-        setPreview: (label:labelDataType)=>void
+        setPreview: (label: labelDataType) => void,
+        addLabel: (arg:labelDataType)=>void
     }) {
-   
+    const handleAddLabel = () => { 
+        addLabel(label);
+    } 
     return (
         <tr data-key={dataKey }>
             <td><InputCheckbox selectLabel={selectLabel} unSelectLabel={unSelectLabel} label={label} selectAll={selectAll } /></td>
@@ -99,7 +106,7 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
             <td>
                 <EditButton label={label} setEdit={ setEdit }/>
                 <PreviewButton label={label} updateStates={updateStates} setPreview={setPreview } />
-                
+                <AddSingleLabelButton addLabel={handleAddLabel } />
             </td>
         </tr>
     );
@@ -139,14 +146,17 @@ function LabelCell({ bg }: { bg: string }) {
         <td>{bg}</td>
     );
 }
+function AddSingleLabelButton({ addLabel }: { addLabel: ()=>void}) {
+    return (<button className="addLabel" title="Add Label" onClick={addLabel }><AddLabelButtonSVG /></button>);
+}
 function EditButton({ label, setEdit }: { label: labelDataType, setEdit: (arg:labelDataType)=>void}) {
     
     const setEditButton = () => {
         setEdit(label);
     };
     return (
-        
-        <button id="editButton" onClick={setEditButton }>Edit</button>
+
+        <button className="editButton" onClick={setEditButton} title="Edit"><EditButtonSVG/></button>
         );
 }
 function PreviewButton({ label, updateStates, setPreview }: { label: labelDataType, updateStates: (key: string, value: boolean) => void, setPreview:(label:labelDataType)=>void }) {
@@ -157,6 +167,6 @@ function PreviewButton({ label, updateStates, setPreview }: { label: labelDataTy
         
     }
     return (
-        <button id="previewButton" onClick={preview }>Preview</button>
+        <button className="previewButton" onClick={preview } title="Preview"><PreviewButtonSVG /></button>
         );
 }

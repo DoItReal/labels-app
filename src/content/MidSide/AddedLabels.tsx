@@ -6,7 +6,7 @@ export default function AddedLabels({ labels, updateLabel }: { labels: IaddedLab
     labels && labels.map(label => {
 
         rows.push(
-            <LabelRow label={label} updateLabel={updateLabel} />
+            <LabelRow label={label} updateLabel={updateLabel} key={label._id } />
         );
     });
     return (

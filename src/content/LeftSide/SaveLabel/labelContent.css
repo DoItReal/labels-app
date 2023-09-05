@@ -26,6 +26,7 @@
     font-weight:bold;
     letter-spacing:1px;
 }
+
     .labelsContent > p > input {
         min-width: 75%;
         max-width: 100%;
@@ -69,8 +70,22 @@ input.russian {
     margin-bottom:5%;
 }
 .labelsContent .button-translate {
-    background-color: green;
-    height: 2em;
+    background-color: lightblue;
+    height: 2.5em;
+    width: 2.5em;
     margin:0;
     margin-left:5px;
+    border-radius:5px;
 }
+    .labelsContent .button-translate:hover {
+        background-color: lightskyblue;
+    }
+    .labelsContent .button-translate:active {
+        border:1px solid white;
+    }
+
+
+    .labelsContent .button-translate svg {
+        width: 2em;
+        height: 2em;
+    }

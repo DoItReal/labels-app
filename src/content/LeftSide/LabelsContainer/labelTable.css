@@ -11,8 +11,12 @@ table.labelTable {
         width: 8em;
     }
     .labelTable button {
-        min-width:50px;
+        min-width:20px;
         padding:2px 5px 2px 5px;
+    }
+    .labelTable svg {
+        width: 20px;
+        height:20px;
     }
 
 table.labelTable > tbody td {

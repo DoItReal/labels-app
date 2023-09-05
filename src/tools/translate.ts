@@ -3,7 +3,7 @@ export async function translate(text:string, targetLanguage:string) {
 
     return (new Promise<string>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:8080/translate");
+        xhr.open("POST", "https://labels-service-392708.lm.r.appspot.com/translate");
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
 

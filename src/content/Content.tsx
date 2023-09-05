@@ -55,7 +55,6 @@ export default function ContentStates({ enableStates, updateStates }: IenableSta
             let tmp = structuredClone(label);
             tmp.count = 1;
             tmpList.push(tmp);
-            console.log(tmpList);
             setAddedLabels(current => current.concat([tmp]));
         }
     };

@@ -30,13 +30,20 @@
             border-radius: 5px;
             text-align: center;
         }
-.editButton, .previewButton {
-    min-width: 60px;
-    float: right;
+.editButton, .previewButton, .addLabel {
+    margin-left:2px;
+    float: left;
     text-align: center;
     vertical-align: central;
+    background-color:lightsteelblue;
 }
-.editButton {
+    .editButton:hover, .previewButton:hover, .addLabel:hover {
+        background-color:steelblue;
+    }
+    .editButton:active, .previewButton:active, .addLabel:active {
+        border: 1px solid white;
+    }
+    .editButton {
     margin-left: auto;
     margin-right: 0;
 }
