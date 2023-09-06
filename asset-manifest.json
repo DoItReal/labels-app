@@ -1,22 +1,23 @@
 {
   "files": {
-    "main.css": "/labels-app/static/css/main.b8282c5f.css",
-    "main.js": "/labels-app/static/js/main.13d01d94.js",
+    "main.css": "/labels-app/static/css/main.ba046f66.css",
+    "main.js": "/labels-app/static/js/main.ebf270f2.js",
     "static/js/787.722e7600.chunk.js": "/labels-app/static/js/787.722e7600.chunk.js",
     "static/media/fetchButtonSVG.svg": "/labels-app/static/media/fetchButtonSVG.69a42296ef2092f0de4493911972d7d3.svg",
     "static/media/translateSVG.svg": "/labels-app/static/media/translateSVG.df0bff90945b295a2b82da435275630b.svg",
     "static/media/editButtonSVG.svg": "/labels-app/static/media/editButtonSVG.3850e0ebedd15efb907ffffeb5d8ca91.svg",
-    "static/media/previewButtonSVG.svg": "/labels-app/static/media/previewButtonSVG.884da07b0708bdd3567fe34e9b2d7bf5.svg",
+    "static/media/previewButtonSVG.svg": "/labels-app/static/media/previewButtonSVG.1a880a976459564ffaa936d317a28f0a.svg",
     "index.html": "/labels-app/index.html",
+    "static/media/deleteButtonSVG.svg": "/labels-app/static/media/deleteButtonSVG.b46110e5beab591b0e63f40a4c3cb233.svg",
     "static/media/addLabelButtonSVG.svg": "/labels-app/static/media/addLabelButtonSVG.52900d35f7ff385d8f109362ebf539a5.svg",
     "static/media/searchButtonSVG.svg": "/labels-app/static/media/searchButtonSVG.848b83bfb135d4c903a2ea01c0347e8b.svg",
     "static/media/arrow.svg": "/labels-app/static/media/arrow.d77e058c64842e4eea74cab05f8de71d.svg",
-    "main.b8282c5f.css.map": "/labels-app/static/css/main.b8282c5f.css.map",
-    "main.13d01d94.js.map": "/labels-app/static/js/main.13d01d94.js.map",
+    "main.ba046f66.css.map": "/labels-app/static/css/main.ba046f66.css.map",
+    "main.ebf270f2.js.map": "/labels-app/static/js/main.ebf270f2.js.map",
     "787.722e7600.chunk.js.map": "/labels-app/static/js/787.722e7600.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b8282c5f.css",
-    "static/js/main.13d01d94.js"
+    "static/css/main.ba046f66.css",
+    "static/js/main.ebf270f2.js"
   ]
 }
