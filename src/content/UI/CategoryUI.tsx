@@ -67,7 +67,7 @@ function CategoryUL({ currentCategory, setCurrentCategory, multiSelectExpanded }
         if (didMount.current) {
             if (ULref.current !== null) {
                 if (!multiSelectExpanded) {
-                    setTimeout(() => ULref.current.style.display = "none", 500);
+                    setTimeout(() => {if(ULref.current) ULref.current.style.display = "none" }, 500);
                     ULref.current.style.height = "0";
 
                 } else {

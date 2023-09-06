@@ -63,11 +63,12 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
     const generateList = () => {
         props.addLabels([...props.selectedLabels]);
     };
+   
     const labelsProps:IlabelsProps = { dbData:props.dbData, filterText:props.filterText,filterCategory:props.filterCategory,selectLabel,unSelectLabel,unSelectAll,generateList,enableStates:props.enableStates,updateStates:props.updateStates,setPreview:props.setPreview, addLabel:props.addLabel };
     return (
         <div id="SignsContainer" className="focus">
             <SearchContainer setDbData={props.setDbData} filterText={props.filterText} setFilterText={props.setFilterText} filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} />
-            <FilterNavContainer filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} generateList={generateList} />
+            <FilterNavContainer filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} generateList={generateList} enableStates={props.enableStates} updateStates={props.updateStates } />
             <Labels props={labelsProps }/>
         </div>
     );

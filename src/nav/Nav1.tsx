@@ -94,10 +94,9 @@ function NavList({enableStates,updateStates }:IenableStates) {
         updateStates(k, true);
         updateStates("updatePDF", true);
     };
-    const createNewLabel = (event: React.MouseEvent) => {
+    const createNewLabels = (event: React.MouseEvent) => {
         log(event);
-        let k = "createLabel"; 
-        updateStates(k, true);
+        
 
         
     };
@@ -107,7 +106,7 @@ function NavList({enableStates,updateStates }:IenableStates) {
             <ul className="navbar-nav ml-auto">
                 <div className="hori-selector"><div className="left"></div><div className="right"></div></div>
                 <NavItem active="active" func={log} nameClass="overview" name="Overview" />
-                <NavItem active="" func={createNewLabel} nameClass="create-label" name="Create Label" />
+                <NavItem active="" func={createNewLabels} nameClass="create-labels" name="Create Labels" />
                 <NavItem active="" func={createPDF} nameClass="pdf" name="Create PDF" />
                 <NavItem active="" func={log} nameClass="load-labels" name="Test" />
                 <NavItem active="" func={ log} nameClass="Test2" name="Test 2" />

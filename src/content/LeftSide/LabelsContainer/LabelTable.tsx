@@ -1,12 +1,13 @@
 import './labelTable.css';
 import { labelDataType } from '../../../db';
+import { db } from '../../../App';
 import { useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import { IlabelsProps } from './index';
 import { ReactComponent as EditButtonSVG } from './editButtonSVG.svg';
 import { ReactComponent as PreviewButtonSVG } from './previewButtonSVG.svg';
 import { ReactComponent as AddLabelButtonSVG } from './addLabelButtonSVG.svg';
-import { IaddedLabel } from '../../Content';
+import { ReactComponent as DeleteButtonSVG } from './deleteButtonSVG.svg';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -99,14 +100,18 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
     const handleAddLabel = () => { 
         addLabel(label);
     } 
+    const handleDelete = () => {
+        db.deleteLabel(label._id);
+    }
     return (
         <tr data-key={dataKey }>
-            <td><InputCheckbox selectLabel={selectLabel} unSelectLabel={unSelectLabel} label={label} selectAll={selectAll } /></td>
+            <td ><InputCheckbox selectLabel={selectLabel} unSelectLabel={unSelectLabel} label={label} selectAll={selectAll } /></td>
             <LabelCell bg={label.bg} key={label.bg} />
-            <td>
+            <td className="cellOptions">
                 <EditButton label={label} setEdit={ setEdit }/>
                 <PreviewButton label={label} updateStates={updateStates} setPreview={setPreview } />
-                <AddSingleLabelButton addLabel={handleAddLabel } />
+                <AddSingleLabelButton addLabel={handleAddLabel} />
+                <DeleteButton handleClick = {handleDelete }/>
             </td>
         </tr>
     );
@@ -168,5 +173,10 @@ function PreviewButton({ label, updateStates, setPreview }: { label: labelDataTy
     }
     return (
         <button className="previewButton" onClick={preview } title="Preview"><PreviewButtonSVG /></button>
+        );
+}
+function DeleteButton({ handleClick }: {handleClick:()=>void}) {
+    return (
+        <button className="deleteButton" onClick={ handleClick } title="Delete"><DeleteButtonSVG /></button>
         );
 }

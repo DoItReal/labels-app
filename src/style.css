@@ -19,8 +19,6 @@ button {
     min-width: 20px;
 }
 
-
-
 #loadSignsButton {
     margin-left: auto;
     float: right;
@@ -42,12 +40,7 @@ button {
         width: 95%;
     }
 
-    #btnDeleteLabels{
-        float:right;
-        margin-left:auto;
-        padding:1px;
-        border-radius:3px;
-    }
+ 
   
    
 

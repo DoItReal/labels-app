@@ -14,10 +14,7 @@ table.labelTable {
         min-width:20px;
         padding:2px 5px 2px 5px;
     }
-    .labelTable svg {
-        width: 20px;
-        height:20px;
-    }
+   
 
 table.labelTable > tbody td {
     border: 1px dotted black;
@@ -61,3 +58,24 @@ td {
     display: table-cell;
     white-space: normal;
 }
+
+    .cellOptions > button {
+        margin-left: 2px;
+        float: left;
+        text-align: center;
+        vertical-align: central;
+        background-color: lightsteelblue;
+    }
+
+    .cellOptions >button:hover {
+        background-color: steelblue;
+    }
+
+    .cellOptions > button:active {
+        border: 1px solid white;
+    }
+    .cellOptions svg {
+        width: 1.2em;
+        height: 1.2em;
+    }
+

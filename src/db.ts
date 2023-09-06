@@ -46,7 +46,7 @@ export default class DB {
         fetch(this.address + 'signs/' + id).then(response => response.json()).then(sign => { return sign });
     }
     createNewLabel(label:any, data = this.data) {
-        return (new Promise<void>((resolve, reject) => {
+        return (new Promise<labelDataType>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", this.address + 'signs');
         xhr.setRequestHeader("Accept", "application/json");
@@ -62,7 +62,7 @@ export default class DB {
                 label._id = id;
                 data.push(label);
                 labels.update();
-                resolve();
+                resolve(label);
             } else if (xhr.status !== 200) {
               //  if (this.getSignByBG(label._id) !== null) reject(new Error('Error: Label: "' + label.bg + '" already exist!')); 
                 reject(new Error('Error in creating new Label'));

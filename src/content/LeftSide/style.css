@@ -14,38 +14,4 @@
     #searchButton svg {
         fill: #fff;
     }
-#filterContainer {
-    display: flex;
-    padding: 1px;
-}
-    #filterContainer, #filterContainer > * {
-        font-size: 15px;
-        margin: 1px;
-    }
-        #filterContainer #addSelectedLabels {
-            margin-top: 0;
-            padding: 0;
-            height: 1.5em;
-            width: 1.5em;
-            border-radius: 5px;
-            text-align: center;
-        }
-.editButton, .previewButton, .addLabel {
-    margin-left:2px;
-    float: left;
-    text-align: center;
-    vertical-align: central;
-    background-color:lightsteelblue;
-}
-    .editButton:hover, .previewButton:hover, .addLabel:hover {
-        background-color:steelblue;
-    }
-    .editButton:active, .previewButton:active, .addLabel:active {
-        border: 1px solid white;
-    }
-    .editButton {
-    margin-left: auto;
-    margin-right: 0;
-}
-.previewButton {
-}
+

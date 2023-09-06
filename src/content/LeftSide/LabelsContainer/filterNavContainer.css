@@ -1,0 +1,28 @@
+#filterContainer {
+    display: flex;
+    padding: 1px;
+}
+
+    #filterContainer, #filterContainer > * {
+        font-size: 15px;
+        margin: 1px;
+    }
+
+        #filterContainer #addSelectedLabels {
+            margin-top: 0;
+            padding: 0;
+            height: 1.5em;
+            width: 1.5em;
+            border-radius: 5px;
+            text-align: center;
+        }
+    #btnDeleteLabels {
+        padding: 1px;
+        border-radius: 3px;
+    }
+    #createNewLabel {
+        float:right;
+        margin-left:auto;
+        padding:1px;
+        border-radius:3px;
+    }

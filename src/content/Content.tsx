@@ -13,6 +13,7 @@ export interface IaddedLabel extends labelDataType {
 export interface IcontentProps extends IenableStates {
     dbData: labelDataType[] | undefined,
     setDbData: (arg: labelDataType[]) => void,
+    addDbLabel:(arg:labelDataType) => void,
     addedLabels: IaddedLabel[],
     addLabel: (arg: IaddedLabel) => void,
     previewLabel: labelDataType | undefined,
@@ -28,6 +29,14 @@ export default function ContentStates({ enableStates, updateStates }: IenableSta
     const setPreview = (label: labelDataType) => {
         setPreviewLabel(label);
     };
+    const addDbLabel = (label: labelDataType) => {
+        if (props.dbData instanceof Array) {
+            const tmp = [...props.dbData, label];
+            props.setDbData(tmp);
+        } else {
+            props.setDbData([label]);
+        }
+    }
     const addLabel = (label: IaddedLabel) => {
         setAddedLabels(current => [...current].map(lbl => {
             if (lbl._id === label._id) {
@@ -67,7 +76,7 @@ export default function ContentStates({ enableStates, updateStates }: IenableSta
         }
         return -1;
     };
-    const props: IcontentProps = { enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview, addLabel, addedLabels, previewLabel };
+    const props: IcontentProps = { enableStates, updateStates, dbData, setDbData,addDbLabel, addNewLabel, addLabels, setPreview, addLabel, addedLabels, previewLabel };
     return (
         <Content props={ props } />
         );
