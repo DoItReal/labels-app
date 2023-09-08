@@ -1,6 +1,6 @@
 import './labelTable.css';
 import { labelDataType } from '../../../db';
-import { db } from '../../../App';
+
 import { useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import { IlabelsProps } from './index';
@@ -8,6 +8,7 @@ import { ReactComponent as EditButtonSVG } from './editButtonSVG.svg';
 import { ReactComponent as PreviewButtonSVG } from './previewButtonSVG.svg';
 import { ReactComponent as AddLabelButtonSVG } from './addLabelButtonSVG.svg';
 import { ReactComponent as DeleteButtonSVG } from './deleteButtonSVG.svg';
+import { ErrorUI } from '../../../Error';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -40,7 +41,7 @@ export function Filter(dbData: labelDataType[] | undefined, filterText: string, 
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview, addLabel }: IlabelsProps) {
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview, addLabel, deleteLabel, handleSaveLabel }: IlabelsProps) {
     const rows: Array<React.ReactNode> = [];
    
     const [selectAll, setSelectAll] = useState(false);
@@ -61,7 +62,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
     if (data.length > 0) {
         data.forEach((data: labelDataType) => {
             rows.push(
-                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} updateStates={updateStates} setPreview={setPreview} addLabel={addLabel }/>
+                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} updateStates={updateStates} setPreview={setPreview} addLabel={addLabel} deleteLabel={deleteLabel} />
             )
         });
     } else {
@@ -82,10 +83,10 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
                 {rows.length > 0 && rows}
                 </tbody>   
         </table>
-            <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null) } />: null }</>
+            <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null)} handleSubmit={handleSaveLabel } />: null }</>
         </>);
 }
-function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, updateStates, setPreview, addLabel }:
+function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, updateStates, setPreview, addLabel, deleteLabel }:
     {
         label: labelDataType,
         dataKey: string,
@@ -95,15 +96,25 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
         selectAll: boolean,
         updateStates: (key: string, value: boolean) => void,
         setPreview: (label: labelDataType) => void,
-        addLabel: (arg:labelDataType)=>void
+        addLabel: (arg: labelDataType) => void,
+        deleteLabel: (arg:labelDataType)=>void
+
     }) {
+    const [error, setError] = useState<JSX.Element | null>(null);
     const handleAddLabel = () => { 
         addLabel(label);
     } 
-    const handleDelete = () => {
-        db.deleteLabel(label._id);
+    const handleDelete = async() => {
+        try {
+            await deleteLabel(label);
+        } catch (error) {
+            const time = 5000;
+            setError(<ErrorUI error={String(error)} time={time} />);
+            setTimeout(() => setError(null), time);
+        }
     }
     return (
+        <> {error !== null ? error : null}
         <tr data-key={dataKey }>
             <td ><InputCheckbox selectLabel={selectLabel} unSelectLabel={unSelectLabel} label={label} selectAll={selectAll } /></td>
             <LabelCell bg={label.bg} key={label.bg} />
@@ -113,7 +124,8 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
                 <AddSingleLabelButton addLabel={handleAddLabel} />
                 <DeleteButton handleClick = {handleDelete }/>
             </td>
-        </tr>
+            </tr>
+            </>
     );
 
 }
@@ -123,8 +135,7 @@ function InputCheckbox({ label, selectLabel, unSelectLabel, selectAll }: { label
     const [checked, setChecked] = useState(false);;
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            selectLabel(label);
-            
+            selectLabel(label);   
         } else {
             unSelectLabel(label);
         }

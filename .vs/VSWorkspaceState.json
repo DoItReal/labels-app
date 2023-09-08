@@ -5,10 +5,10 @@
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\content\\MidSide",
+    "\\src\\Login",
     "\\src\\nav",
     "\\src\\tools"
   ],
-  "SelectedNode": "\\src\\content\\MidSide\\AddedLabels.tsx",
+  "SelectedNode": "\\src\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

@@ -1,5 +1,3 @@
-import { ReactComponentElement, useState } from 'react';
-import { db } from './App';
 import { PNGs } from './pngs';
 export var png = new PNGs();
 export class Label {
@@ -93,7 +91,7 @@ export class Label {
         }
     }
     private generateAllergens(arr: Array<number>) {
-        if (arr.length == 1 && arr[0] == 0) return;
+        if (arr.length === 1 && arr[0] === 0) return;
         let saveFont = this.fontSize;
         //calibrate and set this.fontSize
         this.imgCalibrate(arr);
@@ -175,27 +173,5 @@ class LabelContent implements labelContent{
     }
 }
 
-export class Labels {
-  //  box;
-  //  table;
-    labels: Array<any>;
-    init: boolean;
-    constructor() {
-
-        this.labels = [];
-        this.init = false;
-    }
-    update(reset: boolean = false) {
-        // Empty the active label list
-        if (!this.init) {
-            for (let i = 0; i < db.data.length; i++) {
-                this.labels.push(db.data[i]);
-            }
-            this.init = true;
-        }
-        console.log(this.labels);
-    
-    }
-}
 
 

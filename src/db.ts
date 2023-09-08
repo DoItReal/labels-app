@@ -1,4 +1,4 @@
-import { Labels } from './labels';
+import { findIndexByProperty } from './tools/helpers';
 
 export interface labelDataType {
     _id: string,
@@ -10,7 +10,6 @@ export interface labelDataType {
     rus: string
 }
 
-const labels = new Labels();
 export default class DB {
     address: string;
     data:labelDataType[];
@@ -54,14 +53,11 @@ export default class DB {
 
         xhr.onreadystatechange =  () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                console.log(xhr.status);
-                console.log(xhr.responseText);
                 let startIndex = xhr.responseText.search('_id') + 6;
                 let endIndex = xhr.responseText.search('__v') - 3;
                 let id = xhr.responseText.slice(startIndex, endIndex);
                 label._id = id;
                 data.push(label);
-                labels.update();
                 resolve(label);
             } else if (xhr.status !== 200) {
               //  if (this.getSignByBG(label._id) !== null) reject(new Error('Error: Label: "' + label.bg + '" already exist!')); 
@@ -72,6 +68,7 @@ export default class DB {
         }));
     }
     saveLabel(label: any, data = this.data) {
+        return (new Promise<labelDataType>((resolve, reject) => {
         let id = label._id;
         delete label._id;
         let xhr = new XMLHttpRequest();
@@ -80,42 +77,38 @@ export default class DB {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                console.log(xhr.status);
-                console.log(xhr.responseText);
-
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // update offline DB Data
                 let index = findIndexByProperty(data, '_id', id);
                 if (index !== -1) data[index] = JSON.parse(xhr.responseText);
-                labels.update();
+                resolve(data[index]);
+            } else if (xhr.status !== 200) {
+                reject(new Error('Error in saving Label!'));
             }
         };
-        xhr.send(JSON.stringify(label));
+            xhr.send(JSON.stringify(label));
+        }));
     }
     deleteLabel(id: string, data = this.data) {
-        //if (password != 'asd123456') return;
+        return (new Promise<labelDataType>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("DELETE", this.address + 'signs/' + id);
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                console.log(xhr.status);
-                console.log(xhr.responseText);
+            if (xhr.readyState === 4 && xhr.status === 200) {
 
                 let index = findIndexByProperty(data, '_id', id);
                 if (index !== -1) data.splice(index, 1);
-                labels.update();
+                if (xhr.responseText === 'null') reject(new Error('Error in deleting label'));
+                resolve(JSON.parse(xhr.responseText));
+
+            } else if (xhr.status !== 200) {
+                reject(new Error('Error in deleting Label!'));
             }
         };
-        xhr.send();
+            xhr.send();
+        }));
     }
 }
 
-function findIndexByProperty(arr:Array<any>, propName:string, propValue:string) {
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i][propName] === propValue) {
-            return i;
-        }
-    }
-    return -1; // Return -1 if the object is not found
-}

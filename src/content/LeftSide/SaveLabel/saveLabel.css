@@ -58,24 +58,5 @@
         ;
     }
 
-.saveButton {
-    font-size:22px;
-    background-color: dodgerblue;
-    border-radius: 0;
-    text-align: center;
-    vertical-align:central;
-    padding: 5px;
-    left: 0;
-    align-self: center;
-    margin-bottom: 5px;
-    border: none;
-}
 
-    .saveButton:hover {
-        background-color: greenyellow;
-    }
-
-    .saveButton:active {
-        background-color: limegreen;
-    }
 

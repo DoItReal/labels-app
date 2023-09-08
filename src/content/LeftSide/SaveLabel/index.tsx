@@ -1,10 +1,9 @@
-import { Dispatch, KeyboardEvent, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { LabelContent } from './LabelContent';
 import './index.css';
 import './saveLabel.css';
 import { db } from '../../../App';
 import { labelDataType } from '../../../db';
-import { Label } from '../../../labels';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
 import React from 'react';
@@ -13,9 +12,11 @@ import React from 'react';
 export interface IsaveLabelInput {
     currentAllergens: number[], setCurrentAllergens: Dispatch<SetStateAction<number[]>>,
     filterCategory: string[], setFilterCategory: Dispatch<SetStateAction<string[]>>,
+    handleSubmit: (evt: React.FormEvent) => void,
+    type:string,
     translation: { bg: string, en: string, de: string, rus: string }, setTranslation: Dispatch<SetStateAction<{ bg: string, en: string, de: string, rus: string }>>
 }
-export function CreateLabel({ enableStates, updateStates, addDbLabel }: IcontentProps ) {
+export function CreateLabel({ enableStates, updateStates, handleCreateLabel }: IcontentProps ) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
     const [filterCategory, setFilterCategory] = useState<string[]>([]);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: '', en: '', de: '', rus: '' });
@@ -28,7 +29,9 @@ export function CreateLabel({ enableStates, updateStates, addDbLabel }: Icontent
     if (!enableStates.get('createLabel')) {
         return null;
     }
-    const createLabel = async () => {
+    const createLabel = async (event: React.FormEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
         var label = {
             allergens: currentAllergens,
             category: filterCategory,
@@ -37,12 +40,10 @@ export function CreateLabel({ enableStates, updateStates, addDbLabel }: Icontent
             de: translation.de,
             rus: translation.rus
         };
-        try {
-            const lbl = await db.createNewLabel(label);
-            addDbLabel(lbl);
+        if (await handleCreateLabel(label))
             clear();
-        } catch (error) {
-            console.log(error);
+         else {
+            console.log('Error creating new label');
         }
     };
 
@@ -52,8 +53,6 @@ export function CreateLabel({ enableStates, updateStates, addDbLabel }: Icontent
         close();
     }
     const handleKeyDown = (event:globalThis.KeyboardEvent):any => {
-        
-        console.log(event.keyCode);
         if (event.keyCode === 27) {
             event.preventDefault();
             close();
@@ -70,15 +69,15 @@ export function CreateLabel({ enableStates, updateStates, addDbLabel }: Icontent
         firstInit.current = true;
     } 
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };//console.log(e);
+
+    const props = { currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, type: "Create Label", handleSubmit: createLabel };
+
     return (
         enableStates.get("createLabel") ?
             <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}><div  className="draggedDiv">
                 <div  className="saveLabel">
                     <Header handleClick={handleCloseClick } />
-            <LabelContent currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} filterCategory={filterCategory} setFilterCategory={setFilterCategory} translation={translation} setTranslation={setTranslation} />
-            
-            <button className="saveButton" onClick={createLabel }>Create Label</button>
-                
+                    <LabelContent {...props} />
             </div>
         </div>
            
@@ -88,7 +87,7 @@ export function CreateLabel({ enableStates, updateStates, addDbLabel }: Icontent
     );
 }
 
-export function SaveLabel({ enable, setEnable, label, clearLabel }: { enable: boolean, setEnable: (arg: boolean) => void, label: labelDataType, clearLabel:()=>void }) {
+export function SaveLabel({ enable, setEnable, label, clearLabel,handleSubmit }: { enable: boolean, setEnable: (arg: boolean) => void, label: labelDataType, clearLabel:()=>void, handleSubmit:(arg:labelDataType)=>void }) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>(label.allergens);
     const [filterCategory, setFilterCategory] = useState<string[]>(label.category);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: label.bg, en: label.en, de: label.de, rus: label.rus });
@@ -97,8 +96,9 @@ export function SaveLabel({ enable, setEnable, label, clearLabel }: { enable: bo
         setTranslation({ bg: label.bg, en: label.en, de: label.de, rus: label.rus });
     },[label]);
   
-    const saveLabel = () => {
-        var editedLabel: labelDataType = { 
+    const saveLabel = (event: React.FormEvent) => {
+        event.preventDefault();
+        var editedLabel: labelDataType = {
             _id: label._id,
             allergens: currentAllergens,
             category: filterCategory,
@@ -107,10 +107,8 @@ export function SaveLabel({ enable, setEnable, label, clearLabel }: { enable: bo
             de: translation.de,
             rus: translation.rus
         };
-
-        db.saveLabel(editedLabel);
-        setEnable(false);
-        clearLabel();
+        handleSubmit(editedLabel);
+        close();
     };
 
     const handleKeyDown = (event: globalThis.KeyboardEvent): any => {
@@ -132,25 +130,25 @@ export function SaveLabel({ enable, setEnable, label, clearLabel }: { enable: bo
     } 
 
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };// console.log(e);
-        
+
+    const props = { currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit: saveLabel, type: "Save Label" };
+
     return (
        enable? 
-            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}><div className="draggedDiv">
+            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}>
+                <div className="draggedDiv">
                 <div className="saveLabel">
-                
                     <Header handleClick={close} />
-            <LabelContent currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} filterCategory={filterCategory} setFilterCategory={setFilterCategory} translation={translation} setTranslation={setTranslation} />
-                <button className="saveButton" onClick={saveLabel}>Save Label</button>
+                        <LabelContent {...props} />
             </div></div></Draggable>
-            : null
-        
+            : null  
     );
 }
 function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void}) {
     //const [currentStyle, setCurrentStyle] = useState({});
-    var currentStyle = {};
+   // var currentStyle = {};
     var ref = useRef(null);
-    var hold = false;
+  //  var hold = false;
 
     return (
         <div ref={ref} className="saveLabelHeader handle">

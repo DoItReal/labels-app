@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Category } from '../../UI/CategoryUI';
 import { Allergens } from "../../UI/AllergensUI";
 import './labelContent.css';
@@ -7,25 +7,10 @@ import { IsaveLabelInput } from './index';
 import { translate } from '../../../tools/translate';
 import { ReactComponent as TranslateButtonSVG } from './translateSVG.svg';
 
-const handleTranslate = (text: string, targetLanguage: string) => {
-    try {
-        const translation = translate(text, targetLanguage);
-        return translation;
-    } catch (error) {
-        console.log(error);
-        return '';
-    }
-}
 
-export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation }: IsaveLabelInput) {
-    
-        const [preview, setPreview] = useState<any>(null);
-    
-    const setBG = (e: ChangeEvent<HTMLInputElement>) => {
-        let tmp = { ...translation };
-        tmp.bg = e.target.value;
-        inputChange(tmp);
-    };
+export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) {
+   const [preview, setPreview] = useState<any>(null);
+ 
     const  handleTranslate = async (text:string) => {
         let tmp = { ...translation };
 
@@ -63,6 +48,11 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
         }
         inputChange(tmp);
     }
+    const setBG = (e: ChangeEvent<HTMLInputElement>) => {
+        let tmp = { ...translation };
+        tmp.bg = e.target.value;
+        inputChange(tmp);
+    };
     const setEN = (e: ChangeEvent<HTMLInputElement>) => {
         let tmp = { ...translation };
         tmp.en = e.target.value;
@@ -92,21 +82,23 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
         let sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
         sign.setContent(currentAllergens, { bg: translation.bg, en: translation.en, de: translation.de, rus: translation.rus });
         let canvas = sign.generate();
-        setPreview(<img src={canvas.toDataURL('image/jpeg')}></img>);
+        setPreview(<img alt="Label preview" src={canvas.toDataURL('image/jpeg')}></img>);
     }, [translation, currentAllergens]);
 
     return (
-      
+        <form onSubmit={handleSubmit}>
         <div className="labelsContent">
-            <div className="preview">{preview && preview || 'no preview loaded'}</div>
+            
+            <div className="preview">{preview ? preview : 'no preview loaded'}</div>
             <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
             <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
-            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg} onChange={(e) => setBG(e)} /><button className="button-translate" onClick={ ()=>handleTranslate(translation.bg) } title="Translate"><TranslateButtonSVG /></button></p>
-            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en} onChange={(e) => setEN(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.en)} title="Translate"><TranslateButtonSVG /></button></p>
-            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de} onChange={(e) => setDE(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.de)} title="Translate"><TranslateButtonSVG /></button></p>
-            <p>RUS: <input type="text" spellCheck="true" lang="ru" className="russian" value={translation.rus} onChange={(e) => setRUS(e)} /><button className="button-translate" onClick={() => handleTranslate(translation.rus)} title="Translate"><TranslateButtonSVG /></button></p>
-            
-        </div>
+            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg} onChange={(e) => setBG(e)} /><button type="button" className="button-translate" onClick={ ()=>handleTranslate(translation.bg) } title="Translate"><TranslateButtonSVG /></button></p>
+            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en} onChange={(e) => setEN(e)} /><button type="button" className="button-translate" onClick={() => handleTranslate(translation.en)} title="Translate"><TranslateButtonSVG /></button></p>
+            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de} onChange={(e) => setDE(e)} /><button type="button" className="button-translate" onClick={() => handleTranslate(translation.de)} title="Translate"><TranslateButtonSVG /></button></p>
+            <p>RUS: <input type="text" spellCheck="true" lang="ru" className="russian" value={translation.rus} onChange={(e) => setRUS(e)} /><button type="button" className="button-translate" onClick={() => handleTranslate(translation.rus)} title="Translate"><TranslateButtonSVG /></button></p>
+                <button type="submit" className="submitButton">{type}</button>
+            </div>
+        </form>
             
             
                 

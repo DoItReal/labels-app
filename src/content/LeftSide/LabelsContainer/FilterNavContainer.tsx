@@ -2,24 +2,32 @@ import React, { SetStateAction } from "react";
 import './filterNavContainer.css';
 import { Category } from '../../UI/CategoryUI';
 import { IenableStates } from '../../../App'; 
+import { labelDataType } from "../../../db";
 
 interface IfilterNavContainer extends IenableStates {
     filterCategory: Array<string>,
     setFilterCategory: React.Dispatch<SetStateAction<string[]>>,
-    generateList: () => void
+    generateList: () => void,
+    selectedLabels: labelDataType[],
+    setSelectedLabels: (arg: labelDataType[]) => void,
+    deleteLabels:(arg:labelDataType[])=>void
 }
 
-export default function FilterNavContainer({ filterCategory, setFilterCategory, generateList, enableStates, updateStates }: IfilterNavContainer) {
+export default function FilterNavContainer({ filterCategory, setFilterCategory, generateList, enableStates, updateStates, selectedLabels, setSelectedLabels, deleteLabels }: IfilterNavContainer) {
     const handleCreateNewLabel = (event: React.MouseEvent) => {
         event.stopPropagation();
         updateStates("createLabel", true);
+    }
+    const handleDeleteLabels = () => {
+        deleteLabels(selectedLabels);
+        setSelectedLabels([]);
     }
     return (
         <div id="filterContainer">
             <button id="addSelectedLabels" onClick={generateList }>&#62;&#62;</button>
             <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} />
             <button id="createNewLabel" onClick={handleCreateNewLabel }>New Label</button>
-            <button id="btnDeleteLabels">Delete</button>
+            <button id="btnDeleteLabels" onClick={handleDeleteLabels }>Delete</button>
         </div>
     );
 }

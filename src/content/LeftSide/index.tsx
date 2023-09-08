@@ -9,10 +9,13 @@ export interface IlabelsContainerProps extends IenableStates {
     setDbData: (arg: labelDataType[]) => void
     addNewLabel: (arg: labelDataType) => void,
     addLabels: (arg: labelDataType[]) => void,
-    setPreview: (label:labelDataType)=>void
+    setPreview: (label: labelDataType) => void,
+    deleteLabel: (arg: labelDataType) => void,
+    handleSaveLabel: (arg: labelDataType) => void,
+    deleteLabels: (arg: labelDataType[]) => void
 }
-export default function LeftSide({ enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview }: IcontentProps) {
-    const props = { enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview };
+export default function LeftSide({ enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels }: IcontentProps) {
+    const props = { enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels };
     return (
         <div id="leftSide">
             <LabelsContainerStates {...props} />

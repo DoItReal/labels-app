@@ -1,0 +1,18 @@
+.error {
+    position:absolute;
+    top:90%;
+    left:45%;
+}
+.error > span {
+    display: table-cell;
+    height: 8%;
+    min-width: 20vw;
+    border: 2px solid darkred;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    background-color: red;
+    font-size: 1.5em;
+    opacity: 1;
+    transition: 1s;
+}
