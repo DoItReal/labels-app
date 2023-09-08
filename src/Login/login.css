@@ -1,9 +1,9 @@
 .login-wrapper {
     position:absolute;
-    top:10%;
-    left:40%;
+    top:10vw;
+    left:50vw;
+    transform:translateX(-50%);
     border: 1px double black;
-    margin: 1px;
     display: flex;
     flex-direction: column;
     width: 20%;

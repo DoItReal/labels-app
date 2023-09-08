@@ -1,9 +1,16 @@
 .error {
+    margin:0;
     position:absolute;
-    top:90%;
-    left:45%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    top:90vh;
+    left:50vh;
+    transform:translateX(-50%);
 }
 .error > span {
+    margin:0;
+    padding:0 10px 0 10px;
     display: table-cell;
     height: 8%;
     min-width: 20vw;

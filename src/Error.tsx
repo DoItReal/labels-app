@@ -31,7 +31,7 @@ export function ErrorUI({ error, time }: { error: string, time:number }) {
             ref.current.style.transition = translation;
             ref.current.style.opacity = opacity;
             }
-    },[]);
+    });
 
     
     const tmp = {

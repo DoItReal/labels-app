@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Iuser, loginUser } from './Login';
+import { ErrorUI } from '../Error';
 
 
 async function registerUser(credentials: { email: string, password: string, username:string }) {
@@ -23,7 +24,8 @@ async function registerUser(credentials: { email: string, password: string, user
     }));
 }
 
-export default function Register({ user, setUser }: {user:Iuser, setUser: (arg: { username: string, email: string, token: string }) => void }) {
+export default function Register({ user, setUser }: { user: Iuser, setUser: (arg: { username: string, email: string, token: string }) => void }) {
+    const [showError, setShowError] = useState<JSX.Element | null>(null);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [emailR, setEmailR] = useState('');
@@ -34,13 +36,21 @@ export default function Register({ user, setUser }: {user:Iuser, setUser: (arg: 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (username.length < 5) { // to check if the username exists
-            console.log('Error: Username must be at least 5 characters long!');
+            const time = 5000;
+            setShowError(<ErrorUI error={'Error: Username must be at least 5 characters long!'} time={time} />);
+            setTimeout(() => setShowError(null), time);
             return;
-        } else if (email !== emailR) { // to check if the email exists!
-            console.log('Error: The emails does not match!');
+        } else if (email.length ===0 || email !== emailR) { // to check if the email exists!
+            const time = 5000;
+            const err = email.length === 0 ? 'Error: Please enter email!' : 'Error: The emails does not match!';
+            setShowError(<ErrorUI error={err} time={time} />);
+            setTimeout(() => setShowError(null), time);
             return;
-        } else if (password !== passwordR) { // to check if the password is strong
-            console.log('Error: The passwords does not match!');
+        } else if (password.length < 8 || password !== passwordR) { // to check if the password is strong
+            const time = 5000;
+            const err = password.length < 8 ? "Error: The password muse be at least 8 characters long" : "Error: The passwords does not match";
+            setShowError(<ErrorUI error={err} time={time} />);
+            setTimeout(() => setShowError(null), time);
             return;
         } 
 
@@ -48,10 +58,13 @@ export default function Register({ user, setUser }: {user:Iuser, setUser: (arg: 
             await registerUser({ email, password, username });
             console.log('Succesfuly registered user: ' + username ); // to add UI element
         } catch (err) {
-            console.log(err);
+            const time = 5000;
+            setShowError(<ErrorUI error={String(err)} time={time} />);
+            setTimeout(() => setShowError(null), time);
             error.current = err;
         }
         if (error.current !== null) {
+           
             console.log(error.current);
             return;
         }
@@ -64,15 +77,20 @@ export default function Register({ user, setUser }: {user:Iuser, setUser: (arg: 
             console.log('success'); // to add UI element
         }
         catch (error) {
-            console.log('Failed to login. Invalid email or password!' + error); // to add UI element
+            const time = 5000;
+            setShowError(<ErrorUI error={String(error)} time={time} />);
+            setTimeout(() => setShowError(null), time);
         }
     }
 
     return (
-        
+        <>{ showError !== null ? showError : null}
         <div className="login-wrapper">
-            {user.token && user.token !== '' ? <Navigate to="../labels-app/" replace={true} /> : null}
-            <h1>Please Register </h1>
+            {user.token && user.token !== '' ? <Navigate to="../" replace={true} /> : null}
+                <h1>Please Register </h1>
+                <Link to="../login" >
+                    Login
+                </Link>
             <form onSubmit={handleSubmit}>
                 <label>
                     <p>Username:</p>
@@ -97,6 +115,7 @@ export default function Register({ user, setUser }: {user:Iuser, setUser: (arg: 
                 <button type="submit" >Register</button>
 
             </form>
-        </div>
+            </div>
+        </>
         );
 }

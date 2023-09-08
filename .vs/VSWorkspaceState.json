@@ -3,12 +3,11 @@
     "",
     "\\src",
     "\\src\\content",
-    "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\Login",
     "\\src\\nav",
     "\\src\\tools"
   ],
-  "SelectedNode": "\\src\\index.tsx",
+  "SelectedNode": "\\src\\Login\\Login.tsx",
   "PreviewInSolutionExplorer": false
 }

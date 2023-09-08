@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './login.css';
 import { Link, Navigate } from 'react-router-dom';
+import { ErrorUI } from '../Error';
 
 export interface Iuser {
     username: string, email: string, token: string
@@ -19,6 +20,7 @@ export async function loginUser(credentials: {email:string,password:string}) {
 
 
 export default function Login({ user, setUser }: { user:Iuser, setUser: (arg: {username:string, email:string, token:string})=>void}) {
+    const [error, setError] = useState<JSX.Element | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const handleSubmit = async (e:React.FormEvent) => {
@@ -31,13 +33,18 @@ export default function Login({ user, setUser }: { user:Iuser, setUser: (arg: {u
             setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
         }
         catch (error) {
-            console.log('Failed to login. Invalid email or password!');
+            const time = 5000;
+            setError(<ErrorUI error={'Failed to login. Invalid email or password!'} time={time} />);
+            setTimeout(() => setError(null), time);
+           // console.log('Failed to login. Invalid email or password!');
         }
     }
  
     return (
-        
+        <>
+        { error !== null ? error : null}
         <div className="login-wrapper">
+            
             {user.token && user.token !== '' ? <Navigate to="../" replace={true } /> : null }
             <h1>Please Log In </h1>
             <Link to="../register" >
@@ -56,6 +63,7 @@ export default function Login({ user, setUser }: { user:Iuser, setUser: (arg: {u
             
             </form>
             </div>
+            </>
         );
 }
 
