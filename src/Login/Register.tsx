@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { Iuser, loginUser } from './Login';
-import { ErrorUI } from '../Error';
+import { Alert } from '../components/Alert';
 
 
 async function registerUser(credentials: { email: string, password: string, username:string }) {
@@ -37,34 +37,37 @@ export default function Register({ user, setUser }: { user: Iuser, setUser: (arg
         event.preventDefault();
         if (username.length < 5) { // to check if the username exists
             const time = 5000;
-            setShowError(<ErrorUI error={'Error: Username must be at least 5 characters long!'} time={time} />);
+            setShowError(<Alert severity="error" variant="outlined" handleClose={()=>setShowError(null)}><strong>Username must be at least 5 characters long!</strong></Alert>);
             setTimeout(() => setShowError(null), time);
             return;
         } else if (email.length ===0 || email !== emailR) { // to check if the email exists!
             const time = 5000;
-            const err = email.length === 0 ? 'Error: Please enter email!' : 'Error: The emails does not match!';
-            setShowError(<ErrorUI error={err} time={time} />);
+            const err = email.length === 0 ? 'Please enter email!' : 'The emails does not match!';
+            setShowError(<Alert severity="error" variant="outlined" handleClose={() => setShowError(null)}><strong>{String(err)}</strong></Alert>);
             setTimeout(() => setShowError(null), time);
             return;
         } else if (password.length < 8 || password !== passwordR) { // to check if the password is strong
             const time = 5000;
-            const err = password.length < 8 ? "Error: The password muse be at least 8 characters long" : "Error: The passwords does not match";
-            setShowError(<ErrorUI error={err} time={time} />);
+            const err = password.length < 8 ? "The password muse be at least 8 characters long" : "The passwords does not match";
+            setShowError(<Alert severity="error" variant="outlined" handleClose={() => setShowError(null)}><strong>{String(err) }</strong></Alert>);
             setTimeout(() => setShowError(null), time);
             return;
         } 
 
         try {
             await registerUser({ email, password, username });
-            console.log('Succesfuly registered user: ' + username ); // to add UI element
+            const time = 2000;
+            setShowError(<Alert severity="success" variant="outlined" handleClose={() => setShowError(null)}>
+                'Succesfuly registered user: '<strong>{username}</strong>
+            </Alert>);
+            setTimeout(() => setShowError(null), time);
         } catch (err) {
             const time = 5000;
-            setShowError(<ErrorUI error={String(err)} time={time} />);
+            setShowError(<Alert severity="error" variant="outlined" handleClose={() => setShowError(null)}><strong>{ String(err) }</strong></Alert>);
             setTimeout(() => setShowError(null), time);
             error.current = err;
         }
         if (error.current !== null) {
-           
             console.log(error.current);
             return;
         }
@@ -73,12 +76,19 @@ export default function Register({ user, setUser }: { user: Iuser, setUser: (arg
                 email,
                 password
             });
-            setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
-            console.log('success'); // to add UI element
+
+            const time = 2000;
+            setShowError(<Alert severity="success" variant="outlined" title='' handleClose={() => setShowError(null)}>
+                'Logging in: '<strong>{username}</strong>
+            </Alert>);
+            setTimeout(() => {
+                setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
+                setShowError(null)
+            }, 2000);
         }
         catch (error) {
             const time = 5000;
-            setShowError(<ErrorUI error={String(error)} time={time} />);
+            setShowError(<Alert severity="error" variant="outlined"><strong>{ String(error) }</strong></Alert>);
             setTimeout(() => setShowError(null), time);
         }
     }

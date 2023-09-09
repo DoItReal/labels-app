@@ -2,16 +2,16 @@ table.labelTable {
     width:100%;
 }
 .headInput{
-    width:1.5em;
+    width:1.5rem;
 }
     .headLabel {
         width: auto;
     }
     .headOptions {
-        width: 8em;
+        width: 8rem;
     }
     .labelTable button {
-        min-width:20px;
+        min-width:1.4rem;
         padding:2px 5px 2px 5px;
     }
    

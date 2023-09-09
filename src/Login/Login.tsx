@@ -1,7 +1,7 @@
+import { Alert } from '../components/Alert';
 import { useState } from 'react';
 import './login.css';
 import { Link, Navigate } from 'react-router-dom';
-import { ErrorUI } from '../Error';
 
 export interface Iuser {
     username: string, email: string, token: string
@@ -29,14 +29,19 @@ export default function Login({ user, setUser }: { user:Iuser, setUser: (arg: {u
             const user = await loginUser({
                 email,
                 password
-            });
-            setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
+            }); const time = 2000;
+            setError(<Alert variant="outlined" severity="success" handleClose={()=>setError(null) }><strong>Logging in...!</strong></Alert>);
+            setTimeout(() => {
+                setError(null);
+                setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
+            }, time);
+            
+            
         }
         catch (error) {
             const time = 5000;
-            setError(<ErrorUI error={'Failed to login. Invalid email or password!'} time={time} />);
+            setError(<Alert variant="outlined" severity="error" handleClose={()=>setError(null) }>Failed to login. <strong>Invalid email or password!</strong></Alert>);
             setTimeout(() => setError(null), time);
-           // console.log('Failed to login. Invalid email or password!');
         }
     }
  
