@@ -1,8 +1,8 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import { LabelContent } from './LabelContent';
 import './index.css';
 import './saveLabel.css';
-import { db } from '../../../App';
+import { db, enableStatesContext } from '../../../App';
 import { labelDataType } from '../../../db';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
@@ -16,7 +16,8 @@ export interface IsaveLabelInput {
     type:string,
     translation: { bg: string, en: string, de: string, rus: string }, setTranslation: Dispatch<SetStateAction<{ bg: string, en: string, de: string, rus: string }>>
 }
-export function CreateLabel({ enableStates, updateStates, handleCreateLabel }: IcontentProps ) {
+export function CreateLabel({ handleCreateLabel }: IcontentProps) {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
     const [filterCategory, setFilterCategory] = useState<string[]>([]);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: '', en: '', de: '', rus: '' });

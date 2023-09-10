@@ -4,9 +4,6 @@ html {
     font-family: 'Roboto', sans-serif;
 }
 
-body {
-    
-}
 
 * {
     margin: 0;
@@ -39,10 +36,6 @@ button {
         margin-bottom: auto;
         width: 95%;
     }
-
- 
-  
-   
 
 .labelsTable > tr > td:first-child {
     text-align:center;

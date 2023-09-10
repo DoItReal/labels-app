@@ -3,16 +3,16 @@ import LeftSide from './LeftSide/index';
 import MidSide from './MidSide/index';
 import RightSide from './RightSide/index';
 import './content.css';
-import { IenableStates } from '../App';
+import { enableStatesContext} from '../App';
 import { CreateLabel } from './LeftSide/SaveLabel';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { labelDataType } from '../db';
 import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
 export interface IaddedLabel extends labelDataType {
     count:number
 };
-export interface IcontentProps extends IenableStates {
+export interface IcontentProps {
     dbData: labelDataType[] | undefined,
     setDbData: (arg: labelDataType[]) => void,
     handleCreateLabel:(arg:any) => Promise<boolean>,
@@ -27,7 +27,8 @@ export interface IcontentProps extends IenableStates {
     handleSaveLabel: (arg:labelDataType)=>void
 }
 
-export default function ContentStates({ enableStates, updateStates }: IenableStates) {
+export default function ContentStates() {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
     const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>([]);
@@ -148,7 +149,7 @@ export default function ContentStates({ enableStates, updateStates }: IenableSta
             return false;
         }
 }
-    const props: IcontentProps = { enableStates, updateStates, dbData, setDbData,handleCreateLabel, addNewLabel, addLabels, setPreview, addLabel, addedLabels, previewLabel, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
+    const props: IcontentProps = {dbData, setDbData,handleCreateLabel, addNewLabel, addLabels, setPreview, addLabel, addedLabels, previewLabel, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
     return (
         <>
         <Content props={props} />

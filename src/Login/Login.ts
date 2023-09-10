@@ -17,7 +17,12 @@ export async function loginUser(credentials: {email:string,password:string}) {
         .then(data => data.json())
 }
 
-export function useUser() {
+export interface IuseUser {
+    setUser: (user: Iuser) => void,
+    user: Iuser,
+    logout: ()=>void
+}
+export function useUser():IuseUser {
 
     const getUser = () => {
         let userString = sessionStorage.getItem('token');

@@ -1,7 +1,7 @@
 import './labelTable.css';
 import { labelDataType } from '../../../db';
 
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import { IlabelsProps } from './index';
 import { ReactComponent as EditButtonSVG } from './editButtonSVG.svg';
@@ -9,6 +9,7 @@ import { ReactComponent as PreviewButtonSVG } from './previewButtonSVG.svg';
 import { ReactComponent as AddLabelButtonSVG } from './addLabelButtonSVG.svg';
 import { ReactComponent as DeleteButtonSVG } from './deleteButtonSVG.svg';
 import { ErrorUI } from '../../../Error';
+import { enableStatesContext } from '../../../App';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -41,7 +42,8 @@ export function Filter(dbData: labelDataType[] | undefined, filterText: string, 
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, enableStates, updateStates, setPreview, addLabel, deleteLabel, handleSaveLabel }: IlabelsProps) {
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, setPreview, addLabel, deleteLabel, handleSaveLabel }: IlabelsProps) {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
     const rows: Array<React.ReactNode> = [];
    
     const [selectAll, setSelectAll] = useState(false);
@@ -68,7 +70,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
     } else {
         rows.push(<tr data-key="empty" key="empty"><td colSpan={3} >No Labels Loaded</td></tr>)
     }
-
+    console.log(JSON.stringify(data));
     return (
        <>
         <table className="labelTable">

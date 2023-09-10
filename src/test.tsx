@@ -1,82 +1,63 @@
-export default function firstTest() {
+import * as React from 'react';
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
+const dataCol = [
+    { name: 'Bulgarian', type: 'bg', width: 250 },
+    { name: 'English', type: 'en', width: 250 },
+    { name: 'Deutsch', type: 'de', width: 250 },
+    { name: 'Russian', type: 'rus', width: 250 },
+    { name: 'Allergens', type: 'allergens', width: 250 }
+];
+const col = dataCol.map(element => {
+    return { field: element.type, headerName: element.name, width: element.width }
+});
+const columns: GridColDef[] =  [
+    
+       ...col,
+        {
+            field: 'fullName',
+            headerName: 'Full name',
+            description: 'This column has a value getter and is not sortable.',
+            sortable: false,
+            width: 160,
+            valueGetter: (params: GridValueGetterParams) =>
+                `${params.row.firstName || ''} ${params.row.lastName || ''}`,
+        }
+];
+
+const rows = [
+    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
+    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
+    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
+    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
+    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
+    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
+    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
+    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
+    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+];
+
+export default function DataTable() {
     return (
-        <div role="alert" className="rounded-xl border border-gray-100 bg-white p-4">
-            <div className="flex items-start gap-4">
-                <span className="text-green-600">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="h-6 w-6"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                    </svg>
-                </span>
-
-                <div className="flex-1">
-                    <strong className="block font-medium text-gray-900"> Changes saved </strong>
-
-                    <p className="mt-1 text-sm text-gray-700">
-                        Your product changes have been saved.
-                    </p>
-
-                    <div className="mt-4 flex gap-2">
-                        <a
-                            href="#"
-                            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
-                        >
-                            <span className="text-sm"> Preview </span>
-
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.5"
-                                stroke="currentColor"
-                                className="h-4 w-4"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                                />
-                            </svg>
-                        </a>
-
-                        <button
-                            className="block rounded-lg px-4 py-2 text-gray-700 transition hover:bg-gray-50"
-                        >
-                            <span className="text-sm">Revert</span>
-                        </button>
-                    </div>
-                </div>
-
-                <button className="text-gray-500 transition hover:text-gray-600">
-                    <span className="sr-only">Dismiss popup</span>
-
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="h-6 w-6"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                        />
-                    </svg>
-                </button>
-            </div>
+        <div style={{ height: 400, width: '100%' }}>
+            <DataGrid
+                rows={newData}
+                columns={columns}
+                initialState={{
+                    pagination: {
+                        paginationModel: { page: 0, pageSize: 5 },
+                    },
+                }}
+                pageSizeOptions={[5, 10]}
+                checkboxSelection
+            />
         </div>
     );
 }
+
+const data = [
+    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8]},
+    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12]},
+];
+//@ts-ignore
+const newData = data.map(el => { el.id = el._id; delete el._id; return el; })

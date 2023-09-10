@@ -2,12 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\components",
     "\\src\\content",
-    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\Login",
-    "\\src\\nav",
-    "\\src\\tools"
+    "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\Login\\Login.tsx",
+  "SelectedNode": "\\src\\UI\\Copyright.tsx",
   "PreviewInSolutionExplorer": false
 }

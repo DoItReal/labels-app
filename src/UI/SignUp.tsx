@@ -4,20 +4,22 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Unstable_Grid2';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { Alert } from '../components/Alert';
 import { registerUser } from '../Login/Register';
 import { Iuser, loginUser } from '../Login/Login';
 import { Link, Navigate } from 'react-router-dom';
 import { Copyright } from './Copyright';
+import { userContext } from '../App';
 
 
-export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: { username: string, email: string, token: string }) => void }) {
+export default function SignUp() {
+    const [user, setUser]: [user: Iuser, setUser: (arg: Iuser) => void] = useContext(userContext);
     const [showError, setShowError] = useState<JSX.Element | null>(null);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -112,7 +114,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                     </Typography>
                 <Box component="form" noValidate={false} onSubmit={handleSubmit} sx={{ mt: 3 }}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     autoComplete="username"
                                     name="username"
@@ -124,7 +126,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                                     autoFocus
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     required
                                     fullWidth
@@ -136,7 +138,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                                     autoComplete="email"
                                 />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 required
                                 fullWidth
@@ -148,7 +150,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                                 autoComplete="email"
                             />
                         </Grid>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     required
                                     fullWidth
@@ -160,7 +162,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                                     autoComplete="new-password"
                                 />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 required
                                 fullWidth
@@ -172,7 +174,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                                 autoComplete="new-password"
                             />
                         </Grid>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <FormControlLabel
                                     control={<Checkbox value="allowExtraEmails" color="primary" />}
                                     label="I want to receive inspiration, marketing promotions and updates via email."
@@ -188,7 +190,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                             Sign Up
                         </Button>
                         <Grid container justifyContent="flex-end">
-                            <Grid item>
+                            <Grid>
                             <Link to="../login" style={{
                                 textDecoration: 'none'
                             }}>
@@ -196,7 +198,7 @@ export default function SignUp({ user, setUser }: { user: Iuser, setUser: (arg: 
                                     color: 'text.primary',
                                     ':hover': { color: 'text.secondary' },
                                 }}>
-                                    Do not have an account? <strong>Sign up</strong>
+                                    Already have an account? <strong>Sign in</strong>
                                 </Typography>
                             </Link>
                             </Grid>

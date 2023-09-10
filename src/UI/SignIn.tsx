@@ -1,18 +1,18 @@
 /* eslint-disable react/jsx-no-undef */
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Unstable_Grid2';
 import { Avatar, Box, Button, Container, Typography } from '@mui/material';
 import { Link, Navigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Iuser, loginUser } from '../Login/Login';
 import { Alert } from '../components/Alert';
 import { Copyright } from './Copyright';
+import { userContext } from '../App';
 
-
-export function LoginUI({ user, setUser }: { user: Iuser, setUser: (arg: { username: string, email: string, token: string }) => void }) {
+export function LoginUI() {
   
-
+    const [user, setUser]:[user:Iuser,setUser:(arg:Iuser)=>void] = useContext(userContext);
     const [error, setError] = useState<JSX.Element | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -23,7 +23,7 @@ export function LoginUI({ user, setUser }: { user: Iuser, setUser: (arg: { usern
                 email,
                 password
             }); const time = 2000;
-            setError(<Alert variant="outlined" severity="success" handleClose={() => setError(null)}><strong>Logging in...!</strong></Alert>);
+            setError(<Alert severity="success" handleClose={() => setError(null)}><strong>Logging in...!</strong></Alert>);
             setTimeout(() => {
                 setError(null);
                 setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
@@ -33,7 +33,7 @@ export function LoginUI({ user, setUser }: { user: Iuser, setUser: (arg: { usern
         }
         catch (error) {
             const time = 5000;
-            setError(<Alert variant="outlined" severity="error" handleClose={() => setError(null)}>Failed to login. <strong>Invalid email or password!</strong></Alert>);
+            setError(<Alert severity="error" handleClose={() => setError(null)}>Failed to login. <strong>Invalid email or password!</strong></Alert>);
             setTimeout(() => setError(null), time);
         }
     }
@@ -63,7 +63,7 @@ export function LoginUI({ user, setUser }: { user: Iuser, setUser: (arg: { usern
                     </Typography>
                     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
                         <Grid container spacing={2}>   
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     required
                                     fullWidth
@@ -75,7 +75,7 @@ export function LoginUI({ user, setUser }: { user: Iuser, setUser: (arg: { usern
                                     autoFocus
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                 required
                                 fullWidth
@@ -97,7 +97,7 @@ export function LoginUI({ user, setUser }: { user: Iuser, setUser: (arg: { usern
                             Sign In
                         </Button>
                         <Grid container justifyContent="flex-end">
-                        <Grid item >
+                        <Grid>
                             <Link to="../register" style={{
                                 textDecoration:'none'
                             } }>

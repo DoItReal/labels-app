@@ -1,10 +1,10 @@
-import React, { SetStateAction } from "react";
+import React, { SetStateAction, useContext } from "react";
 import './filterNavContainer.css';
 import { Category } from '../../UI/CategoryUI';
-import { IenableStates } from '../../../App'; 
+import { enableStatesContext} from '../../../App'; 
 import { labelDataType } from "../../../db";
 
-interface IfilterNavContainer extends IenableStates {
+interface IfilterNavContainer {
     filterCategory: Array<string>,
     setFilterCategory: React.Dispatch<SetStateAction<string[]>>,
     generateList: () => void,
@@ -13,7 +13,8 @@ interface IfilterNavContainer extends IenableStates {
     deleteLabels:(arg:labelDataType[])=>void
 }
 
-export default function FilterNavContainer({ filterCategory, setFilterCategory, generateList, enableStates, updateStates, selectedLabels, setSelectedLabels, deleteLabels }: IfilterNavContainer) {
+export default function FilterNavContainer({ filterCategory, setFilterCategory, generateList, selectedLabels, setSelectedLabels, deleteLabels }: IfilterNavContainer) {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
     const handleCreateNewLabel = (event: React.MouseEvent) => {
         event.stopPropagation();
         updateStates("createLabel", true);

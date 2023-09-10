@@ -1,18 +1,13 @@
-import { useRef } from 'react';
-import { IaddedLabel, IcontentProps } from '../Content';
+import { useContext, useRef } from 'react';
+import { IcontentProps } from '../Content';
 import AddedLabels from './AddedLabels';
 import './index.css';
-import { IenableStates } from '../../App';
+import { enableStatesContext } from '../../App';
 import { Label } from '../../labels';
 import { labelDataType } from '../../db';
 
-interface states extends IenableStates {
-    labels: IaddedLabel[],
-    addLabel: (arg: IaddedLabel) => void,
-    previewLabel: labelDataType | undefined
-}
-
-export default function MidSide({ addedLabels, addLabel, enableStates, updateStates, previewLabel }: IcontentProps) {
+export default function MidSide({ addedLabels, addLabel, previewLabel }: IcontentProps) {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
     const closePreview = () => {
         updateStates('preview', false);
     }

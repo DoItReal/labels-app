@@ -1,11 +1,14 @@
 import { Label } from '../../labels';
 import './index.css';
 import * as PDFLib from 'pdf-lib';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { IaddedLabel, IcontentProps } from '../Content';
 import { ReactComponent as FetchButtonSVG } from '../LeftSide/LabelsContainer/fetchButtonSVG.svg';
+import { enableStatesContext } from '../../App';
+import React from 'react';
 
-export default function RightSide({ enableStates, updateStates, addedLabels }: IcontentProps ) {
+export default function RightSide({ addedLabels }: IcontentProps) {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element| null>(null);
     if (!enableStates.get('createPDF')) return null;
     const handleClose = (event: React.MouseEvent) => {
@@ -19,6 +22,7 @@ export default function RightSide({ enableStates, updateStates, addedLabels }: I
         PDFrow.current = <CreatePDF labels={addedLabels} />;
         updateStates('updatePDF', false);
     }
+
     
     return (
         <div id="rightSide">

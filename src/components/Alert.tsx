@@ -1,5 +1,4 @@
 import { AlertTitle, Alert as AlertUI } from '@mui/material';
-import './styles/alert.css';
 
 type severity='error' | 'success' | "info" | "warning";
 type variant = "standard" | "filled" | "outlined";
@@ -9,19 +8,25 @@ function capsFirstLetter(str: string) {
 }
 interface Ialert {
     severity: severity,
-    variant: variant,
+    variant?: variant,
     title?: string,
     handleClose?: () => void,
     children: any
 }
-export function Alert({ severity, variant = "standard", title, handleClose = () => { }, children }: Ialert) {
+export function Alert({ severity, variant = "filled", title, handleClose = () => { }, children }: Ialert) {
     if (!title) title = capsFirstLetter(severity);
     return (
-        <div className="alert">
-            <AlertUI onClose={ handleClose } severity={severity} variant={variant}>
+        <AlertUI onClose={handleClose} severity={severity} variant={variant}
+            sx={{
+                position: 'absolute',
+                left: 0,
+                bottom: 0,
+                marginBottom:'1px',
+                width: '100%',
+                zIndex:100
+            }} >
                 <AlertTitle>{title}</AlertTitle>
                 {children}
             </AlertUI>
-        </div>
     );
 }

@@ -1,10 +1,9 @@
 import { LabelsContainerStates } from './LabelsContainer/index';
 import './style.css';
-import { IenableStates } from '../../App';
 import  { labelDataType } from '../../db';
 import { IcontentProps } from '../Content';
 
-export interface IlabelsContainerProps extends IenableStates {
+export interface IlabelsContainerProps {
     dbData: labelDataType[] | undefined,
     setDbData: (arg: labelDataType[]) => void
     addNewLabel: (arg: labelDataType) => void,
@@ -14,8 +13,8 @@ export interface IlabelsContainerProps extends IenableStates {
     handleSaveLabel: (arg: labelDataType) => void,
     deleteLabels: (arg: labelDataType[]) => void
 }
-export default function LeftSide({ enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels }: IcontentProps) {
-    const props = { enableStates, updateStates, dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels };
+export default function LeftSide({ dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels }: IcontentProps) {
+    const props = { dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels };
     return (
         <div id="leftSide">
             <LabelsContainerStates {...props} />
