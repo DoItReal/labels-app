@@ -1,13 +1,30 @@
 import * as React from 'react';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+const data = [
+    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
+    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
+];
+const dataMap = new Map();
+dataMap.set('bg', 'Bulgarian');
+dataMap.set('en', 'English');
+dataMap.set('de', 'Deutsch');
+dataMap.set('ru', 'Russian');
+dataMap.set('allergens', 'Allergens');
 
+//@ts-ignore
+const newData = data.map(el => { el.id = el._id; delete el._id; return el; });
 const dataCol = [
     { name: 'Bulgarian', type: 'bg', width: 250 },
     { name: 'English', type: 'en', width: 250 },
     { name: 'Deutsch', type: 'de', width: 250 },
     { name: 'Russian', type: 'rus', width: 250 },
-    { name: 'Allergens', type: 'allergens', width: 250 }
+    { name: 'Allergens', type: 'allergens', width: 250  }
 ];
+const keys = Object.keys(newData[0]);
+const dataColNew = keys.map((key) => {
+    return { name: dataMap.get(key), type: newData[0].key, width: 250 }
+});
+
 const col = dataCol.map(element => {
     return { field: element.type, headerName: element.name, width: element.width }
 });
@@ -38,6 +55,7 @@ const rows = [
 ];
 
 export default function DataTable() {
+    React.useEffect(() => { console.log(dataColNew) });
     return (
         <div style={{ height: 400, width: '100%' }}>
             <DataGrid
@@ -55,9 +73,3 @@ export default function DataTable() {
     );
 }
 
-const data = [
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8]},
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12]},
-];
-//@ts-ignore
-const newData = data.map(el => { el.id = el._id; delete el._id; return el; })

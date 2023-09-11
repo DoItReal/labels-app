@@ -92,9 +92,15 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
     return (
         <AppBar position="static">
             
-            <Container maxWidth="xl">
+            <Container sx={{
+                minWidth: '100%',
+                justifyContent: 'flex-start',
+            } }>
                 <Toolbar disableGutters variant="dense">
-                    <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                    <AdbIcon sx={{
+                        display: { xs: 'none', md: 'flex' },
+                        mr: 1                       
+                    }} />
                     <Typography
                         variant="h6"
                         noWrap

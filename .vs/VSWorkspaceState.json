@@ -1,12 +1,16 @@
 {
   "ExpandedNodes": [
     "",
+    "\\public",
     "\\src",
     "\\src\\components",
     "\\src\\content",
-    "\\src\\Login",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\LeftSide\\SaveLabel",
+    "\\src\\nav",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\UI\\Copyright.tsx",
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\LabelTable.tsx",
   "PreviewInSolutionExplorer": false
 }
