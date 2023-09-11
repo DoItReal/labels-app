@@ -9,7 +9,8 @@ export default function StickyFooter() {
                 sx={{
                     display: 'absolute',
                     position:'sticky',
-                    width: '100%',
+                    width: 1,
+                    height:1/10,
                     bottom:0,
                         py: 2,
                         px: 1,
@@ -19,7 +20,7 @@ export default function StickyFooter() {
                                 ? theme.palette.grey[200]
                                 : theme.palette.grey[800],
                     }}
-        >
+        >   
             <Container maxWidth="xs" sx={{ marginLeft:"auto", marginRight:0 }}>
                         <Copyright />
                     </Container>

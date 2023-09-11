@@ -7,3 +7,6 @@ export function findIndexByProperty(arr: Array<any>=[], propName: string, propVa
     }
     return -1; // Return -1 if the object is not found
 }
+export function isNotNullOrUndefined<T extends Object>(input: null | undefined | T): input is T {
+    return input != null;
+}

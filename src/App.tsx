@@ -66,7 +66,6 @@ function App() {
                     <Route path="/" element={
                                 <RequireAuth user={user}>
                                     <Grid container spacing={0} sx={{flexGrow:1, flexDirection:'column'} }>
-                                        
                                                 <Content />
                                     </Grid>
                         </RequireAuth>

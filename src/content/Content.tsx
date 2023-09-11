@@ -9,6 +9,7 @@ import { useContext, useState } from 'react';
 import { labelDataType } from '../db';
 import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
+
 export interface IaddedLabel extends labelDataType {
     count:number
 };
