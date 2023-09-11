@@ -73,7 +73,7 @@ function App() {
                         
                         <Route path="/login" element={<LoginUI />} />
                                 <Route path="/register" element={<SignUp />} />
-                                <Route path='/test' element={<Test /> }/>
+         
                         </Routes>
                 </HashRouter>
                 <StickyFooter />

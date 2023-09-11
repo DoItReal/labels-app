@@ -66,6 +66,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
         }, {
             key: 'Logout',
             name: 'Logout',
+            label: 'Logout',
             icon: <Logout fontSize='small' />,
             handleClick: () => { handleCloseUserMenu(); logout() }
         }, {
@@ -263,7 +264,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                         >
                             {settings.map((setting) => (
                                 <MenuItem key={setting.key} onClick={setting.handleClick}>
-                                    <Typography textAlign="center" onClick={setting.handleClick}>{setting.icon ? <> {setting.icon}{setting.name}</>: setting.name}</Typography>
+                                    <Typography textAlign="center" onClick={setting.handleClick} >{setting.icon ? <> {setting.icon}{setting.name}</>: setting.name}</Typography>
                                 </MenuItem>
                             ))}
                         </Menu>

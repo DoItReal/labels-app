@@ -7,6 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 import EditIcon from '@mui/icons-material/Edit';
+import { Stack } from '@mui/material';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -39,26 +40,7 @@ export function Filter(dbData: labelDataType[] | undefined, filterText: string, 
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-const data:any[] = [
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-    { _id: "64a48ea2cc625d18c094b452", bg: ' Мляко с ориз', en: "Milk with rice", de: "Milch mit Reis", rus: "Молоко с риссом", allergens: [8] },
-    { _id: "64a824b0223efefb69bca6ed", bg: "Риба в палачинка", en: "Fish meat in pancake", de: "Fischfleisch im Pfannkuchen", rus: "Мясо рыбы в блинчиках", allergens: [1, 6, 8, 12] },
-];
+// to save in db and fetch it
 const dataMap = new Map();
 dataMap.set('bg', 'Bulgarian');
 dataMap.set('en', 'English');
@@ -66,23 +48,16 @@ dataMap.set('de', 'Deutsch');
 dataMap.set('rus', 'Russian');
 dataMap.set('allergens', 'Allergens');
 
-const rows = data.map(el => {
-    el.id = el._id; el.actions = {}; return el;
+const rows = (data:any[])=> data.map(el => {
+    el.id = structuredClone(el._id); el.actions = {}; return el;
 });
-
-const keys = Object.keys(rows[0]);
-const dataColUnfiltered = keys.map((key) => {
+const keys = (rows:any[]) => Object.keys(rows[0]);
+const dataColUnfiltered = (keys:string[]) => keys.map((key) => {
     if (dataMap.get(key))
-        return { name: dataMap.get(key), type: key, width: 250 }
+        return { name: dataMap.get(key), type: key, width: 200 }
     return null;
 }).filter(isNotNullOrUndefined);
-dataColUnfiltered.push({
-    name: 'Actions',
-    type: 'actions',
-    width:100
-});
-
-const col = dataColUnfiltered.map(element => {
+const col = (dataColUnfiltered: {name:any,type:string,width:number}[])=>dataColUnfiltered.map(element => {
     if (element !== null) {
         if (element.type === 'actions') {
             return ({
@@ -134,33 +109,50 @@ const col = dataColUnfiltered.map(element => {
     return null; };
 }).filter(isNotNullOrUndefined);
 
-const columns: GridColDef[] =  [
-    ...col,
-   
-];
+const getColsRows = (data: any) => {
+    if (data === undefined || data.length === 0) return [[], []];
+    const row = rows(data);
+    const colUnfilteredData = dataColUnfiltered(keys(row));
+    colUnfilteredData.push({
+        name: 'Actions',
+        type: 'actions',
+        width: 100
+    });
+    const cols = col(colUnfilteredData);
+    return [row, [...cols]];
 
+}
 
-export default function DataTable() {
+const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
+    No Labels Loaded
+</Stack>);
+export default function DataTable({ dbData }: {dbData:labelDataType[]|undefined}) {
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
-    React.useEffect(() => console.log(rowSelectionModel));
+   // if (dbData === undefined || dbData.length === 0) return null;
+    const [rows, columns] = getColsRows(dbData);
+   // React.useEffect(() => console.log(rowSelectionModel));
     return (
-            <DataGrid
-                density='compact'
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 10 },
-                    },
-                }}
-                pageSizeOptions={[5, 10, 25, 50, 100]}
-                checkboxSelection
-                onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}
-                sx={{
-                    height: 1,
-                    width:1
-                } }
-            />
+        <DataGrid
+            density='compact'
+            rows={rows}
+            columns={columns}
+            initialState={{
+                pagination: {
+                    paginationModel: { page: 0, pageSize: 10 },
+                },
+            }}
+            pageSizeOptions={[5, 10, 25, 50, 100]}
+            checkboxSelection
+            
+            onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}
+            sx={{
+                height: 1,
+                width: 1
+            }}
+            slots={{
+                noRowsOverlay: MyCustomNoRowsOverlay
+            }}
+        />
     );
 }
 
