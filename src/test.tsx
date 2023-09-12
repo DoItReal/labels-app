@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DataGrid, GridActionsColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridActionsColDef, GridRow, GridRowId, GridRowSelectionModel } from '@mui/x-data-grid';
 import { GridActionsCellItem } from "@mui/x-data-grid"; 
 import { isNotNullOrUndefined } from './tools/helpers';
 import { labelDataType } from './db';
@@ -7,11 +7,15 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 import EditIcon from '@mui/icons-material/Edit';
-import { Paper, Popover, Stack } from '@mui/material';
+import {  Paper, Popover, Stack } from '@mui/material';
 import { Label } from './labels';
+import { Alert } from './components/Alert';
 import { useState } from 'react';
 import { Theme } from '@emotion/react';
 import { makeStyles } from '@mui/styles';
+import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
+import { SaveLabel } from './content/LeftSide/SaveLabel';
+import { ErrorUI } from './Error';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -57,8 +61,8 @@ dataMap.set('allergens', 'Allergens');
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
-function DataTable({ rows, columns }: { rows: any, columns: any }) {
-    const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
+function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { rows: any, columns: any,rowSelectionModel:GridRowSelectionModel, setRowSelectionModel: (arg: GridRowSelectionModel)=>void }) {
+    
    // if (dbData === undefined || dbData.length === 0) return null;
   
    // React.useEffect(() => console.log(rowSelectionModel));
@@ -76,6 +80,7 @@ function DataTable({ rows, columns }: { rows: any, columns: any }) {
             checkboxSelection
             
             onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}
+            rowSelectionModel={rowSelectionModel }
             sx={{
                 height: 1,
                 width: 1
@@ -87,9 +92,19 @@ function DataTable({ rows, columns }: { rows: any, columns: any }) {
     );
 }
 
-export default function DataTableStates({ dbData }: { dbData: labelDataType[] | undefined }) {
+export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel }: { dbData: labelDataType[] | undefined, handleSaveLabel:(arg:labelDataType)=>void, deleteLabel:(arg:labelDataType)=>void }) {
+    const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
     const [preview, setPreview] = useState<labelDataType | undefined>(undefined);
     const [showPreview, setShowPreview] = useState(false);
+    const [editLabel, setEditLabel] = useState<labelDataType | undefined>(undefined);
+    const [showEdit, setShowEdit] = useState<boolean>(false);
+    const [error, setError] = useState<JSX.Element | null>(null);
+
+    const handleSelectSingleElement = (element: string) => {
+       // setRowSelectionModel(structuredClone([...rowSelectionModel, element]));
+        console.log(rowSelectionModel);
+        //to add it to DataGrid - Selected
+    }
     const getColsRows = (data: any): [rows: any, columns: any] => {
         if (data === undefined || data.length === 0) return [[], []];
         const row = getRows(data);
@@ -103,54 +118,65 @@ export default function DataTableStates({ dbData }: { dbData: labelDataType[] | 
         return [row, [...cols]];
 
     }
-    const handleSetPreview = (label: labelDataType) => {
-        setPreview(label);
+    const handleDeleteLabel = React.useCallback((row: typeof GridRow & labelDataType) => async () => {
+        try {
+            await deleteLabel(row);
+            const time = 5000;
+            setError(<Alert severity="success" handleClose={() => setError(null)}><strong>Label: </strong> {row.bg} <strong>sucessfuly deleted!</strong></Alert>);
+            setTimeout(() => setError(null), time);
+        } catch (error) {
+            const time = 5000;
+            setError(<Alert severity="error" handleClose={() => setError(null)}><strong>Unable to delete Label!</strong></Alert>);
+            setTimeout(() => setError(null), time);
+        }
+    }, []);
+    const handleSetPreview = React.useCallback((row:typeof GridRow & labelDataType)=>() => {
+        setPreview(row);
         setShowPreview(true);
-    }
+    }, []);
     const handleClosePreview = () => {
         setPreview(undefined);
         setShowPreview(false);
     }
+
+    const handleSetEdit = React.useCallback((row: typeof GridRow & labelDataType) => () => {
+        setEditLabel(row);
+        setShowEdit(true);
+    }, []);
+    const handleCloseEdit =  () => {
+        setEditLabel(undefined);
+        setShowEdit(false);
+    }
+
     const col = (dataColUnfiltered: { name: any, type: string, width: number }[]) => dataColUnfiltered.map(element => {
         if (element !== null) {
             if (element.type === 'actions') {
                 return ({
                     field: 'actions', headerName: 'Actions', sortable: false, type: "actions",
-                    getActions: (params: GridActionsColDef) => [
+                    getActions: (params: any) => [
                         <GridActionsCellItem
                             icon={<DeleteIcon />}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                console.log(params);
-                            }}
+                            onClick={handleDeleteLabel(params.row)      }
                             label="Delete"
                             showInMenu={true}
                         />,
                         <GridActionsCellItem
                             icon={<AddIcon />}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                console.log('add');
-                            }}
+                            onClick={
+                                ()=>handleSelectSingleElement(params.id)
+                            }
                             label="Add"
                             showInMenu={true}
                         />,
                         <GridActionsCellItem
                             icon={<PreviewIcon />}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                //@ts-ignore
-                                handleSetPreview(params.row);
-                            }}
+                            onClick={handleSetPreview(params.row)}
                             label="Preview"
                             showInMenu={true}
                         />,
                         <GridActionsCellItem
                             icon={<EditIcon />}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                console.log('Edit');
-                            }}
+                            onClick={handleSetEdit(params.row)}
                             label="Edit"
                             showInMenu={true}
                         />
@@ -166,10 +192,13 @@ export default function DataTableStates({ dbData }: { dbData: labelDataType[] | 
     }).filter(isNotNullOrUndefined);
 
     const [rows, columns] = getColsRows(dbData);
+   
     return (
         <>
-            <DataTable rows={rows} columns={columns} />
+            <DataTable rows={rows} columns={columns} rowSelectionModel={rowSelectionModel} setRowSelectionModel={setRowSelectionModel} />
             {showPreview ? <Preview label={preview} open={showPreview} handleClose={handleClosePreview} /> : null}
+            {showEdit && editLabel ? <SaveLabel open={showEdit} handleClose={handleCloseEdit} label={editLabel} handleSubmit={handleSaveLabel} /> : null}
+            {error !== null ? error : null}
         </>
     )
 }
@@ -186,7 +215,6 @@ const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
 
 function Preview({ label, open, handleClose }:
     { label: labelDataType | undefined, open: boolean, handleClose:()=>void }) {
-
     const previewURL = React.useRef<string>('');
 
     const id = open ? 'simple-popover' : undefined;
@@ -202,14 +230,15 @@ function Preview({ label, open, handleClose }:
         previewURL.current = sign.generate().toDataURL('image/jpeg');
     }
     const classes = useStyles();
+    const eventHandler = (e: DraggableEvent, data: DraggableData) => e.preventDefault();
     return (
-        <Popover
+        <Draggable handle=".handle" onDrag={(e, data) => eventHandler(e, data)}><Popover
             id={id}
             open={open}
             onClose={handleClose }
             anchorReference={"none"}
             classes={{
-                root: classes.popoverRoot
+                root: classes.popoverRoot,
             }}
             anchorOrigin={{
                 vertical: 'center',
@@ -220,8 +249,8 @@ function Preview({ label, open, handleClose }:
                 horizontal: 'center',
             }}>
 
-                <img src={previewURL.current} width='100%' height='100%' alt="Label Preview"></img>
-        </Popover>
+            <img className="handle" src={previewURL.current} width='100%' height='100%' alt="Label Preview"></img>
+        </Popover></Draggable>
 
     );
 }

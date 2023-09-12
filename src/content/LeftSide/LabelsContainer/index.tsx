@@ -1,10 +1,10 @@
 import SearchContainer from './SearchContainer';
 import FilterNavContainer from './FilterNavContainer';
-import Labels from './Labels';
 import { Dispatch, SetStateAction, useState } from 'react';
 import './index.css';
 import { labelDataType } from '../../../db';
 import { IlabelsContainerProps } from '../index';
+import Test from '../../../test';
 
 interface Tprops {
     filterText: string,
@@ -69,7 +69,7 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         <div id="SignsContainer" className="focus">
             <SearchContainer setDbData={props.setDbData} filterText={props.filterText} setFilterText={props.setFilterText} filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} />
             <FilterNavContainer filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels }/>
-            <Labels props={labelsProps }/>
+            <Test {...labelsProps} />
         </div>
     );
 }

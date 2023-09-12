@@ -88,7 +88,7 @@ export function CreateLabel({ handleCreateLabel }: IcontentProps) {
     );
 }
 
-export function SaveLabel({ enable, setEnable, label, clearLabel,handleSubmit }: { enable: boolean, setEnable: (arg: boolean) => void, label: labelDataType, clearLabel:()=>void, handleSubmit:(arg:labelDataType)=>void }) {
+export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boolean, handleClose: () => void, label: labelDataType, handleSubmit:(arg:labelDataType)=>void }) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>(label.allergens);
     const [filterCategory, setFilterCategory] = useState<string[]>(label.category);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: label.bg, en: label.en, de: label.de, rus: label.rus });
@@ -120,12 +120,11 @@ export function SaveLabel({ enable, setEnable, label, clearLabel,handleSubmit }:
         }
     }
     const close = () => {;
-        setEnable(false);
-        clearLabel();
+        handleClose();
         firstInit.current = false;
         window.removeEventListener('keydown', handleKeyDown, true);
     }
-    if (enable && !firstInit.current) {
+    if (open && !firstInit.current) {
         window.addEventListener('keydown', handleKeyDown, true);
         firstInit.current = true;
     } 
@@ -135,7 +134,7 @@ export function SaveLabel({ enable, setEnable, label, clearLabel,handleSubmit }:
     const props = { currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit: saveLabel, type: "Save Label" };
 
     return (
-       enable? 
+       open? 
             <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}>
                 <div className="draggedDiv">
                 <div className="saveLabel">
