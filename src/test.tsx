@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DataGrid, GridActionsColDef, GridApi, GridCallbackDetails, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridActionsColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { GridActionsCellItem } from "@mui/x-data-grid"; 
 import { isNotNullOrUndefined } from './tools/helpers';
 import { labelDataType } from './db';
@@ -7,7 +7,11 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 import EditIcon from '@mui/icons-material/Edit';
-import { Stack } from '@mui/material';
+import { Paper, Popover, Stack } from '@mui/material';
+import { Label } from './labels';
+import { useState } from 'react';
+import { Theme } from '@emotion/react';
+import { makeStyles } from '@mui/styles';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -48,88 +52,15 @@ dataMap.set('de', 'Deutsch');
 dataMap.set('rus', 'Russian');
 dataMap.set('allergens', 'Allergens');
 
-const rows = (data:any[])=> data.map(el => {
-    el.id = structuredClone(el._id); el.actions = {}; return el;
-});
-const keys = (rows:any[]) => Object.keys(rows[0]);
-const dataColUnfiltered = (keys:string[]) => keys.map((key) => {
-    if (dataMap.get(key))
-        return { name: dataMap.get(key), type: key, width: 200 }
-    return null;
-}).filter(isNotNullOrUndefined);
-const col = (dataColUnfiltered: {name:any,type:string,width:number}[])=>dataColUnfiltered.map(element => {
-    if (element !== null) {
-        if (element.type === 'actions') {
-            return ({
-                field: 'actions', headerName: 'Actions', sortable: false, type: "actions",
-                getActions: (params:GridActionsColDef) => [
-                    <GridActionsCellItem
-                        icon={<DeleteIcon />}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log(params);
-                        }}
-                        label="Delete"
-                        showInMenu={true}
-                    />,
-                    <GridActionsCellItem
-                        icon={<AddIcon />}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('add');
-                        }}
-                        label="Add"
-                        showInMenu={true}
-                    />,
-                    <GridActionsCellItem
-                        icon={<PreviewIcon />}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('preview');
-                        }}
-                        label="Preview"
-                        showInMenu={true}
-                    />,
-                    <GridActionsCellItem
-                        icon={<EditIcon />}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('Edit');
-                        }}
-                        label="Edit"
-                        showInMenu={true}
-                    />
-                ]
-            });
-        } else {
-            return { field: element.type, headerName: element.name, width: element.width }
-        }
-    }
-    else {
-    return null; };
-}).filter(isNotNullOrUndefined);
 
-const getColsRows = (data: any) => {
-    if (data === undefined || data.length === 0) return [[], []];
-    const row = rows(data);
-    const colUnfilteredData = dataColUnfiltered(keys(row));
-    colUnfilteredData.push({
-        name: 'Actions',
-        type: 'actions',
-        width: 100
-    });
-    const cols = col(colUnfilteredData);
-    return [row, [...cols]];
-
-}
 
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
-export default function DataTable({ dbData }: {dbData:labelDataType[]|undefined}) {
+function DataTable({ rows, columns }: { rows: any, columns: any }) {
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
    // if (dbData === undefined || dbData.length === 0) return null;
-    const [rows, columns] = getColsRows(dbData);
+  
    // React.useEffect(() => console.log(rowSelectionModel));
     return (
         <DataGrid
@@ -156,3 +87,149 @@ export default function DataTable({ dbData }: {dbData:labelDataType[]|undefined}
     );
 }
 
+export default function DataTableStates({ dbData }: { dbData: labelDataType[] | undefined }) {
+    const [preview, setPreview] = useState<labelDataType | undefined>(undefined);
+    const [showPreview, setShowPreview] = useState(false);
+    const getColsRows = (data: any): [rows: any, columns: any] => {
+        if (data === undefined || data.length === 0) return [[], []];
+        const row = getRows(data);
+        const colUnfilteredData = dataColUnfiltered(keys(row));
+        colUnfilteredData.push({
+            name: 'Actions',
+            type: 'actions',
+            width: 100
+        });
+        const cols = col(colUnfilteredData);
+        return [row, [...cols]];
+
+    }
+    const handleSetPreview = (label: labelDataType) => {
+        setPreview(label);
+        setShowPreview(true);
+    }
+    const handleClosePreview = () => {
+        setPreview(undefined);
+        setShowPreview(false);
+    }
+    const col = (dataColUnfiltered: { name: any, type: string, width: number }[]) => dataColUnfiltered.map(element => {
+        if (element !== null) {
+            if (element.type === 'actions') {
+                return ({
+                    field: 'actions', headerName: 'Actions', sortable: false, type: "actions",
+                    getActions: (params: GridActionsColDef) => [
+                        <GridActionsCellItem
+                            icon={<DeleteIcon />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log(params);
+                            }}
+                            label="Delete"
+                            showInMenu={true}
+                        />,
+                        <GridActionsCellItem
+                            icon={<AddIcon />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('add');
+                            }}
+                            label="Add"
+                            showInMenu={true}
+                        />,
+                        <GridActionsCellItem
+                            icon={<PreviewIcon />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                //@ts-ignore
+                                handleSetPreview(params.row);
+                            }}
+                            label="Preview"
+                            showInMenu={true}
+                        />,
+                        <GridActionsCellItem
+                            icon={<EditIcon />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Edit');
+                            }}
+                            label="Edit"
+                            showInMenu={true}
+                        />
+                    ]
+                });
+            } else {
+                return { field: element.type, headerName: element.name, width: element.width }
+            }
+        }
+        else {
+            return null;
+        };
+    }).filter(isNotNullOrUndefined);
+
+    const [rows, columns] = getColsRows(dbData);
+    return (
+        <>
+            <DataTable rows={rows} columns={columns} />
+            {showPreview ? <Preview label={preview} open={showPreview} handleClose={handleClosePreview} /> : null}
+        </>
+    )
+}
+
+const getRows = (data: any[]) => data.map(el => {
+    el.id = structuredClone(el._id); el.actions = {}; return el;
+});
+const keys = (rows: any[]) => Object.keys(rows[0]);
+const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
+    if (dataMap.get(key))
+        return { name: dataMap.get(key), type: key, width: 200 }
+    return null;
+}).filter(isNotNullOrUndefined);
+
+function Preview({ label, open, handleClose }:
+    { label: labelDataType | undefined, open: boolean, handleClose:()=>void }) {
+
+    const previewURL = React.useRef<string>('');
+
+    const id = open ? 'simple-popover' : undefined;
+
+    if (label !== undefined) {
+        //to do Get width and height of A4 page, signsInPage from PDF class
+        let width = 720;
+        let height = 920;
+        let signsInPage = 8;
+        var sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
+        sign.setContent(label.allergens, { bg: decodeURI(label.bg), en: label.en, de: label.de, rus: label.rus });
+        sign.setId(label._id);
+        previewURL.current = sign.generate().toDataURL('image/jpeg');
+    }
+    const classes = useStyles();
+    return (
+        <Popover
+            id={id}
+            open={open}
+            onClose={handleClose }
+            anchorReference={"none"}
+            classes={{
+                root: classes.popoverRoot
+            }}
+            anchorOrigin={{
+                vertical: 'center',
+                horizontal: 'center',
+            }}
+            transformOrigin={{
+                vertical: 'center',
+                horizontal: 'center',
+            }}>
+
+                <img src={previewURL.current} width='100%' height='100%' alt="Label Preview"></img>
+        </Popover>
+
+    );
+}
+const useStyles = makeStyles((theme:Theme) => ({
+    popoverRoot: {
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop: 100,
+        scale:0.8
+    },
+}));

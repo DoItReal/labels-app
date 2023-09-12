@@ -6,9 +6,10 @@
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\Login",
+    "\\src\\nav",
     "\\src\\tools",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\LabelTable.tsx",
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\Labels.tsx",
   "PreviewInSolutionExplorer": false
 }

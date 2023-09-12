@@ -18,7 +18,6 @@ interface Tprops {
     deleteLabel: (arg:labelDataType) => void,
     selectedLabels: Array<labelDataType>,
     setSelectedLabels: (arg: labelDataType[]) => void,
-    setPreview: (label: labelDataType) => void,
     handleSaveLabel: (label: labelDataType) => void,
     deleteLabels: (arg:labelDataType[])=> void
 };
@@ -31,7 +30,6 @@ export interface IlabelsProps {
     addLabel: (arg:labelDataType)=>void,
     generateList: () => void,
     unSelectAll: () => void,
-    setPreview: (label: labelDataType) => void,
     deleteLabel: (arg: labelDataType) => void,
     handleSaveLabel: (arg: labelDataType) => void,
     deleteLabels: (arg:labelDataType[])=>void
@@ -66,7 +64,7 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         props.addLabels([...props.selectedLabels]);
     };
    
-    const labelsProps:IlabelsProps = { dbData:props.dbData, filterText:props.filterText,filterCategory:props.filterCategory,selectLabel,unSelectLabel,unSelectAll,generateList,setPreview:props.setPreview, addLabel:props.addLabel, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
+    const labelsProps:IlabelsProps = { dbData:props.dbData, filterText:props.filterText,filterCategory:props.filterCategory,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
     return (
         <div id="SignsContainer" className="focus">
             <SearchContainer setDbData={props.setDbData} filterText={props.filterText} setFilterText={props.setFilterText} filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} />
@@ -76,12 +74,12 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
     );
 }
 
-export function LabelsContainerStates({ dbData, setDbData,addNewLabel, addLabels, setPreview, deleteLabel,deleteLabels, handleSaveLabel }: IlabelsContainerProps) {
+export function LabelsContainerStates({ dbData, setDbData,addNewLabel, addLabels, deleteLabel,deleteLabels, handleSaveLabel }: IlabelsContainerProps) {
     const [filterCategory, setFilterCategory] = useState<string[]>(['all']);
     const [filterText, setFilterText] = useState('');
     const [selectedLabels, setSelectedLabels] = useState<labelDataType[]>([]);
    // let initState: labelDataArrType = [{ _id: '0', category: [], allergens: [1], bg: "No Labels Loaded", en: '', de: '', rus: '' }];
-    var props:Tprops = {filterText:filterText,setFilterText:setFilterText,dbData:dbData,setDbData:setDbData,filterCategory:filterCategory,setFilterCategory:setFilterCategory,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, setPreview:setPreview, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel};
+    var props:Tprops = {filterText:filterText,setFilterText:setFilterText,dbData:dbData,setDbData:setDbData,filterCategory:filterCategory,setFilterCategory:setFilterCategory,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel};
     return (
         <LabelsContainer props={props}/>
         );

@@ -11,20 +11,19 @@ import { useState,createContext} from 'react';
 import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-dom';
 import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
-import { ThemeProvider } from '@emotion/react';
+import { Theme, ThemeProvider } from '@emotion/react';
 
 import { Box, createTheme, CssBaseline } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
-import Test from './test';
 export var db = new DB();
 
 export interface IenableStates {
     enableStates: Map<string, boolean>,
     updateStates: (key: string, value: boolean) => void
 }
-const defaultTheme = createTheme();
+const defaultTheme:Theme = createTheme();
 const darkTheme = createTheme({
     palette: {
         mode: 'dark',   

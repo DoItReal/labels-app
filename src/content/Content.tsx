@@ -3,9 +3,8 @@ import LeftSide from './LeftSide/index';
 import MidSide from './MidSide/index';
 import RightSide from './RightSide/index';
 import './content.css';
-import { enableStatesContext} from '../App';
 import { CreateLabel } from './LeftSide/SaveLabel';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { labelDataType } from '../db';
 import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
@@ -19,8 +18,6 @@ export interface IcontentProps {
     handleCreateLabel:(arg:any) => Promise<boolean>,
     addedLabels: IaddedLabel[],
     addLabel: (arg: IaddedLabel) => void,
-    previewLabel: labelDataType | undefined,
-    setPreview: (arg: labelDataType) => void,
     addNewLabel: (arg: labelDataType) => void,
     addLabels: (arg: labelDataType[]) => void,
     deleteLabel: (arg: labelDataType) => void,
@@ -29,14 +26,9 @@ export interface IcontentProps {
 }
 
 export default function ContentStates() {
-    const [enableStates, updateStates] = useContext(enableStatesContext);
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
     const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>([]);
-    const [previewLabel, setPreviewLabel] = useState<labelDataType | undefined>();
-    const setPreview = (label: labelDataType) => {
-        setPreviewLabel(label);
-    };
     //add label using setDbData(label)
     const addDbLabel = (label: labelDataType) => {
         if (props.dbData instanceof Array) {
@@ -48,7 +40,6 @@ export default function ContentStates() {
         }
         
     }
-
     //add label to selected
     const addLabel = (label: IaddedLabel) => {
         setAddedLabels(current => [...current].map(lbl => {
@@ -150,7 +141,7 @@ export default function ContentStates() {
             return false;
         }
 }
-    const props: IcontentProps = {dbData, setDbData,handleCreateLabel, addNewLabel, addLabels, setPreview, addLabel, addedLabels, previewLabel, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
+    const props: IcontentProps = {dbData, setDbData,handleCreateLabel, addNewLabel, addLabels, addLabel, addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
     return (
         <>
         <Content props={props} />

@@ -1,15 +1,13 @@
 import './labelTable.css';
 import { labelDataType } from '../../../db';
 
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SaveLabel } from '../SaveLabel/index';
 import { IlabelsProps } from './index';
 import { ReactComponent as EditButtonSVG } from './editButtonSVG.svg';
-import { ReactComponent as PreviewButtonSVG } from './previewButtonSVG.svg';
 import { ReactComponent as AddLabelButtonSVG } from './addLabelButtonSVG.svg';
 import { ReactComponent as DeleteButtonSVG } from './deleteButtonSVG.svg';
 import { ErrorUI } from '../../../Error';
-import { enableStatesContext } from '../../../App';
 export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
@@ -42,8 +40,7 @@ export function Filter(dbData: labelDataType[] | undefined, filterText: string, 
     return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
 }
 
-export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, setPreview, addLabel, deleteLabel, handleSaveLabel }: IlabelsProps) {
-    const [enableStates, updateStates] = useContext(enableStatesContext);
+export function LabelTable({ dbData, filterText, filterCategory, selectLabel, unSelectLabel, generateList, unSelectAll, addLabel, deleteLabel, handleSaveLabel }: IlabelsProps) {
     const rows: Array<React.ReactNode> = [];
    
     const [selectAll, setSelectAll] = useState(false);
@@ -64,7 +61,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
     if (data.length > 0) {
         data.forEach((data: labelDataType) => {
             rows.push(
-                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} updateStates={updateStates} setPreview={setPreview} addLabel={addLabel} deleteLabel={deleteLabel} />
+                <LabelRow label={data} key={data._id} dataKey={data._id} setEdit={setEdit} selectLabel={selectLabel} unSelectLabel={unSelectLabel} selectAll={selectAll} addLabel={addLabel} deleteLabel={deleteLabel} />
             )
         });
     } else {
@@ -88,7 +85,7 @@ export function LabelTable({ dbData, filterText, filterCategory, selectLabel, un
             <>{editLabel != null ? <SaveLabel enable={saveEnable} setEnable={setSaveEnable} label={editLabel} clearLabel={() => setEditLabel(null)} handleSubmit={handleSaveLabel } />: null }</>
         </>);
 }
-function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, updateStates, setPreview, addLabel, deleteLabel }:
+function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectAll, addLabel, deleteLabel }:
     {
         label: labelDataType,
         dataKey: string,
@@ -96,8 +93,6 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
         selectLabel: (arg: labelDataType) => void,
         unSelectLabel: (arg: labelDataType) => void,
         selectAll: boolean,
-        updateStates: (key: string, value: boolean) => void,
-        setPreview: (label: labelDataType) => void,
         addLabel: (arg: labelDataType) => void,
         deleteLabel: (arg:labelDataType)=>void
 
@@ -122,7 +117,6 @@ function LabelRow({ label, dataKey, setEdit, selectLabel, unSelectLabel, selectA
             <LabelCell bg={label.bg} key={label.bg} />
             <td className="cellOptions">
                 <EditButton label={label} setEdit={ setEdit }/>
-                <PreviewButton label={label} updateStates={updateStates} setPreview={setPreview } />
                 <AddSingleLabelButton addLabel={handleAddLabel} />
                 <DeleteButton handleClick = {handleDelete }/>
             </td>
@@ -175,17 +169,6 @@ function EditButton({ label, setEdit }: { label: labelDataType, setEdit: (arg:la
     return (
 
         <button className="editButton" onClick={setEditButton} title="Edit"><EditButtonSVG/></button>
-        );
-}
-function PreviewButton({ label, updateStates, setPreview }: { label: labelDataType, updateStates: (key: string, value: boolean) => void, setPreview:(label:labelDataType)=>void }) {
-  
-    function preview() {
-        updateStates('preview', true);
-        setPreview(label);
-        
-    }
-    return (
-        <button className="previewButton" onClick={preview } title="Preview"><PreviewButtonSVG /></button>
         );
 }
 function DeleteButton({ handleClick }: {handleClick:()=>void}) {

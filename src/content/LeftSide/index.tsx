@@ -8,13 +8,12 @@ export interface IlabelsContainerProps {
     setDbData: (arg: labelDataType[]) => void
     addNewLabel: (arg: labelDataType) => void,
     addLabels: (arg: labelDataType[]) => void,
-    setPreview: (label: labelDataType) => void,
     deleteLabel: (arg: labelDataType) => void,
     handleSaveLabel: (arg: labelDataType) => void,
     deleteLabels: (arg: labelDataType[]) => void
 }
-export default function LeftSide({ dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels }: IcontentProps) {
-    const props = { dbData, setDbData, addNewLabel, addLabels, setPreview, deleteLabel, handleSaveLabel, deleteLabels };
+export default function LeftSide({ dbData, setDbData, addNewLabel, addLabels, deleteLabel, handleSaveLabel, deleteLabels }: IcontentProps) {
+    const props = { dbData, setDbData, addNewLabel, addLabels, deleteLabel, handleSaveLabel, deleteLabels };
     return (
         <div id="leftSide">
             <LabelsContainerStates {...props} />
