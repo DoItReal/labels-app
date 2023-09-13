@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DataGrid, GridActionsColDef, GridRow, GridRowId, GridRowSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridActionsColDef, GridRow, GridRowId, GridRowSelectionModel, GridToolbar } from '@mui/x-data-grid';
 import { GridActionsCellItem } from "@mui/x-data-grid"; 
 import { isNotNullOrUndefined } from './tools/helpers';
 import { labelDataType } from './db';
@@ -16,7 +16,11 @@ import { makeStyles } from '@mui/styles';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { SaveLabel } from './content/LeftSide/SaveLabel';
 import { ErrorUI } from './Error';
-export function Filter(dbData: labelDataType[] | undefined, filterText: string, filterCategory: Array<string>) {
+import { filterCategoryContext } from './content/LeftSide/LabelsContainer/index';
+
+
+export function Filter(dbData: labelDataType[] | undefined) {
+    const [filterCategory] = React.useContext(filterCategoryContext);
     let filteredList: labelDataType[] = [];
     if (!dbData || dbData.length === 0) return [];
     filterCategory.forEach((item) => {
@@ -45,7 +49,7 @@ export function Filter(dbData: labelDataType[] | undefined, filterText: string, 
         return filteredList;
     });
 
-    return filteredList.filter(data => data.bg.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
+    return filteredList;
 }
 
 // to save in db and fetch it
@@ -86,7 +90,8 @@ function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { 
                 width: 1
             }}
             slots={{
-                noRowsOverlay: MyCustomNoRowsOverlay
+                noRowsOverlay: MyCustomNoRowsOverlay,
+                toolbar: GridToolbar
             }}
         />
     );
@@ -156,7 +161,7 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel }
                     getActions: (params: any) => [
                         <GridActionsCellItem
                             icon={<DeleteIcon />}
-                            onClick={handleDeleteLabel(params.row)      }
+                            onClick={handleDeleteLabel( params.row)      }
                             label="Delete"
                             showInMenu={true}
                         />,
@@ -182,6 +187,8 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel }
                         />
                     ]
                 });
+            } else if (element.type === 'allergens') {
+                return { field: element.type, headerName: element.name, width: element.width, sortable: false, filterable:false };
             } else {
                 return { field: element.type, headerName: element.name, width: element.width }
             }
@@ -191,7 +198,7 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel }
         };
     }).filter(isNotNullOrUndefined);
 
-    const [rows, columns] = getColsRows(dbData);
+    const [rows, columns] = getColsRows(Filter(dbData));
    
     return (
         <>
@@ -230,7 +237,7 @@ function Preview({ label, open, handleClose }:
         previewURL.current = sign.generate().toDataURL('image/jpeg');
     }
     const classes = useStyles();
-    const eventHandler = (e: DraggableEvent, data: DraggableData) => e.preventDefault();
+    const eventHandler = (e: DraggableEvent, data: DraggableData) => {}
     return (
         <Draggable handle=".handle" onDrag={(e, data) => eventHandler(e, data)}><Popover
             id={id}
@@ -249,7 +256,7 @@ function Preview({ label, open, handleClose }:
                 horizontal: 'center',
             }}>
 
-            <img className="handle" src={previewURL.current} width='100%' height='100%' alt="Label Preview"></img>
+            <div className="handle" style={{ zIndex: 1 }}> <img src={previewURL.current} width='100%' height='100%' alt="Label Preview" onDragStart={(e: React.DragEvent<HTMLImageElement>) => e.preventDefault()}></img></div>
         </Popover></Draggable>
 
     );

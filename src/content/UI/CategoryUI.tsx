@@ -3,7 +3,7 @@ import { useOutsideAlerter } from '../../util';
 import { ReactComponent as Arrow } from './arrow.svg';
 import './categoryUI.css';
 
-export function Category({ filterCategory, setFilterCategory }: { filterCategory: string[], setFilterCategory: React.Dispatch<SetStateAction<string[]>> }) {
+export function Category({ filterCategory, setFilterCategory }: { filterCategory: string[], setFilterCategory: (arg:string[])=>void}) {
     const [multiSelectExpanded, setMultiSelectExpanded] = useState(false);
     const wrapperRef = useRef(null);
 
@@ -17,7 +17,7 @@ export function Category({ filterCategory, setFilterCategory }: { filterCategory
         </div>
     );
 }
-function CategoryUL({ currentCategory, setCurrentCategory, multiSelectExpanded }: { currentCategory: Array<string>, setCurrentCategory: React.Dispatch<SetStateAction<string[]>>, multiSelectExpanded: boolean }) {
+function CategoryUL({ currentCategory, setCurrentCategory, multiSelectExpanded }: { currentCategory: Array<string>, setCurrentCategory: (arg:string[])=>void, multiSelectExpanded: boolean }) {
 
     //---- TO DO ----*** GET DATA FOR CATEGORIES FROM DB AND POSSIBILITY TO UPDATE IT FROM UI ***----- //
     var allCategories: Array<string> = ["all", "Salads", "Soups", "Breakfast", "Vegan", "Fish", "Pork", "Chicken", "Pasta", "Rice", "Oriental Night", "BG Night"];

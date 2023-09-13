@@ -1,18 +1,15 @@
-import SearchContainer from './SearchContainer';
 import FilterNavContainer from './FilterNavContainer';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, createContext } from 'react';
 import './index.css';
 import { labelDataType } from '../../../db';
 import { IlabelsContainerProps } from '../index';
 import Test from '../../../test';
 
+//@ts-ignore
+export const filterCategoryContext = createContext<[string[],(arg:string[])=>void]>();
 interface Tprops {
-    filterText: string,
-    setFilterText: Dispatch<SetStateAction<string>>,
     dbData: labelDataType[] | undefined,
     setDbData: (arg: labelDataType[]) => void,
-    filterCategory: Array<string>,
-    setFilterCategory: React.Dispatch<SetStateAction<string[]>>,
     addLabels: (arg: labelDataType[]) => void,
     addLabel: (arg: labelDataType) => void,
     deleteLabel: (arg:labelDataType) => void,
@@ -23,8 +20,6 @@ interface Tprops {
 };
 export interface IlabelsProps {
     dbData: labelDataType[] | undefined,
-    filterText: string,
-    filterCategory: Array<string>,
     selectLabel: (arg: labelDataType) => void,
     unSelectLabel: (arg: labelDataType) => void,
     addLabel: (arg:labelDataType)=>void,
@@ -64,13 +59,14 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         props.addLabels([...props.selectedLabels]);
     };
    
-    const labelsProps:IlabelsProps = { dbData:props.dbData, filterText:props.filterText,filterCategory:props.filterCategory,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
+    const labelsProps:IlabelsProps = { dbData:props.dbData,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
     return (
+        
         <div id="SignsContainer" className="focus">
-            <SearchContainer setDbData={props.setDbData} filterText={props.filterText} setFilterText={props.setFilterText} filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} />
-            <FilterNavContainer filterCategory={props.filterCategory} setFilterCategory={props.setFilterCategory} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels }/>
+            <FilterNavContainer setDbData={props.setDbData } generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels }/>
             <Test {...labelsProps} />
-        </div>
+            </div>
+       
     );
 }
 
@@ -79,8 +75,10 @@ export function LabelsContainerStates({ dbData, setDbData,addNewLabel, addLabels
     const [filterText, setFilterText] = useState('');
     const [selectedLabels, setSelectedLabels] = useState<labelDataType[]>([]);
    // let initState: labelDataArrType = [{ _id: '0', category: [], allergens: [1], bg: "No Labels Loaded", en: '', de: '', rus: '' }];
-    var props:Tprops = {filterText:filterText,setFilterText:setFilterText,dbData:dbData,setDbData:setDbData,filterCategory:filterCategory,setFilterCategory:setFilterCategory,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel};
+    var props:Tprops = {dbData:dbData,setDbData:setDbData,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel};
     return (
-        <LabelsContainer props={props}/>
+        <filterCategoryContext.Provider value={[filterCategory, setFilterCategory]}>
+            <LabelsContainer props={props} />
+        </filterCategoryContext.Provider>
         );
 }
