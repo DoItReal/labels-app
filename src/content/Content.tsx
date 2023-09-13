@@ -2,12 +2,13 @@ import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
 import MidSide from './MidSide/index';
 import RightSide from './RightSide/index';
-import './content.css';
+//import './content.css';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState } from 'react';
 import { labelDataType } from '../db';
 import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
+import { Box, Container, Grid } from '@mui/material';
 
 export interface IaddedLabel extends labelDataType {
     count:number
@@ -152,12 +153,29 @@ export default function ContentStates() {
 
 function Content({ props }: { props: IcontentProps }) {
     return (
-        <div id="mainContent">
-            <LeftSide {...props} />
-            <MidSide {...props} />
-            <RightSide {...props} />
-            <CreateLabel {...props} />
-        </div>
+
+        <Container disableGutters sx={{
+            position: 'relative',
+            p: 0,
+            m:0,
+            minWidth: '100%',
+            justifyContent: 'flex-start',
+            width: '100%',
+
+        }}>
+            <Grid container spacing={0} m={0} p={0} sx={{minHeight:'80vh', maxHeight:'100%'}} >
+                <Grid xs={12} md={6 }>
+              <LeftSide {...props} />
+            </Grid>
+                <Grid xs={12} md={6 }>
+                <MidSide {...props} />
+            </Grid>
+            { false ? <RightSide {...props} /> : null }
+            { false ? <CreateLabel {...props} /> : null }
+         
+
+            </Grid>
+        </Container>
     );
 }
 

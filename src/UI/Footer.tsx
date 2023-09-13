@@ -7,8 +7,9 @@ export default function StickyFooter() {
                 <Box
                     component="footer"
                 sx={{
-                    display: 'absolute',
-                    position:'sticky',
+                    display: 'block',
+                    position: 'sticky',
+                    
                     width: 1,
                     height:1/10,
                     bottom:0,

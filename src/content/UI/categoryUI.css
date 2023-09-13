@@ -1,7 +1,9 @@
 .categoryHolder {
     display: flex;
-    width: 12rem;
-    height: 3rem;
+    min-width:6rem;
+    max-width: 12rem;
+    height:100%;
+    max-height: 3rem;
     border: 1px solid black;
     background-color: aliceblue;
 }
@@ -28,12 +30,14 @@
     background: slategray;
     text-align: left;
     transition: 0.5s;
-    width: 12rem;
-    margin-top: 3rem;
+    min-width: 6rem;
+    max-width: 12rem;
+    margin-top: 1.5rem;
     border: 1px solid black;
     box-sizing: border-box;
-    height: 200px;
-    color:white;
+    min-height:100px;
+    max-height: 200px;
+    color: white;
     overflow: auto;
 }
 

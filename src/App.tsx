@@ -51,22 +51,25 @@ function App() {
         <userContext.Provider value={[user, setUser, logout]}>
             <enableStatesContext.Provider value={[enableStates,updateStates]}>
         <ThemeProvider theme={theme} >
-            <Box
+                    <CssBaseline />     
+                    <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    minHeight: '100vh',
+                            minHeight: '100vh',
+                            m: 0,
+                    p:0,
                 }}
             >
-            <CssBaseline />     
+            
         <HashRouter basename="/">               
                         <Nav toggleMode={toggleMode} /> 
                         <Routes>
                     <Route path="/" element={
                                 <RequireAuth user={user}>
-                                    <Grid container spacing={0} sx={{flexGrow:1, flexDirection:'column'} }>
+                                   
                                                 <Content />
-                                    </Grid>
+                                    
                         </RequireAuth>
                     } />
                         

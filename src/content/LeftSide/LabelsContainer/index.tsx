@@ -4,6 +4,7 @@ import './index.css';
 import { labelDataType } from '../../../db';
 import { IlabelsContainerProps } from '../index';
 import Test from '../../../test';
+import { Box } from '@mui/material';
 
 //@ts-ignore
 export const filterCategoryContext = createContext<[string[],(arg:string[])=>void]>();
@@ -61,11 +62,14 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
    
     const labelsProps:IlabelsProps = { dbData:props.dbData,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
     return (
-        
-        <div id="SignsContainer" className="focus">
-            <FilterNavContainer setDbData={props.setDbData } generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels }/>
-            <Test {...labelsProps} />
-            </div>
+        <Box sx={{ display: 'flex',p:0,m:0, flexDirection: 'column', minHeight: '100%',maxHeight:'80%', border: '1px solid black' }} >
+            <Box sx={{ display: 'flex',p:0,m:0, maxHeight: '10%',minHeight:'10%', width: '100%', border: '1px solid red' }}>
+                <FilterNavContainer setDbData={props.setDbData} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels} />
+            </Box>
+            <Box sx={{  height:'100%' , overflow: 'auto' }}>
+                <Test {...labelsProps} />
+            </Box>
+        </Box>
        
     );
 }

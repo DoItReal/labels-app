@@ -216,7 +216,7 @@ const getRows = (data: any[]) => data.map(el => {
 const keys = (rows: any[]) => Object.keys(rows[0]);
 const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
     if (dataMap.get(key))
-        return { name: dataMap.get(key), type: key, width: 200 }
+        return { name: dataMap.get(key), type: key, width: 150 }
     return null;
 }).filter(isNotNullOrUndefined);
 

@@ -5,11 +5,12 @@
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\UI",
     "\\src\\Login",
     "\\src\\nav",
     "\\src\\tools",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\Labels.tsx",
+  "SelectedNode": "\\src\\content\\UI\\CategoryUI.tsx",
   "PreviewInSolutionExplorer": false
 }
