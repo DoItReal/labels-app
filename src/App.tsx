@@ -13,7 +13,7 @@ import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
 import { Theme, ThemeProvider } from '@emotion/react';
 
-import { Box, createTheme, CssBaseline } from '@mui/material';
+import { Box, Container, createTheme, CssBaseline } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
@@ -52,13 +52,14 @@ function App() {
             <enableStatesContext.Provider value={[enableStates,updateStates]}>
         <ThemeProvider theme={theme} >
                     <CssBaseline />     
-                    <Box
+                    <Container disableGutters
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                            minHeight: '100vh',
+                    height: '100vh',
+                            minWidth: '100%',
                             m: 0,
-                    p:0,
+                    p: 0,
                 }}
             >
             
@@ -79,7 +80,7 @@ function App() {
                         </Routes>
                 </HashRouter>
                 <StickyFooter />
-            </Box>
+            </Container>
                 </ThemeProvider>
             </enableStatesContext.Provider>
         </userContext.Provider>

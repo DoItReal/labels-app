@@ -1,16 +1,12 @@
 
 .draggedDiv {
     position: fixed;
-    scale: 0.7;
+    width:100%;
+    height:100%;
     z-index: 999;
 }
 
 .saveLabel {
-    position: fixed;
-    top: 100px;
-    left: 300px;
-    width: 700px;
-    height: 650px;
     border: 5px solid;
     display: flex;
     background: lightskyblue;
@@ -20,7 +16,7 @@
     box-sizing: content-box;
     flex-direction: column;
     align-items: flex-end;
-    float: right;
+    
 }
     .saveLabel p {
         float: right;

@@ -1,14 +1,14 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { LabelContent } from './LabelContent';
 import './index.css';
 import './saveLabel.css';
-import { db, enableStatesContext } from '../../../App';
 import { labelDataType } from '../../../db';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
 import React from 'react';
-
-
+import { Popover } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Theme } from '@emotion/react';
 export interface IsaveLabelInput {
     currentAllergens: number[], setCurrentAllergens: Dispatch<SetStateAction<number[]>>,
     filterCategory: string[], setFilterCategory: Dispatch<SetStateAction<string[]>>,
@@ -16,8 +16,7 @@ export interface IsaveLabelInput {
     type:string,
     translation: { bg: string, en: string, de: string, rus: string }, setTranslation: Dispatch<SetStateAction<{ bg: string, en: string, de: string, rus: string }>>
 }
-export function CreateLabel({ handleCreateLabel }: IcontentProps) {
-    const [enableStates, updateStates] = useContext(enableStatesContext);
+export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFormClose }: IcontentProps) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
     const [filterCategory, setFilterCategory] = useState<string[]>([]);
     const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: '', en: '', de: '', rus: '' });
@@ -27,7 +26,9 @@ export function CreateLabel({ handleCreateLabel }: IcontentProps) {
         setFilterCategory([]);
         setTranslation({ bg: '', en: '', de: '', rus: '' });
     };
-    if (!enableStates.get('createLabel')) {
+    const classes = useStyles();
+    const id = enableLabelForm ? 'createLabelPopover' : undefined;
+    if (!enableLabelForm) {
         return null;
     }
     const createLabel = async (event: React.FormEvent) => {
@@ -47,7 +48,7 @@ export function CreateLabel({ handleCreateLabel }: IcontentProps) {
             console.log('Error creating new label');
         }
     };
-
+   
     
     const handleCloseClick = (event: React.MouseEvent ) => {
         event.stopPropagation();
@@ -61,32 +62,63 @@ export function CreateLabel({ handleCreateLabel }: IcontentProps) {
     }
     const close = () => {
         clear();
-        updateStates("createLabel", false);
+        handleLabelFormClose();
         firstInit.current = false;
         window.removeEventListener('keydown', handleKeyDown, true);
     }
-    if (enableStates.get("createLabel") && !firstInit.current) {
+    if (enableLabelForm && !firstInit.current) {
         window.addEventListener('keydown',handleKeyDown, true);
         firstInit.current = true;
     } 
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };//console.log(e);
 
-    const props = { currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, type: "Create Label", handleSubmit: createLabel };
-
+    const props = {
+        currentAllergens, setCurrentAllergens, filterCategory,
+        setFilterCategory, translation, setTranslation, type: "Create Label", handleSubmit: createLabel
+    };
+   
     return (
-        enableStates.get("createLabel") ?
-            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}><div  className="draggedDiv">
-                <div  className="saveLabel">
-                    <Header handleClick={handleCloseClick } />
-                    <LabelContent {...props} />
-            </div>
-        </div>
-           
+        enableLabelForm ?
+            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}>
+              <Popover
+                    id={id}
+                    open={enableLabelForm}
+                    onClose={handleLabelFormClose}
+                    anchorReference={"none"}
+                    classes={{
+                        root: classes.popoverRoot,
+                    }}
+                    anchorOrigin={{
+                        vertical: 'center',
+                        horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                        vertical: 'center',
+                        horizontal: 'center',
+                    }}>
+                        <div  className="saveLabel draggedDiv">
+                            <Header handleClick={handleCloseClick } />
+                            <LabelContent {...props} />
+                        </div> 
+              </Popover>
             </Draggable>
             : null
 
     );
 }
+const useStyles = makeStyles((theme: Theme) => ({
+    popoverRoot: {
+        display: 'flex',
+        justifyContent: 'center',
+        flexGrow: 1,
+        flexShrink: 1,
+        scale: 0.7,
+        width: "700px",
+        height: "650px",
+        left:"10%"
+    },
+}));
+
 
 export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boolean, handleClose: () => void, label: labelDataType, handleSubmit:(arg:labelDataType)=>void }) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>(label.allergens);

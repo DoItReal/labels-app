@@ -4,14 +4,13 @@ import { Copyright } from './Copyright';
 export default function StickyFooter() {
     return (
    
-                <Box
+                <Container disableGutters maxWidth="xl"
                     component="footer"
                 sx={{
                     display: 'block',
                     position: 'sticky',
-                    
-                    width: 1,
-                    height:1/10,
+                    height: 1/10,
+                    m: 0,
                     bottom:0,
                         py: 2,
                         px: 1,
@@ -22,10 +21,10 @@ export default function StickyFooter() {
                                 : theme.palette.grey[800],
                     }}
         >   
-            <Container maxWidth="xs" sx={{ marginLeft:"auto", marginRight:0 }}>
+                    <Container disableGutters maxWidth="xs" sx={{ position:'relative', marginLeft:"auto",width:'100%', marginRight:0 }}>
                         <Copyright />
                     </Container>
-                </Box>
+                </Container>
             
     );
 }

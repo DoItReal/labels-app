@@ -4,12 +4,12 @@ import MidSide from './MidSide/index';
 import RightSide from './RightSide/index';
 //import './content.css';
 import { CreateLabel } from './LeftSide/SaveLabel';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { labelDataType } from '../db';
 import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
-import { Box, Container, Grid } from '@mui/material';
-
+import { Box, Grid } from '@mui/material';
+import { enableStatesContext } from '../App';
 export interface IaddedLabel extends labelDataType {
     count:number
 };
@@ -23,20 +23,27 @@ export interface IcontentProps {
     addLabels: (arg: labelDataType[]) => void,
     deleteLabel: (arg: labelDataType) => void,
     deleteLabels: (arg: labelDataType[]) => void,
-    handleSaveLabel: (arg:labelDataType)=>void
+    handleSaveLabel: (arg: labelDataType) => void,
+    enableLabelForm: boolean,
+    handleLabelFormClose: () => void
 }
 
 export default function ContentStates() {
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
     const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>([]);
+    const [enableStates, setEnableStates] = useContext(enableStatesContext);
+
+    const enableLabelForm = enableStates.get('labelForm');
+    const handleLabelFormClose = () => {
+        setEnableStates('labelForm',false);
+    }
     //add label using setDbData(label)
     const addDbLabel = (label: labelDataType) => {
         if (props.dbData instanceof Array) {
             const tmp = [...props.dbData, label];
             props.setDbData(tmp);
         } else {
-            console.log('second');
             props.setDbData([label]);
         }
         
@@ -142,7 +149,7 @@ export default function ContentStates() {
             return false;
         }
 }
-    const props: IcontentProps = {dbData, setDbData,handleCreateLabel, addNewLabel, addLabels, addLabel, addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
+    const props: IcontentProps = {dbData,enableLabelForm, setDbData,handleCreateLabel,handleLabelFormClose, addNewLabel, addLabels, addLabel, addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
     return (
         <>
         <Content props={props} />
@@ -154,28 +161,29 @@ export default function ContentStates() {
 function Content({ props }: { props: IcontentProps }) {
     return (
 
-        <Container disableGutters sx={{
-            position: 'relative',
+        <Box minHeight={8/10} maxHeight={8/10} sx={{
+            position: 'sticky',
+            display: 'block',
             p: 0,
             m:0,
             minWidth: '100%',
-            justifyContent: 'flex-start',
             width: '100%',
-
+            justifyContent: 'stretch',
+            alignItems: 'stretch',
         }}>
-            <Grid container spacing={0} m={0} p={0} sx={{minHeight:'80vh', maxHeight:'100%'}} >
-                <Grid xs={12} md={6 }>
+            <Grid container spacing={0} m={0} p={0} height={1} sx={{ p: 0, m: 0,overflow:'auto'}} >
+                <Grid xs={12} md={6} m={0} p={0} height={1 }>
               <LeftSide {...props} />
             </Grid>
-                <Grid xs={12} md={6 }>
+                <Grid xs={12} md={6} m={0} p={0} height={1 }>
                 <MidSide {...props} />
             </Grid>
             { false ? <RightSide {...props} /> : null }
-            { false ? <CreateLabel {...props} /> : null }
+                {props.enableLabelForm ? <CreateLabel {...props} /> : null }
          
 
             </Grid>
-        </Container>
+        </Box>
     );
 }
 

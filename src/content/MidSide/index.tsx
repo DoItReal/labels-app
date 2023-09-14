@@ -5,13 +5,21 @@ import './index.css';
 import { enableStatesContext } from '../../App';
 import { Label } from '../../labels';
 import { labelDataType } from '../../db';
-import { Paper, Popover } from '@mui/material';
+import { Box, Container, Paper, Popover } from '@mui/material';
 
 export default function MidSide({ addedLabels, addLabel }: IcontentProps) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     return (
+        <Box maxWidth="xl" sx={{
+            position: 'relative',
+            overflow: 'auto',
+            height: '10%',
+            border:'1px solid red',
+
+        }}>
         <div id="midSide">
             <AddedLabels labels={addedLabels} updateLabel={addLabel } />
-        </div>
+            </div>
+        </Box>
     );
 }

@@ -7,6 +7,7 @@ import { labelDataType } from "../../../db";
 import { filterCategoryContext } from './index';
 import { ReactComponent as FetchButtonSVG } from './fetchButtonSVG.svg';
 import { db } from '../../../App';
+import { Box, Container } from "@mui/material";
 interface IfilterNavContainer {
     setDbData:(arg:labelDataType[])=>void,
     generateList: () => void,
@@ -20,20 +21,22 @@ export default function FilterNavContainer({  setDbData, generateList, selectedL
     const [filterCategory, setFilterCategory] = useContext(filterCategoryContext);
     const handleCreateNewLabel = (event: React.MouseEvent) => {
         event.stopPropagation();
-        updateStates("createLabel", true);
+        updateStates("labelForm", true);
     }
     const handleDeleteLabels = () => {
         deleteLabels(selectedLabels);
         setSelectedLabels([]);
     }
     return (
+        <Container disableGutters>
         <div id="filterContainer">
             <FetchButton setDbData={setDbData } />
             <button id="addSelectedLabels" onClick={generateList }>&#62;&#62;</button>
             <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} />
             <button id="createNewLabel" onClick={handleCreateNewLabel }>New Label</button>
             <button id="btnDeleteLabels" onClick={handleDeleteLabels }>Delete</button>
-        </div>
+            </div>
+        </Container>
     );
 }
 

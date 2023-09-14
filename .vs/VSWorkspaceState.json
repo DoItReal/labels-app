@@ -5,12 +5,13 @@
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\MidSide",
     "\\src\\content\\UI",
     "\\src\\Login",
     "\\src\\nav",
     "\\src\\tools",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\content\\UI\\CategoryUI.tsx",
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\fetchButton.css",
   "PreviewInSolutionExplorer": false
 }

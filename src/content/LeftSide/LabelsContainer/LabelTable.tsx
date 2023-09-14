@@ -1,22 +1,21 @@
 import * as React from 'react';
-import { DataGrid, GridActionsColDef, GridRow, GridRowId, GridRowSelectionModel, GridToolbar } from '@mui/x-data-grid';
+import {
+    DataGrid
+    , GridRow, GridRowSelectionModel, GridToolbar
+} from '@mui/x-data-grid';
 import { GridActionsCellItem } from "@mui/x-data-grid"; 
-import { isNotNullOrUndefined } from './tools/helpers';
-import { labelDataType } from './db';
+import { isNotNullOrUndefined } from '../../../tools/helpers';
+import { labelDataType } from '../../../db';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 import EditIcon from '@mui/icons-material/Edit';
-import {  Paper, Popover, Stack } from '@mui/material';
-import { Label } from './labels';
-import { Alert } from './components/Alert';
+import {  Box, Stack } from '@mui/material';
+import { Alert } from '../../../components/Alert';
 import { useState } from 'react';
-import { Theme } from '@emotion/react';
-import { makeStyles } from '@mui/styles';
-import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
-import { SaveLabel } from './content/LeftSide/SaveLabel';
-import { ErrorUI } from './Error';
-import { filterCategoryContext } from './content/LeftSide/LabelsContainer/index';
+import { SaveLabel } from '../SaveLabel/index';
+import { filterCategoryContext } from './index';
+import Preview from '../../../UI/Preview';
 
 
 export function Filter(dbData: labelDataType[] | undefined) {
@@ -71,11 +70,16 @@ function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { 
   
    // React.useEffect(() => console.log(rowSelectionModel));
     return (
+        <Box height={1}  sx={{
+            position:'relative',
+            overflow: 'auto',
+           
+        }}>
         <DataGrid
             density='compact'
             rows={rows}
             columns={columns}
-            initialState={{
+                initialState={{
                 pagination: {
                     paginationModel: { page: 0, pageSize: 10 },
                 },
@@ -87,13 +91,14 @@ function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { 
             rowSelectionModel={rowSelectionModel }
             sx={{
                 height: 1,
-                width: 1
+                width: 1,
             }}
             slots={{
                 noRowsOverlay: MyCustomNoRowsOverlay,
                 toolbar: GridToolbar
             }}
-        />
+            />
+        </Box>
     );
 }
 
@@ -220,52 +225,3 @@ const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
     return null;
 }).filter(isNotNullOrUndefined);
 
-function Preview({ label, open, handleClose }:
-    { label: labelDataType | undefined, open: boolean, handleClose:()=>void }) {
-    const previewURL = React.useRef<string>('');
-
-    const id = open ? 'simple-popover' : undefined;
-
-    if (label !== undefined) {
-        //to do Get width and height of A4 page, signsInPage from PDF class
-        let width = 720;
-        let height = 920;
-        let signsInPage = 8;
-        var sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
-        sign.setContent(label.allergens, { bg: decodeURI(label.bg), en: label.en, de: label.de, rus: label.rus });
-        sign.setId(label._id);
-        previewURL.current = sign.generate().toDataURL('image/jpeg');
-    }
-    const classes = useStyles();
-    const eventHandler = (e: DraggableEvent, data: DraggableData) => {}
-    return (
-        <Draggable handle=".handle" onDrag={(e, data) => eventHandler(e, data)}><Popover
-            id={id}
-            open={open}
-            onClose={handleClose }
-            anchorReference={"none"}
-            classes={{
-                root: classes.popoverRoot,
-            }}
-            anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'center',
-            }}
-            transformOrigin={{
-                vertical: 'center',
-                horizontal: 'center',
-            }}>
-
-            <div className="handle" style={{ zIndex: 1 }}> <img src={previewURL.current} width='100%' height='100%' alt="Label Preview" onDragStart={(e: React.DragEvent<HTMLImageElement>) => e.preventDefault()}></img></div>
-        </Popover></Draggable>
-
-    );
-}
-const useStyles = makeStyles((theme:Theme) => ({
-    popoverRoot: {
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: 100,
-        scale:0.8
-    },
-}));
