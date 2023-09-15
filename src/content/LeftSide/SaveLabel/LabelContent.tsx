@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Category } from '../../UI/CategoryUI';
 import { Allergens } from "../../UI/AllergensUI";
 import './labelContent.css';
@@ -6,13 +6,16 @@ import { Label } from '../../../labels';
 import { IsaveLabelInput } from './index';
 import { translate } from '../../../tools/translate';
 import { ReactComponent as TranslateButtonSVG } from './translateSVG.svg';
-import { Box, Container, TextField} from "@mui/material";
+import { Box, Container, FormControl, IconButton, Input, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 
 
 export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) {
    const [preview, setPreview] = useState<any>(null);
- 
+    const refInputBG = useRef<HTMLInputElement>();
+    const refInputEN = useRef<HTMLInputElement>();
+    const refInputDE = useRef<HTMLInputElement>();
+    const refInputRUS = useRef<HTMLInputElement>();
     const  handleTranslate = async (text:string) => {
         let tmp = { ...translation };
 
@@ -74,7 +77,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
 
     const inputChange = (newTranslation: { bg: string, en: string, de: string, rus: string }) => {
         setTranslation(newTranslation);
-        
+       if ( refInputEN.current) refInputEN.current.value = newTranslation.en;
     };
     
     useEffect(() => { 
@@ -94,7 +97,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                         
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'flex-end',
+                        alignItems: 'flex-center',
                         width: '100%',
                         padding:'0 5% 0 5%'
                     }}>
@@ -103,114 +106,206 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        marginTop: '6%',
+                        marginTop: '35px',
                     }}>
                             {preview ? <div className="preview">{preview}</div> : <div className="preview">'no preview loaded' </div>}
                             </Grid>
                         
-                        <Grid xs={10} sx={{
+                        <Grid xs={12} sx={{
                             alignItems: 'center',
                             fontSize: '1.2rem',
                             fontWeight: 'bold'
                         }}>
-                            <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
-                      
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize: '1.4rem'
+                        }}>
+                        <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> 
+                      </Box>
                         </Grid>
-                    <Grid xs={10} sx={{
+                    <Grid xs={12} sx={{
                         alignItems: 'center',
                         fontSize: '1.2rem',
                         fontWeight: 'bold'
                     }}>
                       
-                        <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize:'1.4rem'
+                        }}>
+                          <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} />
+                        </Box>
                     </Grid>
                     <Grid xs={12} sx={{
                         display:'flex'
-                    } }>    
-                        <TextField
-                            fullWidth
-                            id="label_bg"
-                            label="Bulgarian"
-                            name="text"
-                            defaultValue={translation.bg}
-                            onChange={e => setBG(e)}
-                            className="bulgarian"
-                            autoFocus
-                            variant="outlined"
-                            inputProps={{ sx: { fontSize: '1.4rem', textAlign: 'center' } }} 
-                            sx={{ textAlign: 'center' }}
-                            margin="none"
-                            size="small"
+                    }}>   
+                        <FormControl fullWidth variant="outlined" size="small" >
+                            <InputLabel color='info' htmlFor="label_bg" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>Bulgarian</InputLabel>
+                            <OutlinedInput
+                                fullWidth
+                                id="label_bg"
+                                className="bulgarian"
+                                value={translation.bg}
+                                onChange={e => setBG(e)}
+                                sx={{
+                                    fontSize: '1.4rem', fontWeight: 'bold'
+                                }}
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle translation"
+                                            onClick={() => handleTranslate(translation.bg)}
+                                            onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                event.preventDefault();
+                                            }
+                                            }
+                                            edge="end"
+                                            className="button-translate"
+                                        >
+                                            <Box height={1} width={1} sx={{
+                                                display: 'flex',
+                                                position: 'relative',
+                                                backgroundColor: "lightblue",
+                                                border: '1px solid blue',
+                                                borderRadius: '5px'
+                                            }} >
+                                                <TranslateButtonSVG />
+                                            </Box>
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                                label="Bulgarian"
                             />
-                            <button type="button" className="button-translate" onClick={() => handleTranslate(translation.bg)} title="Translate">
-                                <TranslateButtonSVG />
-                            </button>
+                        </FormControl>
                     </Grid>
                     <Grid xs={12} sx={{
                         display: 'flex'
                     }}>
-                        <TextField
-                            fullWidth
-                            id="label_en"
+                        <FormControl fullWidth variant="outlined" size="small"  >
+                            <InputLabel color='info' htmlFor="label_en" sx={{ fontSize: '1.4rem', fontWeight:'bold'  }}>English</InputLabel>
+                            <OutlinedInput
+                                 fullWidth
+                                id="label_en"
+                                className="english"
+                                value={translation.en}
+                                onChange={e => setEN(e)}
+                                sx={{ 
+                                    fontSize: '1.4rem', fontWeight:'bold'
+                                } }
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle translation"
+                                        onClick={() => handleTranslate(translation.en)}
+                                        onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                            event.preventDefault();
+                                        }
+                                        }
+                                        edge="end"
+                                        className="button-translate"
+                                    >
+                                        <Box height={1} width={1} sx={{
+                                            display: 'flex',
+                                            position: 'relative',
+                                            backgroundColor: "lightblue",
+                                            border: '1px solid blue',
+                                            borderRadius: '5px'
+                                        }} >
+                                        <TranslateButtonSVG />
+                                        </Box>
+                                    </IconButton>
+                                </InputAdornment>
+                            }   
                             label="English"
-                            name="text"
-                            defaultValue={translation.en}
-                            onChange={e => setEN(e)}
-                            className="english"
-                            autoFocus
-                            variant="outlined"
-                            inputProps={{ sx: { fontSize: '1.4rem', textAlign: 'center' } }}
-                            sx={{ textAlign: 'center' }}
-                            margin="none"
-                            size="small"
-                        />
-                        <button type="button" className="button-translate" onClick={() => handleTranslate(translation.en)} title="Translate">
-                            <TranslateButtonSVG />
-                        </button>
+                            />
+                            </FormControl>
                         </Grid>
                     <Grid xs={12} sx={{
                         display: 'flex'
                     }}>
-                        <TextField
-                            fullWidth
-                            id="label_en"
-                            label="German"
-                            name="text"
-                            defaultValue={translation.de}
-                            onChange={e => setDE(e)}
-                            className="deutsch"
-                            autoFocus
-                            variant="outlined"
-                            inputProps={{ sx: { fontSize: '1.4rem', textAlign: 'center' } }}
-                            sx={{ textAlign: 'center' }}
-                            margin="none"
-                            size="small"
-                        />
-                        <button type="button" className="button-translate" onClick={() => handleTranslate(translation.de)} title="Translate">
-                            <TranslateButtonSVG />
-                        </button>
+                        <FormControl fullWidth variant="outlined" size="small" >
+                            <InputLabel color='info' htmlFor="label_de" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>German</InputLabel>
+                            <OutlinedInput
+                                fullWidth
+                                id="label_de"
+                                className="deutsch"
+                                value={translation.de}
+                                onChange={e => setDE(e)}
+                                sx={{
+                                    fontSize: '1.4rem', fontWeight: 'bold'
+                                }}
+                                
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle translation"
+                                            onClick={() => handleTranslate(translation.de)}
+                                            onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                event.preventDefault();
+                                            }
+                                            }
+                                            edge="end"
+                                            className="button-translate"
+                                        >
+                                            <Box height={1} width={1} sx={{
+                                                display: 'flex',
+                                                position: 'relative',
+                                                backgroundColor: "lightblue",
+                                                border: '1px solid blue',
+                                                borderRadius: '5px'
+                                            }} >
+                                                <TranslateButtonSVG />
+                                            </Box>
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                                label="Deutsch"
+                            />
+                        </FormControl>
                     </Grid>
                     <Grid xs={12} sx={{
                         display: 'flex'
                     }}>
-                        <TextField
-                            fullWidth
-                            id="label_ru"
-                            label="Russian"
-                            name="text"
-                            defaultValue={translation.rus}
-                            onChange={e => setRUS(e)}
-                            className="russian"
-                            autoFocus
-                            variant="outlined"
-                            inputProps={{ sx: { fontSize: '1.4rem', textAlign:'center' } }}
-                            sx={{ textAlign: 'center' }}
-                            margin="none"
-                            size="small"
-                        />
-                        <button type="button" className="button-translate" onClick={() => handleTranslate(translation.rus)} title="Translate">
-                            <TranslateButtonSVG />
-                        </button>
+                        <FormControl fullWidth variant="outlined" size="small" >
+                            <InputLabel color='info' htmlFor="label_rus" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>Russian</InputLabel>
+                            <OutlinedInput
+                                fullWidth
+                                id="label_rus"
+                                className="russian"
+                                value={translation.rus}
+                                onChange={e => setRUS(e)}
+                                sx={{
+                                    fontSize: '1.4rem', fontWeight: 'bold'
+                                }}
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle translation"
+                                            onClick={() => handleTranslate(translation.rus)}
+                                            onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                event.preventDefault();
+                                            }
+                                            }
+                                            edge="end"
+                                            className="button-translate"
+                                        >
+                                            <Box height={1} width={1} sx={{
+                                                display: 'flex',
+                                                position: 'relative',
+                                                backgroundColor: "lightblue",
+                                                border: '1px solid blue',
+                                                borderRadius: '5px'
+                                            }} >
+                                                <TranslateButtonSVG />
+                                            </Box>
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                                label="Russian"
+                            />
+                        </FormControl>
                     </Grid>
                     <Grid xs={12} sx={{textAlign:'center'} }>
                         <button type="submit" className="submitButton">{type}</button>

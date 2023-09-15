@@ -4,11 +4,9 @@
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\content\\LeftSide\\SaveLabel",
-    "\\src\\content\\UI",
     "\\src\\Login",
-    "\\src\\nav",
-    "\\src\\tools",
     "\\src\\UI"
   ],
   "SelectedNode": "\\src\\content\\LeftSide\\SaveLabel\\saveLabel.css",

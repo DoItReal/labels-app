@@ -3,16 +3,69 @@ import { useOutsideAlerter } from '../../util';
 import { ReactComponent as Arrow } from './arrow.svg';
 import './allergensUI.css';
 import { png } from '../../labels';
+import { Box, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
 export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAllergens: number[], setCurrentAllergens: React.Dispatch<SetStateAction<number[]>> }) {
     const [multiSelectExpanded, setMultiSelectExpanded] = useState(false);
     const wrapperRef = useRef(null);
+    var allAllergensNames: Array<string> = ["Gluten", "Celery", "Peanuts", "Lupin", "Soya", "Eggs", "Molluscs", "Lactose", "Nuts", "Sulphur Dioxide", "Sesame", "Fish", "Crustaceans", "Mustard", "Mushrooms"];
+
+    const handleChange = (event: SelectChangeEvent<typeof allAllergensNames>) => {
+        const {
+            target: { value },
+        } = event;
+        setCurrentAllergens(
+            // On autofill we get a stringified value.
+            typeof value === 'string' ? value.split(',') : value,
+        );
+    };
 
     useOutsideAlerter(wrapperRef, () => setMultiSelectExpanded(false));
     return (
+        <FormControl size="small" sx={{ m: 1, width: '100%' }}>
+            <InputLabel id="demo-multiple-chip-label">Allergens</InputLabel>
+            <Select
+                labelId="demo-multiple-chip-label"
+                id="demo-multiple-chip"
+                multiple
+                value={currentAllergens}
+                onChange={handleChange}
+                input={<OutlinedInput id="select-multiple-chip" label="Allergens" />}
+                renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value) => (
+                            <Chip key={value} label={value} />
+                        ))}
+                    </Box>
+                )}
+                MenuProps={MenuProps}
+            >
+                {allAllergensNames.map((allergens) => (
+                    <MenuItem
+                        key={allergens}
+                        value={allergens}
+                    >
+                        {allergens}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+        /*
         <div ref={wrapperRef} className="allergensHolder">
             <AllergensSpanHolder multiSelectExpanded={multiSelectExpanded} setMultiSelectExpanded={setMultiSelectExpanded} currentAllergens={currentAllergens} />
             <AllergensUL currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} multiSelectExpanded={multiSelectExpanded} />
         </div>
+        */
     );
 }
 function AllergensUL({ currentAllergens, setCurrentAllergens, multiSelectExpanded }: { currentAllergens: Array<number>, setCurrentAllergens: React.Dispatch<SetStateAction<number[]>>, multiSelectExpanded: boolean }) {
