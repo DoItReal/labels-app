@@ -4,14 +4,13 @@
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\content\\MidSide",
+    "\\src\\content\\LeftSide\\SaveLabel",
     "\\src\\content\\UI",
     "\\src\\Login",
     "\\src\\nav",
     "\\src\\tools",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\fetchButton.css",
+  "SelectedNode": "\\src\\content\\LeftSide\\SaveLabel\\saveLabel.css",
   "PreviewInSolutionExplorer": false
 }

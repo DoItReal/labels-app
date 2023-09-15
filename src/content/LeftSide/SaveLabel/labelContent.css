@@ -7,7 +7,7 @@
     width: 100%;
     height: 100%;
 }
-.labelsContent > .label {
+.label {
     display:flex;
     align-items:center;
     width:80%;
@@ -40,36 +40,32 @@
     }
 
     .labelsContent .categoryHolder, .labelsContent .allergensHolder {
-        width:80%;
+      
         margin-left:auto;
         margin-top:5px;
         font-size:18px;
         font-weight:normal;
 
     }
-    .labelsContent .allergensUL, .labelsContent .categoryUL {
+     .allergensUL, .labelsContent .categoryUL {
         width: 20rem;
     }
 
 
-    input.bulgarian {
+    .bulgarian {
         background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(42, 170, 2,0.6), rgba(255,0,0,0.6));
     }
-input.english {
+.english {
     background-image: linear-gradient(to bottom,rgba(0, 0, 255,0.6),rgba(255, 255, 255, 0.6), rgba(255, 0, 0,0.6),rgba(255, 0, 0,0.6),rgba(255, 255, 255, 0.6),rgba(0, 0, 255,0.6));
 }
-input.deutsch {
+.deutsch {
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(255,0,0,0.6), rgba(255, 255, 0,0.6));
 }
-input.russian {
+.russian {
     background-image: linear-gradient(to bottom, rgba(255, 255, 255,0.5),rgba(0, 0, 255,0.5),rgba(255, 0, 0,0.5));
 }
 
-.labelsContent .preview {
-    align-self:center;
-    margin-bottom:5%;
-}
-.labelsContent .button-translate {
+.button-translate {
     background-color: lightblue;
     height: 2.5em;
     width: 2.5em;
@@ -77,19 +73,19 @@ input.russian {
     margin-left:5px;
     border-radius:5px;
 }
-    .labelsContent .button-translate:hover {
+    .button-translate:hover {
         background-color: lightskyblue;
     }
-    .labelsContent .button-translate:active {
+    .button-translate:active {
         border:1px solid white;
     }
 
 
-    .labelsContent .button-translate svg {
+    .button-translate svg {
         width: 2em;
         height: 2em;
     }
-.labelsContent .submitButton {
+ .submitButton {
     font-size: 22px;
     background-color: dodgerblue;
     border-radius: 0;
@@ -102,10 +98,10 @@ input.russian {
     border: none;
 }
 
-   .labelsContent .submitButton:hover {
+    .submitButton:hover {
         background-color: greenyellow;
     }
 
-   .labelsContent .submitButton:active {
+   .submitButton:active {
         background-color: limegreen;
     }

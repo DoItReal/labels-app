@@ -6,6 +6,8 @@ import { Label } from '../../../labels';
 import { IsaveLabelInput } from './index';
 import { translate } from '../../../tools/translate';
 import { ReactComponent as TranslateButtonSVG } from './translateSVG.svg';
+import { Box, Container, TextField} from "@mui/material";
+import Grid from '@mui/material/Unstable_Grid2';
 
 
 export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) {
@@ -48,22 +50,22 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
         }
         inputChange(tmp);
     }
-    const setBG = (e: ChangeEvent<HTMLInputElement>) => {
+    const setBG = (e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
         let tmp = { ...translation };
         tmp.bg = e.target.value;
         inputChange(tmp);
     };
-    const setEN = (e: ChangeEvent<HTMLInputElement>) => {
+    const setEN = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         let tmp = { ...translation };
         tmp.en = e.target.value;
         inputChange(tmp);
     };
-    const setDE = (e: ChangeEvent<HTMLInputElement>) => {
+    const setDE = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         let tmp = { ...translation };
         tmp.de = e.target.value;
         inputChange(tmp);
     };
-    const setRUS = (e: ChangeEvent<HTMLInputElement>) => {
+    const setRUS = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         let tmp = { ...translation };
         tmp.rus = e.target.value;
         inputChange(tmp);
@@ -86,22 +88,136 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
     }, [translation, currentAllergens]);
 
     return (
-        <form onSubmit={handleSubmit}>
-        <div className="labelsContent">
-            
-            <div className="preview">{preview ? preview : 'no preview loaded'}</div>
-            <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
-            <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
-            <p>BG: <input type="text" spellCheck="true" lang="bg" className="bulgarian" value={translation.bg} onChange={(e) => setBG(e)} /><button type="button" className="button-translate" onClick={ ()=>handleTranslate(translation.bg) } title="Translate"><TranslateButtonSVG /></button></p>
-            <p>EN: <input type="text" spellCheck="true" lang="en" className="english" value={translation.en} onChange={(e) => setEN(e)} /><button type="button" className="button-translate" onClick={() => handleTranslate(translation.en)} title="Translate"><TranslateButtonSVG /></button></p>
-            <p>DE: <input type="text" spellCheck="true" lang="de" className="deutsch" value={translation.de} onChange={(e) => setDE(e)} /><button type="button" className="button-translate" onClick={() => handleTranslate(translation.de)} title="Translate"><TranslateButtonSVG /></button></p>
-            <p>RUS: <input type="text" spellCheck="true" lang="ru" className="russian" value={translation.rus} onChange={(e) => setRUS(e)} /><button type="button" className="button-translate" onClick={() => handleTranslate(translation.rus)} title="Translate"><TranslateButtonSVG /></button></p>
-                <button type="submit" className="submitButton">{type}</button>
-            </div>
-        </form>
-            
-            
-                
+        <Container maxWidth="sm" disableGutters >
+                <Box component="form" onSubmit={handleSubmit }
+                    sx={{
+                        
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        width: '100%',
+                        padding:'0 5% 0 5%'
+                    }}>
+                <Grid container rowSpacing={1} columnSpacing={1} sx={{} }>
+                    <Grid xs={12} sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: '6%',
+                    }}>
+                            {preview ? <div className="preview">{preview}</div> : <div className="preview">'no preview loaded' </div>}
+                            </Grid>
+                        
+                        <Grid xs={10} sx={{
+                            alignItems: 'center',
+                            fontSize: '1.2rem',
+                            fontWeight: 'bold'
+                        }}>
+                            <div className="label">Category: <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> </div>
+                      
+                        </Grid>
+                    <Grid xs={10} sx={{
+                        alignItems: 'center',
+                        fontSize: '1.2rem',
+                        fontWeight: 'bold'
+                    }}>
+                      
+                        <div className="label">Allergens: <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} /></div>
+                    </Grid>
+                    <Grid xs={12} sx={{
+                        display:'flex'
+                    } }>    
+                        <TextField
+                            fullWidth
+                            id="label_bg"
+                            label="Bulgarian"
+                            name="text"
+                            defaultValue={translation.bg}
+                            onChange={e => setBG(e)}
+                            className="bulgarian"
+                            autoFocus
+                            variant="outlined"
+                            inputProps={{ sx: { fontSize: '1.4rem', textAlign: 'center' } }} 
+                            sx={{ textAlign: 'center' }}
+                            margin="none"
+                            size="small"
+                            />
+                            <button type="button" className="button-translate" onClick={() => handleTranslate(translation.bg)} title="Translate">
+                                <TranslateButtonSVG />
+                            </button>
+                    </Grid>
+                    <Grid xs={12} sx={{
+                        display: 'flex'
+                    }}>
+                        <TextField
+                            fullWidth
+                            id="label_en"
+                            label="English"
+                            name="text"
+                            defaultValue={translation.en}
+                            onChange={e => setEN(e)}
+                            className="english"
+                            autoFocus
+                            variant="outlined"
+                            inputProps={{ sx: { fontSize: '1.4rem', textAlign: 'center' } }}
+                            sx={{ textAlign: 'center' }}
+                            margin="none"
+                            size="small"
+                        />
+                        <button type="button" className="button-translate" onClick={() => handleTranslate(translation.en)} title="Translate">
+                            <TranslateButtonSVG />
+                        </button>
+                        </Grid>
+                    <Grid xs={12} sx={{
+                        display: 'flex'
+                    }}>
+                        <TextField
+                            fullWidth
+                            id="label_en"
+                            label="German"
+                            name="text"
+                            defaultValue={translation.de}
+                            onChange={e => setDE(e)}
+                            className="deutsch"
+                            autoFocus
+                            variant="outlined"
+                            inputProps={{ sx: { fontSize: '1.4rem', textAlign: 'center' } }}
+                            sx={{ textAlign: 'center' }}
+                            margin="none"
+                            size="small"
+                        />
+                        <button type="button" className="button-translate" onClick={() => handleTranslate(translation.de)} title="Translate">
+                            <TranslateButtonSVG />
+                        </button>
+                    </Grid>
+                    <Grid xs={12} sx={{
+                        display: 'flex'
+                    }}>
+                        <TextField
+                            fullWidth
+                            id="label_ru"
+                            label="Russian"
+                            name="text"
+                            defaultValue={translation.rus}
+                            onChange={e => setRUS(e)}
+                            className="russian"
+                            autoFocus
+                            variant="outlined"
+                            inputProps={{ sx: { fontSize: '1.4rem', textAlign:'center' } }}
+                            sx={{ textAlign: 'center' }}
+                            margin="none"
+                            size="small"
+                        />
+                        <button type="button" className="button-translate" onClick={() => handleTranslate(translation.rus)} title="Translate">
+                            <TranslateButtonSVG />
+                        </button>
+                    </Grid>
+                    <Grid xs={12} sx={{textAlign:'center'} }>
+                        <button type="submit" className="submitButton">{type}</button>
+                    </Grid>
+                </Grid>
+            </Box>
+        </Container>        
         );
 }
 

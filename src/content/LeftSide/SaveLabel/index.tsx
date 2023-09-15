@@ -6,7 +6,7 @@ import { labelDataType } from '../../../db';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
 import React from 'react';
-import { Popover } from '@mui/material';
+import { Box, Container, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 export interface IsaveLabelInput {
@@ -83,23 +83,27 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
               <Popover
                     id={id}
                     open={enableLabelForm}
-                    onClose={handleLabelFormClose}
-                    anchorReference={"none"}
+                    onClose={() => { } }
+                    anchorReference='anchorPosition'
+                    anchorPosition={{ left: window.innerWidth/3, top:window.innerHeight/10 }}
                     classes={{
                         root: classes.popoverRoot,
                     }}
                     anchorOrigin={{
-                        vertical: 'center',
+                        vertical: 'top',
                         horizontal: 'center',
                     }}
                     transformOrigin={{
-                        vertical: 'center',
+                        vertical: 'top',
                         horizontal: 'center',
                     }}>
+                    <Box>
                         <div  className="saveLabel draggedDiv">
-                            <Header handleClick={handleCloseClick } />
+                       
+                        <Header handleClick={handleCloseClick} />
                             <LabelContent {...props} />
                         </div> 
+                        </Box>
               </Popover>
             </Draggable>
             : null
@@ -110,12 +114,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     popoverRoot: {
         display: 'flex',
         justifyContent: 'center',
-        flexGrow: 1,
-        flexShrink: 1,
+        alignContent: 'center',
         scale: 0.7,
-        width: "700px",
-        height: "650px",
-        left:"10%"
     },
 }));
 
@@ -177,14 +177,19 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
     );
 }
 function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void}) {
-    //const [currentStyle, setCurrentStyle] = useState({});
-   // var currentStyle = {};
-    var ref = useRef(null);
-  //  var hold = false;
 
     return (
-        <div ref={ref} className="saveLabelHeader handle">
+        <Box className="handle" width={1} height={5/100} sx={{
+            position: 'absolute',
+            top: '-5px',
+            left: '-5px',
+            borderLeft: '10px solid deepskyblue',
+            borderBottom: '2px solid white',
+            backgroundColor: 'deepskyblue',
+            borderRadius: 0,
+           
+        } }>
             <button className="closeSignsBox" onClick={handleClick}>X</button>
-        </div>
+            </Box>
         );
 }

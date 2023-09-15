@@ -1,8 +1,6 @@
 
 .draggedDiv {
     position: fixed;
-    width:100%;
-    height:100%;
     z-index: 999;
 }
 
@@ -22,14 +20,7 @@
         float: right;
     }
 .saveLabelHeader {
-    width: 710px;
-    height: 5%;
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    border-bottom: 1px solid white;
-    background-color: deepskyblue;
-    border-radius: 0;
+ 
 }
 
 .closeSignsBox {

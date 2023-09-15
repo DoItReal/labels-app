@@ -81,10 +81,10 @@ function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { 
             columns={columns}
                 initialState={{
                 pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
+                    paginationModel: { page: 0, pageSize: 15 },
                 },
             }}
-            pageSizeOptions={[5, 10, 25, 50, 100]}
+            pageSizeOptions={[10, 15, 25, 50, 100]}
             checkboxSelection
             
             onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}

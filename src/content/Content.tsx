@@ -160,7 +160,7 @@ export default function ContentStates() {
 
 function Content({ props }: { props: IcontentProps }) {
     return (
-
+        <>
         <Box minHeight={8/10} maxHeight={8/10} sx={{
             position: 'sticky',
             display: 'block',
@@ -179,11 +179,13 @@ function Content({ props }: { props: IcontentProps }) {
                 <MidSide {...props} />
             </Grid>
             { false ? <RightSide {...props} /> : null }
-                {props.enableLabelForm ? <CreateLabel {...props} /> : null }
+               
          
 
             </Grid>
         </Box>
+         { props.enableLabelForm ? <CreateLabel {...props} /> : null }
+         </>
     );
 }
 
