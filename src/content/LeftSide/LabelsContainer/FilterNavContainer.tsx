@@ -28,7 +28,7 @@ export default function FilterNavContainer({  setDbData, generateList, selectedL
         setSelectedLabels([]);
     }
     return (
-        <Container disableGutters>
+        <Container disableGutters sx={{marginTop:'5px'} }>
         <div id="filterContainer">
             <FetchButton setDbData={setDbData } />
             <button id="addSelectedLabels" onClick={generateList }>&#62;&#62;</button>

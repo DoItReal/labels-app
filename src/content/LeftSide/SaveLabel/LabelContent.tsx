@@ -11,11 +11,8 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 
 export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) {
-   const [preview, setPreview] = useState<any>(null);
-    const refInputBG = useRef<HTMLInputElement>();
-    const refInputEN = useRef<HTMLInputElement>();
-    const refInputDE = useRef<HTMLInputElement>();
-    const refInputRUS = useRef<HTMLInputElement>();
+    const [preview, setPreview] = useState<any>(null);
+
     const  handleTranslate = async (text:string) => {
         let tmp = { ...translation };
 
@@ -77,7 +74,6 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
 
     const inputChange = (newTranslation: { bg: string, en: string, de: string, rus: string }) => {
         setTranslation(newTranslation);
-       if ( refInputEN.current) refInputEN.current.value = newTranslation.en;
     };
     
     useEffect(() => { 
@@ -133,7 +129,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                         <Box sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            fontSize:'1.4rem'
+                            fontSize: '1.4rem',
                         }}>
                           <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} />
                         </Box>
@@ -315,28 +311,3 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
         </Container>        
         );
 }
-
-/*
-    <div id="allergensDiv">
-      
-         * Allergens:
-        <select className="allergens-select" placeholder="allergens">
-            <option value="1">1 Gluten</option>
-            <option value="2">2 Celery</option>
-            <option value="3">3 Peanuts</option>
-            <option value="4">4 Lupin</option>
-            <option value="5">5 Soya</option>
-            <option value="6">6 Eggs</option>
-            <option value="7">7 Molluscs</option>
-            <option value="8">8 Lactose</option>
-            <option value="9">9 Nuts</option>
-            <option value="10">10 Sulphur dioxide</option>
-            <option value="11">11 Sesame</option>
-            <option value="12">12 Fish</option>
-            <option value="13">13 Crustaceans</option>
-            <option value="14">14 Mustard</option>
-            <option value="15">15 Mushrooms</option>
-        </select>
-    </div>
-    
-    */

@@ -10,7 +10,8 @@ import { Box, Container, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 export interface IsaveLabelInput {
-    currentAllergens: number[], setCurrentAllergens: Dispatch<SetStateAction<number[]>>,
+    currentAllergens: number[],
+    setCurrentAllergens: (arg:number[])=>void,
     filterCategory: string[], setFilterCategory: Dispatch<SetStateAction<string[]>>,
     handleSubmit: (evt: React.FormEvent) => void,
     type:string,
@@ -49,7 +50,11 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
         }
     };
    
-    
+    const setAllergens = (arr: number[]) => {
+        arr.sort((a,b)=>a-b);
+        
+        setCurrentAllergens(arr);
+    };
     const handleCloseClick = (event: React.MouseEvent ) => {
         event.stopPropagation();
         close();
@@ -73,7 +78,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };//console.log(e);
 
     const props = {
-        currentAllergens, setCurrentAllergens, filterCategory,
+        currentAllergens, setCurrentAllergens:setAllergens, filterCategory,
         setFilterCategory, translation, setTranslation, type: "Create Label", handleSubmit: createLabel
     };
    
