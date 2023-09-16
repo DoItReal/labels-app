@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/labels-app/static/css/main.ecb88ee1.css",
-    "main.js": "/labels-app/static/js/main.3888bb2b.js",
+    "main.css": "/labels-app/static/css/main.068746b9.css",
+    "main.js": "/labels-app/static/js/main.13a2a359.js",
     "static/js/787.722e7600.chunk.js": "/labels-app/static/js/787.722e7600.chunk.js",
     "static/media/roboto-latin-500-normal.woff2": "/labels-app/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
     "static/media/roboto-latin-700-normal.woff2": "/labels-app/static/media/roboto-latin-700-normal.227c93190fe7f82de3f8.woff2",
@@ -52,7 +52,7 @@
     "static/media/roboto-vietnamese-500-normal.woff": "/labels-app/static/media/roboto-vietnamese-500-normal.657896dad292ee9a0a0a.woff",
     "static/media/roboto-vietnamese-700-normal.woff": "/labels-app/static/media/roboto-vietnamese-700-normal.4df79f684fcbca8386bd.woff",
     "static/media/fetchButtonSVG.svg": "/labels-app/static/media/fetchButtonSVG.69a42296ef2092f0de4493911972d7d3.svg",
-    "static/media/translateSVG.svg": "/labels-app/static/media/translateSVG.df0bff90945b295a2b82da435275630b.svg",
+    "static/media/translateSVG.svg": "/labels-app/static/media/translateSVG.f568d5ee743b178257cc968e85c4afb3.svg",
     "static/media/roboto-greek-ext-500-normal.woff2": "/labels-app/static/media/roboto-greek-ext-500-normal.6fb9cffb1d3e72bf9293.woff2",
     "static/media/roboto-greek-ext-400-normal.woff2": "/labels-app/static/media/roboto-greek-ext-400-normal.169619821ea93019d1bb.woff2",
     "static/media/roboto-greek-ext-300-normal.woff2": "/labels-app/static/media/roboto-greek-ext-300-normal.35b9d6be04b95f0f0530.woff2",
@@ -62,13 +62,12 @@
     "static/media/roboto-greek-ext-400-normal.woff": "/labels-app/static/media/roboto-greek-ext-400-normal.f708607d2a7290fb8bfa.woff",
     "static/media/roboto-greek-ext-700-normal.woff": "/labels-app/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
     "index.html": "/labels-app/index.html",
-    "static/media/arrow.svg": "/labels-app/static/media/arrow.d77e058c64842e4eea74cab05f8de71d.svg",
-    "main.ecb88ee1.css.map": "/labels-app/static/css/main.ecb88ee1.css.map",
-    "main.3888bb2b.js.map": "/labels-app/static/js/main.3888bb2b.js.map",
+    "main.068746b9.css.map": "/labels-app/static/css/main.068746b9.css.map",
+    "main.13a2a359.js.map": "/labels-app/static/js/main.13a2a359.js.map",
     "787.722e7600.chunk.js.map": "/labels-app/static/js/787.722e7600.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ecb88ee1.css",
-    "static/js/main.3888bb2b.js"
+    "static/css/main.068746b9.css",
+    "static/js/main.13a2a359.js"
   ]
 }
