@@ -84,13 +84,13 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
    
     return (
         enableLabelForm ?
-            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}>
-              <Popover
+            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)} >
+                <Popover
                     id={id}
                     open={enableLabelForm}
                     onClose={() => { } }
                     anchorReference='anchorPosition'
-                    anchorPosition={{ left: window.innerWidth/3, top:window.innerHeight/10 }}
+                    anchorPosition={{ left: window.innerWidth/5, top:window.innerHeight/10 }}
                     classes={{
                         root: classes.popoverRoot,
                     }}
@@ -169,22 +169,43 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
     const eventHandler = (e: DraggableEvent, data: DraggableData) => { };// console.log(e);
 
     const props = { currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit: saveLabel, type: "Save Label" };
-
+    const classes = useStyles();
+    const id = open ? 'saveLabelPopover' : undefined;
     return (
-       open? 
+        open ? 
             <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}>
-                <div className="draggedDiv">
-                <div className="saveLabel">
+            <Popover
+                id={id}
+                open={open}
+                onClose={() => { }}
+                anchorReference='anchorPosition'
+                anchorPosition={{ left: window.innerWidth / 5, top: window.innerHeight / 10 }}
+                classes={{
+                    root: classes.popoverRoot,
+                }}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}>
+                <Box>
+                    <div className="saveLabel draggedDiv">
+            
                     <Header handleClick={close} />
-                        <LabelContent {...props} />
-            </div></div></Draggable>
+                                    <LabelContent {...props} />
+                                </div>
+                            </Box>
+                                </Popover>
+            </Draggable>
             : null  
     );
 }
 function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void}) {
-
     return (
-        <Box className="handle" width={1} height={5/100} sx={{
+        <Box className="handle" width={1} height={5 / 100}  sx={{
             position: 'absolute',
             top: '-5px',
             left: '-5px',
@@ -192,9 +213,10 @@ function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void
             borderBottom: '2px solid white',
             backgroundColor: 'deepskyblue',
             borderRadius: 0,
+            zIndex: 999
            
-        } }>
-            <button className="closeSignsBox" onClick={handleClick}>X</button>
+        }}>
+                <button className="closeSignsBox" onClick={handleClick}>X</button>
             </Box>
         );
 }

@@ -15,10 +15,11 @@ interface IfilterNavContainer {
     generateList: () => void,
     selectedLabels: labelDataType[],
     setSelectedLabels: (arg: labelDataType[]) => void,
-    deleteLabels:(arg:labelDataType[])=>void
+    deleteLabels: (arg: labelDataType[]) => void,
+    handleAddLabels: () => void
 }
 
-export default function FilterNavContainer({  setDbData, generateList, selectedLabels, setSelectedLabels, deleteLabels }: IfilterNavContainer) {
+export default function FilterNavContainer({  setDbData, generateList, selectedLabels, setSelectedLabels, deleteLabels, handleAddLabels }: IfilterNavContainer) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [filterCategory, setFilterCategory] = useContext(filterCategoryContext);
     const handleCreateNewLabel = (event: React.MouseEvent) => {
@@ -36,7 +37,7 @@ export default function FilterNavContainer({  setDbData, generateList, selectedL
                 <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} />
                 <IconButton key="createNewlabel" title="Create New Label" size="medium" aria-label="Create New Label" onClick={handleCreateNewLabel} sx={{ border: '1px solid gray', borderRadius: '4px' }}><NoteAddIcon fontSize="large" /></IconButton>
                 <IconButton key="deleteAllLabels" title="Delete All Selected" size="medium" aria-label="Delete All Seelected" onClick={handleDeleteLabels} sx={{border:'1px solid gray', borderRadius:'4px'} }><DeleteIcon fontSize="large" /></IconButton>
-                <IconButton key='addSelectedLabels' title="Add Selected Labels" size="medium" aria-label="Add Selected Labels" onClick={generateList} sx={{border:'1px solid gray', borderRadius:'4px'} }><DoubleArrowIcon fontSize="large" /></IconButton>
+                <IconButton key='addSelectedLabels' title="Add Selected Labels" size="medium" aria-label="Add Selected Labels" onClick={handleAddLabels} sx={{border:'1px solid gray', borderRadius:'4px'} }><DoubleArrowIcon fontSize="large" /></IconButton>
 
         </Container>
     );

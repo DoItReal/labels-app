@@ -11,10 +11,12 @@ export interface IlabelsContainerProps {
     addLabels: (arg: labelDataType[]) => void,
     deleteLabel: (arg: labelDataType) => void,
     handleSaveLabel: (arg: labelDataType) => void,
-    deleteLabels: (arg: labelDataType[]) => void
+    deleteLabels: (arg: labelDataType[]) => void,
+    selectLabelsById: (arg: string[]) => void,
+    addLabelsById: () => void
 }
-export default function LeftSide({ dbData, setDbData, addNewLabel, addLabels, deleteLabel, handleSaveLabel, deleteLabels }: IcontentProps) {
-    const props = { dbData, setDbData, addNewLabel, addLabels, deleteLabel, handleSaveLabel, deleteLabels };
+export default function LeftSide({ dbData, setDbData, addNewLabel, addLabels, deleteLabel, handleSaveLabel, deleteLabels, addLabelsById, selectLabelsById }: IcontentProps) {
+    const props = { dbData, setDbData, addNewLabel, addLabels, deleteLabel, handleSaveLabel, deleteLabels, addLabelsById, selectLabelsById };
     return (
                 <LabelsContainerStates {...props} />
     );

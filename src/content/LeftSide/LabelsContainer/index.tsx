@@ -17,7 +17,9 @@ interface Tprops {
     selectedLabels: Array<labelDataType>,
     setSelectedLabels: (arg: labelDataType[]) => void,
     handleSaveLabel: (label: labelDataType) => void,
-    deleteLabels: (arg:labelDataType[])=> void
+    deleteLabels: (arg: labelDataType[]) => void,
+    selectLabelsById: (arg: string[]) => void,
+    addLabelsById: ()=>void
 };
 export interface IlabelsProps {
     dbData: labelDataType[] | undefined,
@@ -29,7 +31,8 @@ export interface IlabelsProps {
     unSelectAll: () => void,
     deleteLabel: (arg: labelDataType) => void,
     handleSaveLabel: (arg: labelDataType) => void,
-    deleteLabels: (arg:labelDataType[])=>void
+    deleteLabels: (arg: labelDataType[]) => void,
+    selectLabelsById: (arg:string[])=>void
 }
 export default function LabelsContainer({ props }: { props: Tprops }) {
     const findIndexOfLabel = (label: labelDataType) => {
@@ -61,11 +64,23 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         props.addLabels([...props.selectedLabels]);
     };
    
-    const labelsProps:IlabelsProps = { dbData:props.dbData,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel,addLabels:props.addLabels, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
+    const labelsProps: IlabelsProps = {
+        dbData: props.dbData,
+        selectLabel,
+        selectLabelsById: props.selectLabelsById,
+        unSelectLabel,
+        unSelectAll,
+        generateList,
+        addLabel: props.addLabel,
+        addLabels: props.addLabels,
+        deleteLabel: props.deleteLabel,
+        handleSaveLabel: props.handleSaveLabel,
+        deleteLabels: props.deleteLabels
+    };
     return (
         <Box height={1} sx={{ display: 'flex',p:0,m:0, flexDirection: 'column' }} >
             <Box  sx={{ display: 'flex',p:0,m:0, width: '100%' }}>
-                <FilterNavContainer setDbData={props.setDbData} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels} />
+                <FilterNavContainer setDbData={props.setDbData} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels} handleAddLabels={props.addLabelsById } />
             </Box>
             <Box height={1} sx={{  overflow: 'auto' }}>
                 <LabelTable {...labelsProps} />
@@ -75,12 +90,12 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
     );
 }
 
-export function LabelsContainerStates({ dbData, setDbData,addNewLabel, addLabels, deleteLabel,deleteLabels, handleSaveLabel }: IlabelsContainerProps) {
+export function LabelsContainerStates({ dbData, setDbData,addNewLabel, addLabels, deleteLabel,deleteLabels, handleSaveLabel, selectLabelsById, addLabelsById }: IlabelsContainerProps) {
     const [filterCategory, setFilterCategory] = useState<string[]>(['all']);
     const [filterText, setFilterText] = useState('');
     const [selectedLabels, setSelectedLabels] = useState<labelDataType[]>([]);
    // let initState: labelDataArrType = [{ _id: '0', category: [], allergens: [1], bg: "No Labels Loaded", en: '', de: '', rus: '' }];
-    var props:Tprops = {dbData:dbData,setDbData:setDbData,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel};
+    var props:Tprops = {dbData:dbData,selectLabelsById, setDbData:setDbData,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel, addLabelsById};
     return (
         <filterCategoryContext.Provider value={[filterCategory, setFilterCategory]}>
             <LabelsContainer props={props} />

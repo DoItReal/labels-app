@@ -102,8 +102,14 @@ function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { 
     );
 }
 
-export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, addLabels }:
-    { dbData: labelDataType[] | undefined, handleSaveLabel: (arg: labelDataType) => void, deleteLabel: (arg: labelDataType) => void, addLabels:(arg:labelDataType[])=>void }) {
+export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, addLabels, selectLabelsById }:
+    {
+        dbData: labelDataType[] | undefined,
+        handleSaveLabel: (arg: labelDataType) => void,
+        deleteLabel: (arg: labelDataType) => void,
+        addLabels: (arg: labelDataType[]) => void,
+        selectLabelsById: (arg:string[]) =>void
+    }) {
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
     const [preview, setPreview] = useState<labelDataType | undefined>(undefined);
     const [showPreview, setShowPreview] = useState(false);
@@ -111,9 +117,10 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, 
     const [showEdit, setShowEdit] = useState<boolean>(false);
     const [error, setError] = useState<JSX.Element | null>(null);
 
-    const handleSelectSingleElement = (element: string) => {
-       // setRowSelectionModel(structuredClone([...rowSelectionModel, element]));
-        console.log(rowSelectionModel);
+    const handleSetRowSelectionModel = (element: GridRowSelectionModel) => {
+        //@ts-ignore
+        selectLabelsById(element);
+        setRowSelectionModel(element);
         //to add it to DataGrid - Selected
     }
     const getColsRows = (data: any): [rows: any, columns: any] => {
@@ -208,7 +215,7 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, 
    
     return (
         <>
-            <DataTable rows={rows} columns={columns} rowSelectionModel={rowSelectionModel} setRowSelectionModel={setRowSelectionModel} />
+            <DataTable rows={rows} columns={columns} rowSelectionModel={rowSelectionModel} setRowSelectionModel={handleSetRowSelectionModel} />
             {showPreview ? <Preview label={preview} open={showPreview} handleClose={handleClosePreview} /> : null}
             {showEdit && editLabel ? <SaveLabel open={showEdit} handleClose={handleCloseEdit} label={editLabel} handleSubmit={handleSaveLabel} /> : null}
             {error !== null ? error : null}

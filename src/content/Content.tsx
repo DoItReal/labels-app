@@ -25,7 +25,9 @@ export interface IcontentProps {
     deleteLabels: (arg: labelDataType[]) => void,
     handleSaveLabel: (arg: labelDataType) => void,
     enableLabelForm: boolean,
-    handleLabelFormClose: () => void
+    handleLabelFormClose: () => void,
+    addLabelsById: ()=>void,
+    selectLabelsById: (arg: string[]) => void
 }
 
 export default function ContentStates() {
@@ -33,7 +35,7 @@ export default function ContentStates() {
     const [dbData, setDbData] = useState<labelDataType[]>([]);
     const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>([]);
     const [enableStates, setEnableStates] = useContext(enableStatesContext);
-
+    const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const enableLabelForm = enableStates.get('labelForm');
     const handleLabelFormClose = () => {
         setEnableStates('labelForm',false);
@@ -148,8 +150,22 @@ export default function ContentStates() {
         } catch (error) {
             return false;
         }
-}
-    const props: IcontentProps = {dbData,enableLabelForm, setDbData,handleCreateLabel,handleLabelFormClose, addNewLabel, addLabels, addLabel, addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
+        
+    }
+    const addLabelsById = () => {
+        for (const label of selectedLabels) {
+            for (const dbLabel of dbData) {
+                if (dbLabel._id === label) {
+                    addLabels([dbLabel]);
+                    break;
+                }
+            }
+        }
+    };
+    const selectLabelsById = (labels: string[]) => {
+        setSelectedLabels([...labels]);
+    }
+    const props: IcontentProps = {dbData,enableLabelForm,addLabelsById,selectLabelsById, setDbData,handleCreateLabel,handleLabelFormClose, addNewLabel, addLabels, addLabel, addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
     return (
         <>
         <Content props={props} />
@@ -176,7 +192,7 @@ function Content({ props }: { props: IcontentProps }) {
               <LeftSide {...props} />
             </Grid>
                 <Grid xs={12} md={6} m={0} p={0}>
-                        <AddedLabelsTable labels={props.addedLabels} updateLabel={props.addLabel } />
+                        <AddedLabelsTable labels={props.addedLabels} updateLabel={props.addLabel }/>
             </Grid>
             { false ? <RightSide {...props} /> : null }
                

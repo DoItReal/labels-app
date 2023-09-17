@@ -14,6 +14,7 @@ const MenuProps = {
 };
 export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAllergens: number[], setCurrentAllergens: (arg:number[])=>void }) {
     const currentValue = useRef<string[]>([]);
+    const didMount = useRef(false);
     var allAllergensNames: Map<number, string> = new Map([
         [1, "Gluten"],
         [2, "Celery"],
@@ -49,7 +50,13 @@ export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAl
         currentValue.current = typeof value === 'string' ? value.split(',') : value
     };
 
-
+    if (currentAllergens.length > 0 && !didMount.current) {
+        for (const allergen of currentAllergens) {
+            let val = allAllergensNames.get(allergen);
+            if(val) currentValue.current.push(val);
+        };
+        didMount.current = true;
+    } 
    
     const MenuItems:ReactNode[] = [];
      allAllergensNames.forEach((value, key) => {
