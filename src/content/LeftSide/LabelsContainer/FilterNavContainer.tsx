@@ -1,13 +1,15 @@
-import React, { SetStateAction, useContext, useRef, useState } from "react";
-import './filterNavContainer.css';
-import './fetchButton.css';
+import React, { useContext, useRef, useState } from "react";
+import SyncIcon from '@mui/icons-material/Sync';
 import { Category } from '../../UI/CategoryUI';
 import { enableStatesContext} from '../../../App'; 
 import { labelDataType } from "../../../db";
 import { filterCategoryContext } from './index';
-import { ReactComponent as FetchButtonSVG } from './fetchButtonSVG.svg';
 import { db } from '../../../App';
-import { Box, Container } from "@mui/material";
+import { Container, IconButton } from "@mui/material";
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import DeleteIcon from '@mui/icons-material/Delete';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
+
 interface IfilterNavContainer {
     setDbData:(arg:labelDataType[])=>void,
     generateList: () => void,
@@ -28,14 +30,14 @@ export default function FilterNavContainer({  setDbData, generateList, selectedL
         setSelectedLabels([]);
     }
     return (
-        <Container disableGutters sx={{marginTop:'5px'} }>
-        <div id="filterContainer">
+        <Container disableGutters sx={{ marginTop: '5px', display: 'flex', padding: '0 2px 2px 2px' }}>
+
             <FetchButton setDbData={setDbData } />
-            <button id="addSelectedLabels" onClick={generateList }>&#62;&#62;</button>
-            <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} />
-            <button id="createNewLabel" onClick={handleCreateNewLabel }>New Label</button>
-            <button id="btnDeleteLabels" onClick={handleDeleteLabels }>Delete</button>
-            </div>
+                <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} />
+                <IconButton key="createNewlabel" title="Create New Label" size="medium" aria-label="Create New Label" onClick={handleCreateNewLabel} sx={{ border: '1px solid gray', borderRadius: '4px' }}><NoteAddIcon fontSize="large" /></IconButton>
+                <IconButton key="deleteAllLabels" title="Delete All Selected" size="medium" aria-label="Delete All Seelected" onClick={handleDeleteLabels} sx={{border:'1px solid gray', borderRadius:'4px'} }><DeleteIcon fontSize="large" /></IconButton>
+                <IconButton key='addSelectedLabels' title="Add Selected Labels" size="medium" aria-label="Add Selected Labels" onClick={generateList} sx={{border:'1px solid gray', borderRadius:'4px'} }><DoubleArrowIcon fontSize="large" /></IconButton>
+
         </Container>
     );
 }
@@ -72,9 +74,11 @@ function FetchButton({ setDbData }: { setDbData: (arg: labelDataType[]) => void 
     };
 
     return (
-        <button className="fetchSignsButton" onClick={(e:React.MouseEvent) => fetch(e)} disabled={disabled}>
-            <FetchButtonSVG style={style} />
-        </button>
+    
+        <IconButton color="primary" title="Fetch DB" size="medium" aria-label="Fetch DB" onClick={(e: React.MouseEvent) => fetch(e)} disabled={disabled} sx={{border:'1px solid gray', borderRadius:'4px'} }>
+            <SyncIcon fontSize="large" />
+            </IconButton>
+        
     );
 }
 

@@ -161,7 +161,7 @@ export default function ContentStates() {
 function Content({ props }: { props: IcontentProps }) {
     return (
         <>
-        <Box minHeight={8/10} maxHeight={8/10} sx={{
+            <Box minHeight={8 / 10} sx={{
             position: 'sticky',
             display: 'block',
             p: 0,
@@ -172,7 +172,7 @@ function Content({ props }: { props: IcontentProps }) {
             alignItems: 'stretch',
         }}>
             <Grid container spacing={0} m={0} p={0} height={1} sx={{ p: 0, m: 0,overflow:'auto'}} >
-                <Grid xs={12} md={6} m={0} p={0} height={1 }>
+                <Grid xs={12} md={6} m={0} p={0} >
               <LeftSide {...props} />
             </Grid>
                 <Grid xs={12} md={6} m={0} p={0} height={1 }>

@@ -16,9 +16,10 @@ import { enableStatesContext, userContext } from '../App';
 import { Iuser } from '../Login/Login';
 import Logout from '@mui/icons-material/Logout';
 import { DarkModeUISwitch } from './ThemeMode';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import { useContext } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import LoginIcon from '@mui/icons-material/Login';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 
 export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) {
@@ -26,6 +27,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [user, setUser, logout]:[user:Iuser,setUser:(arg:Iuser)=>void,logout:()=>void] = useContext(userContext);
+    const navigate = useNavigate();
     const createPDF = () => {
         let k = "createPDF";
         updateStates(k, true);
@@ -262,11 +264,21 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                                 },
                             }}
                         >
-                            {settings.map((setting) => (
+                            {user.token && user.token !== '' ? settings.map((setting) => (
                                 <MenuItem key={setting.key} onClick={setting.handleClick}>
-                                    <Typography textAlign="center" onClick={setting.handleClick} >{setting.icon ? <> {setting.icon}{setting.name}</>: setting.name}</Typography>
+                                    <Typography textAlign="center" onClick={setting.handleClick} sx={{ display: 'flex' }} >{setting.icon ? <> {setting.icon}{setting.name}</>: setting.name}</Typography>
                                 </MenuItem>
-                            ))}
+                            )) :<div> <MenuItem key='menuLogin' onClick={()=> navigate('./login') }>
+                                    <Typography textAlign="center" onClick={() => navigate('./login')} sx={{ display: "flex" }}><LoginIcon sx={{marginRight:1} } />Sign In</Typography>
+                            </MenuItem>
+                                    <MenuItem key='menuRegister' onClick={() => navigate('./register')}>
+                                        <Typography textAlign="center" onClick={() => navigate('./register')} sx={{ display: 'flex' }}><PersonAddIcon sx={{marginRight:1} } />Sign Up</Typography>
+                                    </MenuItem>
+                                    <MenuItem key='darkMode'>
+                                        <Typography textAlign="center" sx={{ display: 'flex' }}><DarkModeUISwitch onChange={toggleMode} /></Typography>
+                                    </MenuItem>
+                                </div>
+                                }
                         </Menu>
                     </Box>
                 </Toolbar>

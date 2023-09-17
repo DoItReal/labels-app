@@ -23,7 +23,7 @@ export function Category({ filterCategory, setFilterCategory }: { filterCategory
     };
 
     return (
-        <FormControl size="small" sx={{ m: 1, width: '100%' }}>
+        <FormControl size="small" sx={{ m: 1, width: '100%', display:'flex', flexWrap:'wrap' }}>
             <InputLabel id="demo-multiple-chip-label">Category</InputLabel>
             <Select
                 labelId="demo-multiple-chip-label"

@@ -66,7 +66,7 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
             <Box  sx={{ display: 'flex',p:0,m:0, width: '100%' }}>
                 <FilterNavContainer setDbData={props.setDbData} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels} />
             </Box>
-            <Box height={9 / 10} sx={{  overflow: 'auto' }}>
+            <Box height={1} sx={{  overflow: 'auto' }}>
                 <LabelTable {...labelsProps} />
             </Box>
         </Box>

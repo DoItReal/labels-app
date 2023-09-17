@@ -3,8 +3,8 @@ import './index.css';
 import * as PDFLib from 'pdf-lib';
 import { useContext, useRef, useState } from 'react';
 import { IaddedLabel, IcontentProps } from '../Content';
-import { ReactComponent as FetchButtonSVG } from '../LeftSide/LabelsContainer/fetchButtonSVG.svg';
 import { enableStatesContext } from '../../App';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 
 export default function RightSide({ addedLabels }: IcontentProps) {
@@ -27,7 +27,7 @@ export default function RightSide({ addedLabels }: IcontentProps) {
     return (
         <div id="rightSide">
             <div className="headBar">
-                <button className="refreshPDF" onClick={update} ><FetchButtonSVG /></button><button className="closeButton" onClick={handleClose}>X</button>
+                <button className="refreshPDF" onClick={update} ><RefreshIcon /></button><button className="closeButton" onClick={handleClose}>X</button>
             </div>
             <div className="previewList" />
             {PDFrow.current}
