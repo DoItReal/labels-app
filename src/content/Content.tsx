@@ -1,6 +1,5 @@
 import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
-import MidSide from './MidSide/index';
 import RightSide from './RightSide/index';
 //import './content.css';
 import { CreateLabel } from './LeftSide/SaveLabel';
@@ -10,6 +9,7 @@ import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
+import AddedLabelsTable from './LeftSide/LabelsContainer/AddedLabels';
 export interface IaddedLabel extends labelDataType {
     count:number
 };
@@ -175,8 +175,8 @@ function Content({ props }: { props: IcontentProps }) {
                 <Grid xs={12} md={6} m={0} p={0} >
               <LeftSide {...props} />
             </Grid>
-                <Grid xs={12} md={6} m={0} p={0} height={1 }>
-                <MidSide {...props} />
+                <Grid xs={12} md={6} m={0} p={0}>
+                        <AddedLabelsTable labels={props.addedLabels} updateLabel={props.addLabel } />
             </Grid>
             { false ? <RightSide {...props} /> : null }
                

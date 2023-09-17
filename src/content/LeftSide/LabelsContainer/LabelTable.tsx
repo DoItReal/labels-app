@@ -102,7 +102,8 @@ function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { 
     );
 }
 
-export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel }: { dbData: labelDataType[] | undefined, handleSaveLabel:(arg:labelDataType)=>void, deleteLabel:(arg:labelDataType)=>void }) {
+export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, addLabels }:
+    { dbData: labelDataType[] | undefined, handleSaveLabel: (arg: labelDataType) => void, deleteLabel: (arg: labelDataType) => void, addLabels:(arg:labelDataType[])=>void }) {
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
     const [preview, setPreview] = useState<labelDataType | undefined>(undefined);
     const [showPreview, setShowPreview] = useState(false);
@@ -173,7 +174,7 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel }
                         <GridActionsCellItem
                             icon={<AddIcon />}
                             onClick={
-                                ()=>handleSelectSingleElement(params.id)
+                                ()=>addLabels([params.row])
                             }
                             label="Add"
                             showInMenu={true}

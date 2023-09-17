@@ -23,7 +23,8 @@ export interface IlabelsProps {
     dbData: labelDataType[] | undefined,
     selectLabel: (arg: labelDataType) => void,
     unSelectLabel: (arg: labelDataType) => void,
-    addLabel: (arg:labelDataType)=>void,
+    addLabel: (arg: labelDataType) => void,
+    addLabels: (arg: labelDataType[]) => void,
     generateList: () => void,
     unSelectAll: () => void,
     deleteLabel: (arg: labelDataType) => void,
@@ -60,7 +61,7 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         props.addLabels([...props.selectedLabels]);
     };
    
-    const labelsProps:IlabelsProps = { dbData:props.dbData,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
+    const labelsProps:IlabelsProps = { dbData:props.dbData,selectLabel,unSelectLabel,unSelectAll,generateList, addLabel:props.addLabel,addLabels:props.addLabels, deleteLabel:props.deleteLabel, handleSaveLabel:props.handleSaveLabel, deleteLabels:props.deleteLabels };
     return (
         <Box height={1} sx={{ display: 'flex',p:0,m:0, flexDirection: 'column' }} >
             <Box  sx={{ display: 'flex',p:0,m:0, width: '100%' }}>
