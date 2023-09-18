@@ -193,9 +193,10 @@ function Content({ props }: { props: IcontentProps }) {
             </Grid>
                 <Grid xs={12} md={6} m={0} p={0}>
                         <AddedLabelsTable labels={props.addedLabels} updateLabel={props.addLabel }/>
-            </Grid>
-            { false ? <RightSide {...props} /> : null }
-               
+                    </Grid>
+                    <Grid xs={12} md={6} m={0} p={0 }>
+             <RightSide {...props} /> 
+                    </Grid>
          
 
             </Grid>

@@ -6,10 +6,17 @@ import { IaddedLabel, IcontentProps } from '../Content';
 import { enableStatesContext } from '../../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
-
+import Draggable from 'react-draggable';
+import { Box, Popover } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Theme } from '@emotion/react';
 export default function RightSide({ addedLabels }: IcontentProps) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
-    const PDFrow = useRef<JSX.Element| null>(null);
+    const PDFrow = useRef<JSX.Element | null>(null);
+
+    const classes = useStyles();
+    const id = enableStates.get('createPDF') ? 'createLabelPopover' : undefined;
+
     if (!enableStates.get('createPDF')) return null;
     const handleClose = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -22,19 +29,44 @@ export default function RightSide({ addedLabels }: IcontentProps) {
         PDFrow.current = <CreatePDF labels={addedLabels} />;
         updateStates('updatePDF', false);
     }
-
-    
+   
     return (
-        <div id="rightSide">
-            <div className="headBar">
+        <Draggable handle='.handle' >
+            <Popover
+                id={id}
+                open={enableStates.get('createPDF')}
+                onClose={() => { }}
+                anchorReference='anchorPosition'
+                anchorPosition={{ left: window.innerWidth / 5, top: window.innerHeight / 10 }}
+                classes={{
+                    root: classes.popoverRoot,
+                }}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}>
+                <Box className="handle" >
                 <button className="refreshPDF" onClick={update} ><RefreshIcon /></button><button className="closeButton" onClick={handleClose}>X</button>
-            </div>
-            <div className="previewList" />
+           
+            <div className="previewList" >
             {PDFrow.current}
-        </div>
+                </div>
+            </Box>
+        </Popover>
+        </Draggable>
     );
 }
-
+const useStyles = makeStyles((theme: Theme) => ({
+    popoverRoot: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignContent: 'center',
+    },
+}));
 function CreatePDF({ labels }: { labels: IaddedLabel[] }) {
     const [pdf, setPdf] = useState('');
     const canvasArr: Array<HTMLCanvasElement> = [];
