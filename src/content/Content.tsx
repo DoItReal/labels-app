@@ -191,16 +191,16 @@ function Content({ props }: { props: IcontentProps }) {
                 <Grid xs={12} md={6} m={0} p={0} >
               <LeftSide {...props} />
             </Grid>
-                <Grid xs={12} md={6} m={0} p={0}>
+                    <Grid xs={12} md={6} m={0} p={0} height={1}>
                         <AddedLabelsTable labels={props.addedLabels} updateLabel={props.addLabel }/>
                     </Grid>
-                    <Grid xs={12} md={6} m={0} p={0 }>
-             <RightSide {...props} /> 
-                    </Grid>
+                  
+           
          
 
             </Grid>
-        </Box>
+            </Box>
+            <RightSide {...props} /> 
          { props.enableLabelForm ? <CreateLabel {...props} /> : null }
          </>
     );

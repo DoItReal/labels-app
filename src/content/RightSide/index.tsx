@@ -1,5 +1,5 @@
 import { Label } from '../../labels';
-import './index.css';
+//import './index.css';
 import * as PDFLib from 'pdf-lib';
 import { useContext, useRef, useState } from 'react';
 import { IaddedLabel, IcontentProps } from '../Content';
@@ -7,7 +7,7 @@ import { enableStatesContext } from '../../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 import Draggable from 'react-draggable';
-import { Box, Popover } from '@mui/material';
+import { Box, Container, Paper, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 export default function RightSide({ addedLabels }: IcontentProps) {
@@ -15,7 +15,7 @@ export default function RightSide({ addedLabels }: IcontentProps) {
     const PDFrow = useRef<JSX.Element | null>(null);
 
     const classes = useStyles();
-    const id = enableStates.get('createPDF') ? 'createLabelPopover' : undefined;
+    const id = enableStates.get('createPDF') ? 'PDFPopover' : undefined;
 
     if (!enableStates.get('createPDF')) return null;
     const handleClose = (event: React.MouseEvent) => {
@@ -32,31 +32,25 @@ export default function RightSide({ addedLabels }: IcontentProps) {
    
     return (
         <Draggable handle='.handle' >
-            <Popover
-                id={id}
-                open={enableStates.get('createPDF')}
-                onClose={() => { }}
-                anchorReference='anchorPosition'
-                anchorPosition={{ left: window.innerWidth / 5, top: window.innerHeight / 10 }}
+            <Paper elevation={5 }
+               sx ={{ left: 0, top: 0, minWidth:'30%', minHeight:'70%', maxWidth:'50%' }}
                 classes={{
                     root: classes.popoverRoot,
-                }}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
+                }}   
+            >
+                <Container disableGutters id={id} sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
                 }}>
-                <Box className="handle" >
-                <button className="refreshPDF" onClick={update} ><RefreshIcon /></button><button className="closeButton" onClick={handleClose}>X</button>
-           
-            <div className="previewList" >
-            {PDFrow.current}
-                </div>
-            </Box>
-        </Popover>
+                    <Box className='handle' sx={{backgroundColor:'lightblue', borderTopLeftRadius:'4px', borderTopRightRadius:'4px'} } >
+                        <button className="refreshPDF" onClick={update}  ><RefreshIcon /></button><button style={{float:'right', height:'25px', width:'25px', marginTop:'5px', borderRadius:'4px', backgroundColor:'red'}} className="closeButton" onClick={handleClose}>X</button>  
+                    </Box>
+
+                    <Box sx={{ display: 'contents' }} > 
+                    {PDFrow.current}
+                    </Box>
+                </Container>
+        </Paper>
         </Draggable>
     );
 }
@@ -90,10 +84,8 @@ function CreatePDF({ labels }: { labels: IaddedLabel[] }) {
     }
 
    PDF(canvasArr, setPdf);
-    return (<div>
-
-        <iframe className="pdf" src={pdf}></iframe>
-    </div>
+    return (
+            <iframe title='PDF Labels' src={pdf} style={{width:'100%', height:'100%'} }></iframe>
     );
 }
 

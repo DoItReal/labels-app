@@ -6,10 +6,11 @@
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\content\\LeftSide\\SaveLabel",
-    "\\src\\content\\UI",
-    "\\src\\Login",
+    "\\src\\content\\MidSide",
+    "\\src\\content\\RightSide",
+    "\\src\\nav",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\SaveLabel\\LabelContent.tsx",
+  "SelectedNode": "\\src\\content\\RightSide\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
