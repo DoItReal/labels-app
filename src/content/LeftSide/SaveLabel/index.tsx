@@ -6,7 +6,7 @@ import { labelDataType } from '../../../db';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
 import React from 'react';
-import { Box, Container, Popover } from '@mui/material';
+import { Box, Container, Paper, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 export interface IsaveLabelInput {
@@ -84,24 +84,15 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
    
     return (
         enableLabelForm ?
-            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)} >
-                <Popover
+            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)} defaultPosition={{ x: window.innerWidth / 2, y: window.innerHeight / 8 } } >
+                <Paper
+                    elevation={5 }
                     id={id}
-                    open={enableLabelForm}
-                    onClose={() => { } }
-                    anchorReference='anchorPosition'
-                    anchorPosition={{ left: window.innerWidth/5, top:window.innerHeight/10 }}
                     classes={{
                         root: classes.popoverRoot,
                     }}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}>
+                    sx={{ translate: 0 } }
+                   >
                     <Box>
                         <div  className="saveLabel draggedDiv">
                        
@@ -109,20 +100,13 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
                             <LabelContent {...props} />
                         </div> 
                         </Box>
-              </Popover>
+              </Paper>
             </Draggable>
             : null
 
     );
 }
-const useStyles = makeStyles((theme: Theme) => ({
-    popoverRoot: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignContent: 'center',
-        scale: 0.7,
-    },
-}));
+
 
 
 export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boolean, handleClose: () => void, label: labelDataType, handleSubmit:(arg:labelDataType)=>void }) {
@@ -173,24 +157,15 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
     const id = open ? 'saveLabelPopover' : undefined;
     return (
         open ? 
-            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)}>
-            <Popover
-                id={id}
-                open={open}
-                onClose={() => { }}
-                anchorReference='anchorPosition'
-                anchorPosition={{ left: window.innerWidth / 5, top: window.innerHeight / 10 }}
-                classes={{
-                    root: classes.popoverRoot,
-                }}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}>
+            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)} defaultPosition={{ x: window.innerWidth / 2, y: window.innerHeight / 8 }}>
+                <Paper
+                    elevation={5}
+                    id={id}
+                    classes={{
+                        root: classes.popoverRoot,
+                    }}
+                    sx={{ translate:0, left:0, top:0} }
+>
                 <Box>
                     <div className="saveLabel draggedDiv">
             
@@ -198,7 +173,7 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
                                     <LabelContent {...props} />
                                 </div>
                             </Box>
-                                </Popover>
+                                </Paper>
             </Draggable>
             : null  
     );
@@ -220,3 +195,13 @@ function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void
             </Box>
         );
 }
+const useStyles = makeStyles((theme: Theme) => ({
+    popoverRoot: {
+        display: 'flex',
+        position: 'absolute',
+        justifyContent: 'center',
+        alignContent: 'center',
+        scale: 0.8,
+        zIndex:1000
+    },
+}));

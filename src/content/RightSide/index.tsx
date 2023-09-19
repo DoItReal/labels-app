@@ -1,5 +1,4 @@
 import { Label } from '../../labels';
-//import './index.css';
 import * as PDFLib from 'pdf-lib';
 import { useContext, useRef, useState } from 'react';
 import { IaddedLabel, IcontentProps } from '../Content';
@@ -7,9 +6,10 @@ import { enableStatesContext } from '../../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 import Draggable from 'react-draggable';
-import { Box, Container, Paper, Popover } from '@mui/material';
+import { Box, Container, IconButton, Paper, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
+import CloseIcon from '@mui/icons-material/Close';
 export default function RightSide({ addedLabels }: IcontentProps) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element | null>(null);
@@ -29,21 +29,48 @@ export default function RightSide({ addedLabels }: IcontentProps) {
         PDFrow.current = <CreatePDF labels={addedLabels} />;
         updateStates('updatePDF', false);
     }
-   
+
     return (
-        <Draggable handle='.handle' >
-            <Paper elevation={5 }
-               sx ={{ left: 0, top: 0, minWidth:'30%', minHeight:'70%', maxWidth:'50%' }}
+        <Draggable handle='.handle' defaultPosition={{
+            x: window.innerWidth/2, y: window.innerHeight/8
+        }}>
+            <Paper elevation={5}
+                id={id}
                 classes={{
                     root: classes.popoverRoot,
                 }}   
+                sx={{ minWidth: '30%', minHeight: '75%', maxWidth: '50%', translate: "-50%" }}
             >
-                <Container disableGutters id={id} sx={{
+                <Container disableGutters  sx={{
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                    <Box className='handle' sx={{backgroundColor:'lightblue', borderTopLeftRadius:'4px', borderTopRightRadius:'4px'} } >
-                        <button className="refreshPDF" onClick={update}  ><RefreshIcon /></button><button style={{float:'right', height:'25px', width:'25px', marginTop:'5px', borderRadius:'4px', backgroundColor:'red'}} className="closeButton" onClick={handleClose}>X</button>  
+                    <Box className='handle' sx={{backgroundColor:'primary.main', borderTopLeftRadius:'4px', borderTopRightRadius:'4px'} } >
+                        <IconButton size="small" title="Refresh" onClick={update} sx={{
+                            backgroundColor: 'info.main',
+                            border: '1px solid black',
+                            borderRadius: '4px',
+                            padding: "2px",
+                            margin: '2px',
+                            "&:hover": {
+                                backgroundColor: "info.main",
+                                border: '1px solid white'
+                            }
+                        }} ><RefreshIcon />
+                        </IconButton>
+                        <IconButton size="small" title="Close" onClick={handleClose} sx={{
+                            float: 'right',
+                            padding: '2px',
+                            margin: '2px',
+                            borderRadius: '4px',
+                            border: '1px solid black',
+                            backgroundColor: 'error.main',
+                            "&:hover": {
+                                backgroundColor: "error.main",
+                                border: '1px solid white'
+                            }
+                        }} ><CloseIcon />
+                        </IconButton>  
                     </Box>
 
                     <Box sx={{ display: 'contents' }} > 
@@ -59,6 +86,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         display: 'flex',
         justifyContent: 'center',
         alignContent: 'center',
+        position:'absolute'
     },
 }));
 function CreatePDF({ labels }: { labels: IaddedLabel[] }) {
