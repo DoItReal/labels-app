@@ -18,7 +18,7 @@ export default function RightSide({ addedLabels }: IcontentProps) {
     const id = enableStates.get('createPDF') ? 'PDFPopover' : undefined;
 
     if (!enableStates.get('createPDF')) return null;
-    const handleClose = (event: React.MouseEvent) => {
+    const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
         event.stopPropagation();
         updateStates('createPDF', false);
     }
@@ -58,7 +58,7 @@ export default function RightSide({ addedLabels }: IcontentProps) {
                             }
                         }} ><RefreshIcon />
                         </IconButton>
-                        <IconButton size="small" title="Close" onClick={handleClose} sx={{
+                        <IconButton size="small" title="Close" onClick={handleClose} onTouchEndCapture={handleClose} sx={{
                             float: 'right',
                             padding: '2px',
                             margin: '2px',

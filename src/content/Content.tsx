@@ -188,7 +188,7 @@ function Content({ props }: { props: IcontentProps }) {
             alignItems: 'stretch',
         }}>
             <Grid container spacing={0} m={0} p={0} height={1} sx={{ p: 0, m: 0,overflow:'auto'}} >
-                <Grid xs={12} md={6} m={0} p={0} >
+                    <Grid xs={12} md={6} m={0} p={0} height={1 } >
               <LeftSide {...props} />
             </Grid>
                     <Grid xs={12} md={6} m={0} p={0} height={1}>

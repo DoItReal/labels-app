@@ -19,31 +19,8 @@
     .saveLabel p {
         float: right;
     }
-.saveLabelHeader {
- 
-}
 
-.closeSignsBox {
-    background-color: dodgerblue;
-    border: 1px solid cornflowerblue;
-    display: inline-block;
-    position: absolute;
-    margin-left: auto;
-    border-radius: 0;
-    width: 5%;
-    height: 100%;
-    right: 0;
-    top: 0;
-}
 
-    .closeSignsBox:hover {
-        background-color: red;
-    }
-
-    .closeSignsBox:active {
-        background-color: darkred;
-        ;
-    }
 
 
 

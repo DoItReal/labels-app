@@ -6,9 +6,10 @@ import { labelDataType } from '../../../db';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../Content';
 import React from 'react';
-import { Box, Container, Paper, Popover } from '@mui/material';
+import { Box, Container, IconButton, Paper, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
+import CloseIcon from '@mui/icons-material/Close';
 export interface IsaveLabelInput {
     currentAllergens: number[],
     setCurrentAllergens: (arg:number[])=>void,
@@ -55,7 +56,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
         
         setCurrentAllergens(arr);
     };
-    const handleCloseClick = (event: React.MouseEvent ) => {
+    const handleCloseClick = (event: React.MouseEvent|React.TouchEvent ) => {
         event.stopPropagation();
         close();
     }
@@ -96,7 +97,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
                     <Box>
                         <div  className="saveLabel draggedDiv">
                        
-                        <Header handleClick={handleCloseClick} />
+                        <Header handleClose={handleCloseClick} />
                             <LabelContent {...props} />
                         </div> 
                         </Box>
@@ -169,7 +170,7 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
                 <Box>
                     <div className="saveLabel draggedDiv">
             
-                    <Header handleClick={close} />
+                    <Header handleClose={close} />
                                     <LabelContent {...props} />
                                 </div>
                             </Box>
@@ -178,7 +179,7 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
             : null  
     );
 }
-function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void}) {
+function Header({ handleClose }: { handleClose: (event:React.MouseEvent | React.TouchEvent) => void}) {
     return (
         <Box className="handle" width={1} height={5 / 100}  sx={{
             position: 'absolute',
@@ -191,7 +192,19 @@ function Header({ handleClick }: { handleClick: (event:React.MouseEvent) => void
             zIndex: 999
            
         }}>
-                <button className="closeSignsBox" onClick={handleClick}>X</button>
+            <IconButton size="small" title="Close" onClick={handleClose} onTouchEndCapture={handleClose} sx={{
+                float: 'right',
+                padding: '2px',
+                margin: '2px',
+                borderRadius: '4px',
+                border: '1px solid black',
+                backgroundColor: 'error.main',
+                "&:hover": {
+                    backgroundColor: "error.main",
+                    border: '1px solid white'
+                }
+            }} ><CloseIcon />
+            </IconButton> 
             </Box>
         );
 }

@@ -5,7 +5,7 @@ import './labelContent.css';
 import { Label } from '../../../labels';
 import { IsaveLabelInput } from './index';
 import { translate } from '../../../tools/translate';
-import { ReactComponent as TranslateButtonSVG } from './translateSVG.svg';
+import TranslateButtonSVG from '@mui/icons-material/Translate';
 import { Box, Container, FormControl, IconButton, Input, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 
@@ -151,6 +151,8 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                 endAdornment={
                                     <InputAdornment position="end">
                                         <IconButton
+                                            size="large"
+                                            title="Translate"
                                             aria-label="toggle translation"
                                             onClick={() => handleTranslate(translation.bg)}
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -167,7 +169,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                                 border: '1px solid blue',
                                                 borderRadius: '5px'
                                             }} >
-                                                <TranslateButtonSVG />
+                                                <TranslateButtonSVG fontSize="large"/>
                                             </Box>
                                         </IconButton>
                                     </InputAdornment>
@@ -193,6 +195,8 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton
+                                        size="large"
+                                        title="Translate"
                                         aria-label="toggle translation"
                                         onClick={() => handleTranslate(translation.en)}
                                         onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -209,7 +213,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                             border: '1px solid blue',
                                             borderRadius: '5px'
                                         }} >
-                                        <TranslateButtonSVG />
+                                        <TranslateButtonSVG fontSize="large" />
                                         </Box>
                                     </IconButton>
                                 </InputAdornment>
@@ -236,6 +240,8 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                 endAdornment={
                                     <InputAdornment position="end">
                                         <IconButton
+                                            size="large"
+                                            title="Translate"
                                             aria-label="toggle translation"
                                             onClick={() => handleTranslate(translation.de)}
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -252,7 +258,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                                 border: '1px solid blue',
                                                 borderRadius: '5px'
                                             }} >
-                                                <TranslateButtonSVG />
+                                                <TranslateButtonSVG fontSize="large" />
                                             </Box>
                                         </IconButton>
                                     </InputAdornment>
@@ -278,6 +284,8 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                 endAdornment={
                                     <InputAdornment position="end">
                                         <IconButton
+                                            size="large"
+                                            title="Translate"
                                             aria-label="toggle translation"
                                             onClick={() => handleTranslate(translation.rus)}
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -294,7 +302,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                                 border: '1px solid blue',
                                                 borderRadius: '5px'
                                             }} >
-                                                <TranslateButtonSVG />
+                                                <TranslateButtonSVG fontSize="large" />
                                             </Box>
                                         </IconButton>
                                     </InputAdornment>
