@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/labels-app/static/css/main.352948df.css",
-    "main.js": "/labels-app/static/js/main.111cca11.js",
+    "main.js": "/labels-app/static/js/main.67cd2da7.js",
     "static/js/787.722e7600.chunk.js": "/labels-app/static/js/787.722e7600.chunk.js",
     "static/media/roboto-latin-500-normal.woff2": "/labels-app/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
     "static/media/roboto-latin-700-normal.woff2": "/labels-app/static/media/roboto-latin-700-normal.227c93190fe7f82de3f8.woff2",
@@ -61,11 +61,11 @@
     "static/media/roboto-greek-ext-700-normal.woff": "/labels-app/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
     "index.html": "/labels-app/index.html",
     "main.352948df.css.map": "/labels-app/static/css/main.352948df.css.map",
-    "main.111cca11.js.map": "/labels-app/static/js/main.111cca11.js.map",
+    "main.67cd2da7.js.map": "/labels-app/static/js/main.67cd2da7.js.map",
     "787.722e7600.chunk.js.map": "/labels-app/static/js/787.722e7600.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.352948df.css",
-    "static/js/main.111cca11.js"
+    "static/js/main.67cd2da7.js"
   ]
 }
