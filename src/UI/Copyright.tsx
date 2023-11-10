@@ -6,7 +6,7 @@ export function Copyright(props: any) {
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright '}<CopyrightIcon /> {' '}
             <LinkUI color="inherit" href="https://doitreal.github.io/labels-app/">
-                Your Website
+                Labels The Project
             </LinkUI>{' '}
             {new Date().getFullYear()}
             {'.'}

@@ -7,15 +7,16 @@ export interface labelDataType {
     bg: string,
     en: string,
     de: string,
-    rus: string
+    rus: string,
+    owner: string
 }
 
 export default class DB {
     address: string;
     data:labelDataType[];
     constructor() {
-        this.address = "https://labels-service-392708.lm.r.appspot.com/";
-       // this.address = "http://localhost:8080/";
+     //   this.address = "https://labels-service-392708.lm.r.appspot.com/";
+        this.address = "http://localhost:8080/";
         this.data = [];
     }
     fetchSigns(setDbData: (arg: labelDataType[]) => void) {
@@ -25,7 +26,7 @@ export default class DB {
         return (new Promise<void>((resolve, reject)=> {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", this.address + 'signs', true);
-     
+      xhr.withCredentials = true;
         xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     this.data = JSON.parse(xhr.responseText);
@@ -48,6 +49,7 @@ export default class DB {
         return (new Promise<labelDataType>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", this.address + 'signs');
+ 	xhr.withCredentials = true;
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
 

@@ -12,12 +12,12 @@ import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-d
 import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
 import { Theme, ThemeProvider } from '@emotion/react';
-
-import { Box, Container, createTheme, CssBaseline } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
+import { Container, createTheme, CssBaseline } from '@mui/material';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
+
 export var db = new DB();
+
 
 export interface IenableStates {
     enableStates: Map<string, boolean>,
@@ -47,6 +47,7 @@ function App() {
         darkMode ? setTheme(defaultTheme) : setTheme(darkTheme);
         setDarkMode(!darkMode);
     }
+
     return (
         <userContext.Provider value={[user, setUser, logout]}>
             <enableStatesContext.Provider value={[enableStates,updateStates]}>

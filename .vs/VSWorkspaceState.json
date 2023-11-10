@@ -1,16 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\public",
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\content\\LeftSide\\SaveLabel",
-    "\\src\\content\\MidSide",
-    "\\src\\content\\RightSide",
     "\\src\\nav",
-    "\\src\\UI"
+    "\\src\\types"
   ],
-  "SelectedNode": "\\src\\content\\RightSide\\index.tsx",
+  "SelectedNode": "\\src\\nav\\Nav.tsx",
   "PreviewInSolutionExplorer": false
 }

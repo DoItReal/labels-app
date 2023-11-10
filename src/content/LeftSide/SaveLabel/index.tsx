@@ -42,7 +42,8 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
             bg: translation.bg,
             en: translation.en,
             de: translation.de,
-            rus: translation.rus
+            rus: translation.rus,
+	    owner:''
         };
         if (await handleCreateLabel(label))
             clear();
@@ -128,7 +129,8 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
             bg: translation.bg,
             en: translation.en,
             de: translation.de,
-            rus: translation.rus
+            rus: translation.rus,
+	    owner: label.owner
         };
         handleSubmit(editedLabel);
         close();
