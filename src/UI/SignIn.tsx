@@ -32,6 +32,7 @@ export function LoginUI() {
 
         }
         catch (error) {
+            console.log(error);
             const time = 5000;
             setError(<Alert severity="error" handleClose={() => setError(null)}>Failed to login. <strong>Invalid email or password!</strong></Alert>);
             setTimeout(() => setError(null), time);

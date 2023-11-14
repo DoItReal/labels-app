@@ -5,9 +5,8 @@
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\nav",
-    "\\src\\types"
+    "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\nav\\Nav.tsx",
+  "SelectedNode": "\\src\\UI\\Copyright.tsx",
   "PreviewInSolutionExplorer": false
 }
