@@ -143,12 +143,14 @@ export class Label {
 
 
 
+
 type translation = {
     bg: string;
     en: string;
     de: string;
     rus: string;
 }
+
 interface labelContent {
     allergens: Array<number>,
     name:translation
