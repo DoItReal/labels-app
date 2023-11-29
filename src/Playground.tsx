@@ -12,7 +12,18 @@ export interface Dimensions {
     width: number;
     height: number;
 }
-export type TtextParameter = 'bg' | 'en' | 'de' | 'rus' | '';
+
+//TO DO get textParameters based on DB INPUT or from API
+export const textParameters = ['bg', 'en', 'de', 'rus'] as const ;
+export type TtextParameter = typeof textParameters[number] | '';
+
+//TO DO Get textParametersMap from API
+export const textParametersMap = new Map([
+    ['bg', 'Bulgarian'],
+    ['en', 'English'],
+    ['de', 'Deutsch'],
+    ['rus', 'Russian'],
+]);
 export interface Design {
     id: number;
     position: Position;
@@ -24,21 +35,24 @@ export interface Design {
 
 export type HandleType = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top' | 'right' | 'bottom' | 'left' | null;
 
-
+export const dummyDesign: Design = {
+    id: -10,
+    position: { x: 0, y: 0 },
+    dimensions: { width: 0, height: 0 } ,
+    font: '20px Arial',
+    color: 'black',
+    textParameter: '',
+}
 const DesignPlayground: React.FC = () => {    
-    const [selectedTextParameter, setSelectTextParameter] = useState<TtextParameter>('');
+    const [selectedTextParameter, setSelectedTextParameter] = useState<TtextParameter>('');
     const [designs, setDesigns] = useState<Design[]>([
         { id: 1, position: { x: 50, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'blue',textParameter:'bg' },
         { id: 2, position: { x: 200, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'green', textParameter:'en' },
         { id: 3, position: { x: 350, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'red', textParameter:'de' },
     ]);
-    const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
-
-  
-    const setSelectedTextParameter = (textParameter: TtextParameter) => {
-        setSelectTextParameter(textParameter);
-        if(selectedDesign) selectedDesign.textParameter = textParameter;
-    };
+    const [selectedDesign, setSelectedDesign] = useState<Design | null>(dummyDesign);
+   
+   
     
     return (
         <>

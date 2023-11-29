@@ -53,26 +53,20 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
 
     }, [designs, selectedDesign]);
 
-    const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+        let clientX, clientY;
+        if ('touches' in event) {
+            // For touch events
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            // For mouse events
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
         const rect = canvasRef.current?.getBoundingClientRect();
-        const mouseX = event.clientX - (rect?.left || 0);
-        const mouseY = event.clientY - (rect?.top || 0);
-
-        const clickedDesign = designs.find((design) => {
-            return (
-                mouseX >= design.position.x &&
-                mouseX <= design.position.x + design.dimensions.width &&
-                mouseY >= design.position.y &&
-                mouseY <= design.position.y + design.dimensions.height
-            );
-        });
-
-        setSelectedDesign(clickedDesign || null);
-    };
-    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        const rect = canvasRef.current?.getBoundingClientRect();
-        const mouseX = event.clientX - (rect?.left || 0);
-        const mouseY = event.clientY - (rect?.top || 0);
+        const mouseX = clientX - (rect?.left || 0);
+        const mouseY = clientY - (rect?.top || 0);
 
         const clickedDesign = designs.find((design) => {
             const clickedHandle = checkResizeHandle(mouseX, mouseY, design);
@@ -95,18 +89,30 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
             setIsDragging(true);
             setDragStart({ x: mouseX - clickedDesign.position.x, y: mouseY - clickedDesign.position.y });
             setSelectedDesign(clickedDesign);
+        } else {
+            // If no object is clicked, deselect the selected object
+            setSelectedDesign(null);
         }
     };
-    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         animationRef.current = requestAnimationFrame(() => {
              drawDesigns();
         });
-       
+        let clientX, clientY;
+        if ('touches' in event) {
+            // For touch events
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            // For mouse events
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
 
         if ((isDragging || resizeHandle) && selectedDesign && dragStart !== null) {
             const rect = canvasRef.current?.getBoundingClientRect();
-            const mouseX = event.clientX - (rect?.left || 0);
-            const mouseY = event.clientY - (rect?.top || 0);
+            const mouseX = clientX - (rect?.left || 0);
+            const mouseY = clientY - (rect?.top || 0);
 
             setDesigns((prevDesigns) =>
                 prevDesigns.map((prevDesign) => {

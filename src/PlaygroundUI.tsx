@@ -1,5 +1,5 @@
 import React from 'react';
-import { Design, Dimensions, Position, TtextParameter } from './Playground'; // Make sure to import your Design type
+import { Design, Dimensions, Position, TtextParameter, textParameters, textParametersMap, dummyDesign } from './Playground'; // Make sure to import your Design type
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { styled } from '@mui/system';
 interface DesignUIProps {
@@ -36,9 +36,37 @@ const DesignUI: React.FC<DesignUIProps> = ({
     setDesigns,
     setSelectedDesign
 }) => {
+    
     const handleDesignSelection = (designId: number) => {
         const selected = designs.find((design) => design.id === designId) || null;
-        setSelectedDesign(selected);
+        if (selected !== null)
+            setSelectedDesign(selected);
+        else setSelectedDesign(dummyDesign);
+    };
+    const handleSelectedTextParameter = (textParameter: TtextParameter) => {
+        setSelectedTextParameter(textParameter);
+        if (selectedDesign) {
+            setSelectedDesign(prevSelectedDesign => {
+                if (prevSelectedDesign && prevSelectedDesign.id === selectedDesign.id) {
+                    return {
+                        ...prevSelectedDesign,
+                        textParameter: textParameter,
+                    }
+                }
+                return prevSelectedDesign;
+            });
+            setDesigns(prevDesigns =>
+                prevDesigns.map(prevDesign => {
+                    if (prevDesign.id === selectedDesign.id) {
+                        return {
+                            ...prevDesign,
+                            textParameter: textParameter,
+                        }
+                    }
+                    return prevDesign;
+                })
+            );
+        }
     };
     const updateSliderValue = (property: string, value: number) => {
         if (selectedDesign) {
@@ -103,7 +131,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 dimensions: { width: 100, height: 20 },
                 font: '20px Arial',
                 color: 'red',
-                textParameter: ''
+                textParameter: textParameters[0]
             },
         ]);
     };
@@ -121,10 +149,10 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 <FormControl>
                     <InputLabel>Selected Design:</InputLabel>
                     <Select
-                        value={selectedDesign ? selectedDesign.id : ''}
+                        value={selectedDesign && selectedDesign.id>0 ? selectedDesign.id : 'None'}
                         onChange={(e) => handleDesignSelection(Number(e.target.value))}
                     >
-                        <MenuItem value={undefined}>None</MenuItem>
+                        <MenuItem key='Not selected Design' value='None'>None</MenuItem>
                         {designs.map((design) => (
                             <MenuItem key={design.id} value={design.id}>
                                 Design {design.id}
@@ -135,20 +163,22 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 <FormControl style={{ marginLeft: '20px' }}>
                     <InputLabel>Selected Text Parameter:</InputLabel>
                     <Select
-                        value={selectedDesign ? selectedDesign.textParameter : ''}
-                        onChange={(e) => setSelectedTextParameter(e.target.value as TtextParameter)}
+                        value={selectedDesign && selectedDesign.id > 0 ? selectedDesign.textParameter : 'None'}
+                        onChange={(e) => handleSelectedTextParameter(e.target.value as TtextParameter)}
                     >
-                        <MenuItem value="bg">Bulgarian</MenuItem>
-                        <MenuItem value="en">English</MenuItem>
-                        <MenuItem value="de">Deutsch</MenuItem>
-                        <MenuItem value="rus">Russian</MenuItem>
+                        <MenuItem key={'Not selected textParameter'} value={'None'}>None</MenuItem>
+                        {textParameters.map(textParameter => (
+                            <MenuItem key={textParameter}  value={textParameter}> {textParametersMap.get(textParameter)} </MenuItem>    
+                        )) }
                     </Select>
                 </FormControl>
             </div>
             <div>
                 {selectedDesign && (
                     <div key={selectedDesign.id} style={{ marginBottom: '20px' }}>
-                        <h3>Design {selectedDesign.id}</h3>
+                        {selectedDesign.id > 0 ? <h3>Design {selectedDesign.id}</h3> :
+                     <h3>Select Block to edit or add a new Block</h3>}
+                        
                         <StyledSliderContainer>
                             <StyledInputLabel>Position X:</StyledInputLabel>
                             <Slider
