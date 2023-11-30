@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Design, HandleType, Position, TtextParameter } from './Playground'; // Import the Design type
+import { UnifiedDesign, textFieldDesign,imageFieldDesign, HandleType, Position, TtextParameter } from './Playground'; // Import the Design type
 import { styled } from '@mui/system';
 
 const StyledCanvas = styled('canvas')`
@@ -7,11 +7,12 @@ const StyledCanvas = styled('canvas')`
   margin-bottom: 10px;
 `;
 interface CanvasProps {
-    designs: Design[];
-    selectedDesign: Design | null;
-    selectedTextParameter: TtextParameter; // Add selectedTextParameter
-    setSelectedDesign: React.Dispatch<React.SetStateAction<Design | null>>;
-    setDesigns: React.Dispatch<React.SetStateAction<Design[]>>;
+    designs: UnifiedDesign[];
+    selectedDesign: UnifiedDesign | null;
+    setSelectedDesign: React.Dispatch<React.SetStateAction<UnifiedDesign | null>>;
+    setDesigns: React.Dispatch<React.SetStateAction<UnifiedDesign[]>>;
+  //  selectedTextParameter: TtextParameter; // Add selectedTextParameter
+    
 }
 
 
@@ -29,6 +30,16 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
         const context = canvas.getContext('2d');
         if (!context) return;
 
+        const handleDeleteKeyPress = (event: KeyboardEvent) => {
+            if (event.key === 'Delete' && selectedDesign) {
+                setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
+                setSelectedDesign(null); // Clear the selected design after deletion
+            }
+        };
+
+        window.addEventListener('keydown', handleDeleteKeyPress);
+
+       
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         designs.forEach((design) => {
@@ -38,7 +49,14 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
             context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
 
             const textDB: Record<string, string> = { bg: 'Bulgarian', en: 'English', de: 'Deutsch', rus: 'Russian' };
-            const text = textDB[design.textParameter] || '';
+            var text: string;
+            if ('textParameter' in design) {
+                text = textDB[design.textParameter];
+            } else if ('type' in design) {
+                text = design.type;
+            } else {
+                text = 'None';
+            }
             context.fillStyle = 'black'; // Text color
             context.textBaseline = 'top';
             context.font = design.font;
@@ -50,8 +68,10 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
                 context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
             }
         });
-
-    }, [designs, selectedDesign]);
+        return () => {
+            window.removeEventListener('keydown', handleDeleteKeyPress);
+        };
+    }, [canvasRef, designs, selectedDesign, setDesigns, setSelectedDesign]);
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         let clientX, clientY;
@@ -191,7 +211,7 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
     const checkResizeHandle = (
         mouseX: number,
         mouseY: number,
-        design: Design | undefined
+        design: UnifiedDesign | undefined
     ): HandleType | null => {
         if (!design) return null;
 
@@ -246,7 +266,14 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
             //**** TO DO !!! getting data from DB array*/
             const textDB: TextDatabase = { bg: 'Bulgarian', en: 'English', de: "Deutsch", rus:"Russian" };
             // Draw the text
-            const text = textDB[design.textParameter] || '';
+            var text: string;
+            if ('textParameter' in design) {
+                text = textDB[design.textParameter];
+            } else if ('type' in design) {
+                text = design.type;
+            } else {
+                text = 'None';
+            }
             context.fillStyle = 'black'; // Text color
             context.textBaseline = 'top';
             context.font = design.font;

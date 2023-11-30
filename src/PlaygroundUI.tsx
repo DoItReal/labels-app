@@ -1,14 +1,12 @@
 import React from 'react';
-import { Design, Dimensions, Position, TtextParameter, textParameters, textParametersMap, dummyDesign } from './Playground'; // Make sure to import your Design type
+import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, dummyImageDesign } from './Playground'; // Make sure to import your Design type
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { styled } from '@mui/system';
 interface DesignUIProps {
-    designs: Design[];
-    selectedDesign: Design | null;
-    selectedTextParameter: TtextParameter;
-    setSelectedTextParameter: (textParameter: TtextParameter) => void;
-    setDesigns: React.Dispatch<React.SetStateAction<Design[]>>;
-    setSelectedDesign: React.Dispatch<React.SetStateAction<Design | null>>;
+    designs: UnifiedDesign[];
+    selectedDesign: UnifiedDesign | null;
+    setDesigns: React.Dispatch<React.SetStateAction<UnifiedDesign[]>>;
+    setSelectedDesign: React.Dispatch<React.SetStateAction<UnifiedDesign | null>>;
 }
 
 const StyledDiv = styled('div')`
@@ -31,23 +29,49 @@ const StyledInputLabel = styled(InputLabel)`
 const DesignUI: React.FC<DesignUIProps> = ({
     designs,
     selectedDesign,
-    selectedTextParameter,
-    setSelectedTextParameter,
     setDesigns,
     setSelectedDesign
 }) => {
     
     const handleDesignSelection = (designId: number) => {
         const selected = designs.find((design) => design.id === designId) || null;
-        if (selected !== null)
+        if (selected !== null) {
             setSelectedDesign(selected);
+        }
         else setSelectedDesign(dummyDesign);
     };
+    const handleSelectedImageParameter = (imageParameter: TimageParameter) => {
+            if (selectedDesign && 'type' in selectedDesign && 'id' in selectedDesign) {
+                const design = selectedDesign as imageFieldDesign;
+
+                setSelectedDesign(prevSelectedDesign => {
+                    if (prevSelectedDesign && prevSelectedDesign.id === design.id) {
+                        return {
+                            ...prevSelectedDesign,
+                            type: imageParameter,
+                        }
+                    }
+                    return prevSelectedDesign;
+                });
+                setDesigns(prevDesigns =>
+                    prevDesigns.map(prevDesign => {
+                        if (prevDesign.id === design.id) {
+                            return {
+                                ...prevDesign,
+                                type: imageParameter,
+                            }
+                        }
+                        return prevDesign;
+                    })
+                );
+            }
+    };
     const handleSelectedTextParameter = (textParameter: TtextParameter) => {
-        setSelectedTextParameter(textParameter);
-        if (selectedDesign) {
+        if (selectedDesign && 'textParameter' in selectedDesign && 'id' in selectedDesign) {
+            const design = selectedDesign as textFieldDesign;
+
             setSelectedDesign(prevSelectedDesign => {
-                if (prevSelectedDesign && prevSelectedDesign.id === selectedDesign.id) {
+                if (prevSelectedDesign && prevSelectedDesign.id === design.id) {
                     return {
                         ...prevSelectedDesign,
                         textParameter: textParameter,
@@ -57,7 +81,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
             });
             setDesigns(prevDesigns =>
                 prevDesigns.map(prevDesign => {
-                    if (prevDesign.id === selectedDesign.id) {
+                    if (prevDesign.id === design.id) {
                         return {
                             ...prevDesign,
                             textParameter: textParameter,
@@ -122,7 +146,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
         }
     };
 
-    const addDesign = () => {
+    const addTextDesign = () => {
         setDesigns((prevDesigns) => [
             ...prevDesigns,
             {
@@ -140,7 +164,27 @@ const DesignUI: React.FC<DesignUIProps> = ({
         // Save the designs to the database (you can replace this with your actual database saving logic)
         console.log('Designs saved to the database:', designs);
     };
-
+     //TO DO
+    const addImageDesign = () => {
+        setDesigns((prevDesigns) => [
+            ...prevDesigns,
+            {
+                id: prevDesigns.length + 1,
+                position: { x: 250, y: 250 },
+                dimensions: { width: 120, height: 120 },
+                font: '20px Helvetica',
+                color: 'red',
+                type: 'allergens', // Initialize with an empty string or default value
+              //  allergenParameter: 'allergen_image.jpg', // Set the image parameter here
+            },
+        ]);
+    };
+    const deleteDesign = () => {
+        if (selectedDesign && selectedDesign.id > 0) {
+            setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
+            setSelectedDesign(null); // Clear the selected design after deletion
+        }
+    };
     return (
         <StyledDiv>
             <h2>Playground UI</h2>
@@ -152,33 +196,62 @@ const DesignUI: React.FC<DesignUIProps> = ({
                         value={selectedDesign && selectedDesign.id>0 ? selectedDesign.id : 'None'}
                         onChange={(e) => handleDesignSelection(Number(e.target.value))}
                     >
-                        <MenuItem key='Not selected Design' value='None'>None</MenuItem>
+                        <MenuItem key='Not selected Text Design' value='None'>None</MenuItem>
                         {designs.map((design) => (
                             <MenuItem key={design.id} value={design.id}>
-                                Design {design.id}
+                                { 'type' in design ? 'ImageField ' + design.id : 'TextField ' + design.id }
                             </MenuItem>
                         ))}
                     </Select>
                 </FormControl>
+
                 <FormControl style={{ marginLeft: '20px' }}>
-                    <InputLabel>Selected Text Parameter:</InputLabel>
-                    <Select
-                        value={selectedDesign && selectedDesign.id > 0 ? selectedDesign.textParameter : 'None'}
-                        onChange={(e) => handleSelectedTextParameter(e.target.value as TtextParameter)}
-                    >
-                        <MenuItem key={'Not selected textParameter'} value={'None'}>None</MenuItem>
-                        {textParameters.map(textParameter => (
-                            <MenuItem key={textParameter}  value={textParameter}> {textParametersMap.get(textParameter)} </MenuItem>    
-                        )) }
-                    </Select>
+                    {selectedDesign && selectedDesign.id > 0 ? (
+                        <>
+                            {selectedDesign && 'type' in selectedDesign ? (
+                                <>
+                                    {selectedDesign.type === 'allergens' || selectedDesign.type === 'image' ? (
+                                      <>  <InputLabel>Selected Image Type:</InputLabel>
+                                         <Select
+                        value={selectedDesign && selectedDesign.id > 0 && 'type' in selectedDesign ? selectedDesign.type : 'None'}
+                        onChange={(e) => handleSelectedImageParameter(e.target.value as TimageParameter)}
+                    >  <MenuItem key={'Not selected imageType'} value={'None'}>None</MenuItem>
+                        <MenuItem key={'allergens'} value={'allergens'}> Allergens </MenuItem>
+                        <MenuItem key={'image'} value={'image'}> Image </MenuItem>
+                    </Select> </>
+                                    ) : null}
+                                </>
+                            ) : (
+                                <>
+                                    <InputLabel>Selected Text Parameter:</InputLabel>
+                                    <Select
+                                        value={
+                                            selectedDesign && selectedDesign.id > 0 && 'textParameter' in selectedDesign
+                                                ? selectedDesign.textParameter
+                                                : 'None'
+                                        }
+                                        onChange={(e) => handleSelectedTextParameter(e.target.value as TtextParameter)}
+                                    >
+                                            <MenuItem key={'Not selected textParameter'} value={'None'}>None</MenuItem>
+                                            {textParameters.map(textParameter => (
+                                                <MenuItem key={textParameter} value={textParameter}> {textParametersMap.get(textParameter)} </MenuItem>
+                                            ))
+                                            }
+                                    </Select>
+                                </>
+                            )}
+                        </>
+                    ) : null}
                 </FormControl>
+                 
             </div>
             <div>
+                <div key={selectedDesign ? selectedDesign.id : -10} style={{ marginBottom: '20px' }}>
+                    {selectedDesign && selectedDesign.id > 0 ? <h3>Design {selectedDesign.id}</h3> :
+                        <h3>Select Block to edit or add a new Block</h3>}
+
                 {selectedDesign && (
-                    <div key={selectedDesign.id} style={{ marginBottom: '20px' }}>
-                        {selectedDesign.id > 0 ? <h3>Design {selectedDesign.id}</h3> :
-                     <h3>Select Block to edit or add a new Block</h3>}
-                        
+                  <>
                         <StyledSliderContainer>
                             <StyledInputLabel>Position X:</StyledInputLabel>
                             <Slider
@@ -227,11 +300,21 @@ const DesignUI: React.FC<DesignUIProps> = ({
                         <Button onClick={saveDesignsToDatabase } variant="contained" color="primary">
                             Save Design
                         </Button>
-                        <Button onClick={addDesign} variant="contained" color="primary">
-                            Add Design
+                        </>)}
+                  
+                        <Button onClick={addTextDesign} variant="contained" color="primary">
+                            Add Text Design
                         </Button>
-                    </div>
+                    <Button onClick={addImageDesign} variant="contained" color="primary"> Add Image Design</Button>
+                    {selectedDesign && (
+                        <>
+                        <Button onClick={deleteDesign} variant="contained" color="secondary">
+                            Delete Selected Design
+                        </Button>
+                    
+                    </>
                 )}
+            </div>
             </div>
         </StyledDiv>
     );
