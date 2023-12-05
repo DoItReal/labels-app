@@ -9,7 +9,7 @@ import { Iuser, loginUser } from '../Login/Login';
 import { Alert } from '../components/Alert';
 import { Copyright } from './Copyright';
 import { userContext } from '../App';
-import Playground from '../Playground';
+import Playground from '../DesignEditor/Editor';
 export function LoginUI() {
   
     const [user, setUser]:[user:Iuser,setUser:(arg:Iuser)=>void] = useContext(userContext);

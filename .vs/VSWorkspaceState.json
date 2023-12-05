@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\public",
-    "\\src"
+    "\\src",
+    "\\src\\DesignEditor",
+    "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\Canvas.tsx",
+  "SelectedNode": "\\src\\UI\\SignIn.tsx",
   "PreviewInSolutionExplorer": false
 }

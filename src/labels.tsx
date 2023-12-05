@@ -56,12 +56,14 @@ export class Label {
         this.ctx.save();
 
         //border
+              //style
         this.ctx.strokeStyle = "black";
         this.ctx.lineWidth = this.border;
         this.ctx.fillStyle = "white";
-
+             //draw border
         this.ctx.fillRect(0, 0, this.width, this.height);
         this.ctx.strokeRect(0, 0, this.width, this.height);
+
         this.generateInfoLabelsText(rows);
         this.generateAllergens(arr);
         this.ctx.restore();

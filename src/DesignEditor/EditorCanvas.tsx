@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { UnifiedDesign, textFieldDesign,imageFieldDesign, HandleType, Position, TtextParameter } from './Playground'; // Import the Design type
+import { UnifiedDesign, textFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions } from './Editor'; // Import the Design type
 import { styled } from '@mui/system';
 
 const StyledCanvas = styled('canvas')`
@@ -7,6 +7,7 @@ const StyledCanvas = styled('canvas')`
   margin-bottom: 10px;
 `;
 interface CanvasProps {
+    dimensions: Dimensions;
     designs: UnifiedDesign[];
     selectedDesign: UnifiedDesign | null;
     setSelectedDesign: React.Dispatch<React.SetStateAction<UnifiedDesign | null>>;
@@ -16,7 +17,7 @@ interface CanvasProps {
 }
 
 
-const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDesign, setDesigns }) => {
+const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, setSelectedDesign, setDesigns }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const [dragStart, setDragStart] = useState<Position | null>(null);
@@ -245,62 +246,63 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
 
         return null;
     };
-    interface TextDatabase {
-        [key: string]: string;
-    }
+
     const drawDesigns = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const context = canvas.getContext('2d');
         if (!context) return;
-
+        context.save();
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         designs.forEach((design) => {
-            const { x, y } = design.position;
-
-            context.strokeStyle = design.color;
-            context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
-
-            //**** TO DO !!! getting data from DB array*/
-            const textDB: TextDatabase = { bg: 'Bulgarian', en: 'English', de: "Deutsch", rus:"Russian" };
-            // Draw the text
-            var text: string;
-            if ('textParameter' in design) {
-                text = textDB[design.textParameter];
-            } else if ('type' in design) {
-                text = design.type;
-            } else {
-                text = 'None';
-            }
-            context.fillStyle = 'black'; // Text color
-            context.textBaseline = 'top';
-            context.font = design.font;
-            context.fillText(text, x, y);
-
-            // Draw a border around the selected design
-            if (selectedDesign && design.id === selectedDesign.id) {
-                context.strokeStyle = 'black';
-                context.lineWidth = 2;
-                context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
-            }
-
-            // Draw the resize handles
-            if (design.id === selectedDesign?.id) {
-                drawResizeHandle(context, x, y);
-                drawResizeHandle(context, x + design.dimensions.width, y);
-                drawResizeHandle(context, x, y + design.dimensions.height);
-                drawResizeHandle(context, x + design.dimensions.width, y + design.dimensions.height);
-
-                // Draw additional handles
-                drawResizeHandle(context, x + design.dimensions.width / 2, y);
-                drawResizeHandle(context, x, y + design.dimensions.height / 2);
-                drawResizeHandle(context, x + design.dimensions.width, y + design.dimensions.height / 2);
-                drawResizeHandle(context, x + design.dimensions.width / 2, y + design.dimensions.height);
-
-            }
+            drawDesign(design, context);
         });
+
+        context.restore();
+    };
+    const drawDesign = (design: UnifiedDesign, context: CanvasRenderingContext2D) => {
+        const { x, y } = design.position;
+
+        context.strokeStyle = design.color;
+        context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
+
+        // Draw the text
+        var text: string;
+        if ('textParameter' in design) {
+            text = textParametersMap.get(design.textParameter) || '';
+        } else if ('type' in design) {
+            text = design.type;
+        } else {
+            text = 'None';
+        }
+        context.fillStyle = 'black'; // Text color
+        context.textBaseline = 'top';
+        context.font = design.font;
+        context.fillText(text, x, y);
+
+        // Draw a border around the selected design
+        if (selectedDesign && design.id === selectedDesign.id) {
+            context.strokeStyle = 'black';
+            context.lineWidth = 2;
+            context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
+        }
+
+        // Draw the resize handles
+        if (design.id === selectedDesign?.id) {
+            drawResizeHandle(context, x, y);
+            drawResizeHandle(context, x + design.dimensions.width, y);
+            drawResizeHandle(context, x, y + design.dimensions.height);
+            drawResizeHandle(context, x + design.dimensions.width, y + design.dimensions.height);
+
+            // Draw additional handles
+            drawResizeHandle(context, x + design.dimensions.width / 2, y);
+            drawResizeHandle(context, x, y + design.dimensions.height / 2);
+            drawResizeHandle(context, x + design.dimensions.width, y + design.dimensions.height / 2);
+            drawResizeHandle(context, x + design.dimensions.width / 2, y + design.dimensions.height);
+
+        }
     };
     const drawResizeHandle = (context: CanvasRenderingContext2D, x: number, y: number) => {
         context.fillStyle = 'red';
@@ -309,8 +311,8 @@ const Canvas: React.FC<CanvasProps> = ({ designs, selectedDesign, setSelectedDes
     return (
         <canvas
             ref={canvasRef}
-            width={400}
-            height={300}
+            width={dimensions.width}
+            height={dimensions.height}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

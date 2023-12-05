@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from '@mui/material';
-import DesignUI from './PlaygroundUI';
-import Canvas  from './Canvas';
-
+import DesignUI from './EditorUI';
+import Canvas  from './EditorCanvas';
+import Label from './LabelCanvas';
+import { labelDataType } from '../db';
 export interface Position {
     x: number;
     y: number;
@@ -56,7 +57,8 @@ export const dummyImageDesign: imageFieldDesign = {
     color: 'black',
     type: 'allergens'
 }
-const DesignPlayground: React.FC = () => {    
+const DesignPlayground: React.FC = () => { 
+    const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
     const [designs, setDesigns] = useState<UnifiedDesign[]>([
         { id: 1, position: { x: 20, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'blue',textParameter:'bg' },
         { id: 2, position: { x: 150, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'green', textParameter:'en' },
@@ -65,20 +67,34 @@ const DesignPlayground: React.FC = () => {
         { id: 5, position: { x: 200, y: 150 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'green', type: 'image' }
     ]);
     const [selectedDesign, setSelectedDesign] = useState<UnifiedDesign | null>(dummyDesign);
-   
-   
+
+    const label: labelDataType = {
+        _id: '-1',
+        allergens: [1,2,3],
+        category: ['Soup'],
+        bg: 'Tarator',
+        en: 'Tarator EN',
+        de: 'Tarator DE',
+        rus: 'Tarator RUS',
+        owner: ''
+    }
     
     return (
         <>
             <Canvas
+                dimensions={canvasDim}
                 designs={designs}
                 setDesigns={setDesigns}
                 selectedDesign={selectedDesign}
                 setSelectedDesign={setSelectedDesign}
+
              
                 
             />
+            <Label dimensions={ canvasDim } designs={designs} label={label } />
             <DesignUI
+                canvasDesign={canvasDim}
+                setCanvasDesign={setCanvasDim }
                 designs={designs}
                 setDesigns={setDesigns}
                 selectedDesign={selectedDesign}

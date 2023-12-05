@@ -1,8 +1,10 @@
 import React from 'react';
-import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, dummyImageDesign } from './Playground'; // Make sure to import your Design type
+import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign} from './Editor'; // Make sure to import your Design type
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { styled } from '@mui/system';
 interface DesignUIProps {
+    canvasDesign: Dimensions,
+    setCanvasDesign: React.Dispatch<React.SetStateAction<Dimensions>>;
     designs: UnifiedDesign[];
     selectedDesign: UnifiedDesign | null;
     setDesigns: React.Dispatch<React.SetStateAction<UnifiedDesign[]>>;
@@ -27,6 +29,8 @@ const StyledInputLabel = styled(InputLabel)`
 `;
 
 const DesignUI: React.FC<DesignUIProps> = ({
+    canvasDesign,
+    setCanvasDesign,
     designs,
     selectedDesign,
     setDesigns,
@@ -188,7 +192,40 @@ const DesignUI: React.FC<DesignUIProps> = ({
     return (
         <StyledDiv>
             <h2>Playground UI</h2>
-
+            <StyledSliderContainer>
+                <StyledInputLabel>Canvas Height:</StyledInputLabel>
+                <Slider
+                    value={canvasDesign ? canvasDesign.height : 0}
+                    min={0}
+                    max={1000}
+                    onChange={(e, value) => {
+                        if(typeof value === 'number')
+                        setCanvasDesign(prevDesign => ({
+                            ...prevDesign,
+                            height: value
+                        }))
+                    }}
+                    style={{ width: '40%' }}
+                />
+                <InputLabel>Canvas Height: {canvasDesign.height}</InputLabel>
+            </StyledSliderContainer>
+            <StyledSliderContainer>
+                <StyledInputLabel>Canvas Width:</StyledInputLabel>
+                <Slider
+                    value={canvasDesign ? canvasDesign.width : 0}
+                    min={0}
+                    max={1000}
+                    onChange={(e, value) => {
+                        if (typeof value === 'number')
+                            setCanvasDesign(prevDesign => ({
+                                ...prevDesign,
+                                width: value
+                            }))
+                    }}
+                    style={{ width: '40%' }}
+                />
+                <InputLabel>Canvas Width: {canvasDesign.width}</InputLabel>
+            </StyledSliderContainer>
             <div>
                 <FormControl>
                     <InputLabel>Selected Design:</InputLabel>
