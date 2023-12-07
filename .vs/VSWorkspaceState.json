@@ -3,9 +3,7 @@
     "",
     "\\public",
     "\\src",
-    "\\src\\DesignEditor",
-    "\\src\\UI"
+    "\\src\\DesignEditor"
   ],
-  "SelectedNode": "\\src\\UI\\SignIn.tsx",
   "PreviewInSolutionExplorer": false
 }

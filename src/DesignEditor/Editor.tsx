@@ -72,10 +72,10 @@ const DesignPlayground: React.FC = () => {
         _id: '-1',
         allergens: [1,2,3],
         category: ['Soup'],
-        bg: 'Tarator',
-        en: 'Tarator EN',
-        de: 'Tarator DE',
-        rus: 'Tarator RUS',
+        bg: 'Taratorrrrrrrrr rrrrrr rrrrrrrrr rrrrrrrrr',
+        en: 'Taratorrrrrrrrrrrr EN',
+        de: 'Taratorrrrrr DE',
+        rus: 'Taratorrr RUS',
         owner: ''
     }
     
