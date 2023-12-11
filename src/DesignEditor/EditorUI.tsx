@@ -50,9 +50,17 @@ const DesignUI: React.FC<DesignUIProps> = ({
 
                 setSelectedDesign(prevSelectedDesign => {
                     if (prevSelectedDesign && prevSelectedDesign.id === design.id) {
-                        return {
-                            ...prevSelectedDesign,
-                            type: imageParameter,
+                        if (imageParameter === 'image') {
+                            return {
+                                ...prevSelectedDesign,
+                                type: imageParameter,
+                                imageID: 1,
+                            }
+                        } else {
+                            return {
+                                ...prevSelectedDesign,
+                                type:imageParameter
+                            }
                         }
                     }
                     return prevSelectedDesign;
@@ -60,10 +68,18 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 setDesigns(prevDesigns =>
                     prevDesigns.map(prevDesign => {
                         if (prevDesign.id === design.id) {
-                            return {
-                                ...prevDesign,
-                                type: imageParameter,
-                            }
+                            if (imageParameter === 'image') {
+                                return {
+                                    ...prevDesign,
+                                    type: imageParameter,
+                                    imageID: 1
+                                }
+                            } else {
+                                return {
+                                    ...prevDesign,
+                                    type:imageParameter
+                                }
+                            }                           
                         }
                         return prevDesign;
                     })
@@ -252,7 +268,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                                          <Select
                         value={selectedDesign && selectedDesign.id > 0 && 'type' in selectedDesign ? selectedDesign.type : 'None'}
                         onChange={(e) => handleSelectedImageParameter(e.target.value as TimageParameter)}
-                    >  <MenuItem key={'Not selected imageType'} value={'None'}>None</MenuItem>
+                    > 
                         <MenuItem key={'allergens'} value={'allergens'}> Allergens </MenuItem>
                         <MenuItem key={'image'} value={'image'}> Image </MenuItem>
                     </Select> </>

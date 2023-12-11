@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { UnifiedDesign, textFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions } from './Editor'; // Import the Design type
+import { UnifiedDesign,images, textFieldDesign,allergenFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions } from './Editor'; // Import the Design type
 import { styled } from '@mui/system';
 import { labelDataType } from '../db';
 import { png } from '../labels';
@@ -113,7 +113,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
             });
     }
 
-    const imagesCalibrateCenter = (design: UnifiedDesign, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
+    const allergenCalibrateCenter = (design: allergenFieldDesign, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
         const renderQueue: { image: number; x: number; y: number, width: number, height: number, position: Position }[] = [];
         const border = 2; //to add it to design.border
         const generateAllergens = (arr: number[]) => {
@@ -175,7 +175,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
             context.save();
             context.translate(item.position.x, item.position.y);
                 context.fillText(String(item.image), item.x, item.y);
-                typeof(item.image) === 'number' && context.drawImage(png.images[Number(item.image - 1)], item.x + textSize / 2, item.y, item.width, item.height);
+                typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  context.drawImage(png.images[Number(item.image - 1)], item.x + textSize / 2, item.y, item.width, item.height);
             
             context.restore();
         });
@@ -183,15 +183,38 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
      //   context.fillText(String(arr[i]), dx, dy + textSize * 0.9);
       //  context.drawImage(png.images[Number(arr[i] - 1)], dx + textSize / 2, dy, dWidth, dHeight)
     }
+    const generateImageQueue = (design: imageFieldDesign, context: CanvasRenderingContext2D) => {
+        const renderQueue: { context: CanvasRenderingContext2D, imageID: number, width: number, height: number, position: Position }[] = [];
+        renderQueue.push({ context,imageID: design.imageID, width: design.dimensions.width, height: design.dimensions.height, position: design.position })
+        return renderQueue;
+    }
+    const drawImageLogoQueue = (renderQueue: { context: CanvasRenderingContext2D, imageID: number, width: number, height: number, position: Position }[]) => {
+        renderQueue.forEach(item => {
+            typeof (item.imageID) === 'number' && images.forEach(image => {
+                if (image.id === item.imageID) {
+                    let tmp = new Image();
+                    tmp.onload = () => {
+                        tmp.style.opacity = '0.1';
+                        item.context.drawImage(tmp, item.position.x, item.position.y, item.width, item.height);
+                    };
+                    tmp.src = image.url;
+                    
+                }
+            });
+                
+        });
+    }
     const drawDesign = (design: UnifiedDesign, context: CanvasRenderingContext2D) => {
         const { x, y } = design.position;
         context.save();
         
-        context.strokeStyle = design.color;
-        context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
+       // context.strokeStyle = design.color;
+       // context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
 
         // Draw the text
         var text: string;
+        var textQueue, allergenQueue, imageQueue;
+        
         if ('textParameter' in design) {
             text = textParametersMap.get(design.textParameter) || '';
             if (design.textParameter !== '' && label.hasOwnProperty(design.textParameter)) {
@@ -200,27 +223,28 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
             } else {
                 text = '';
             }
-            const queue = txtCalibrateCenter(design, context, text);
-            queue && drawTextQueue(context, queue);
+            textQueue = txtCalibrateCenter(design, context, text);
         } else if ('type' in design) { // TO DO NEXT!! 
             if (design.type === 'allergens') {
-                const queue = imagesCalibrateCenter(design, context, label.allergens);
-                drawImageQueue(context, queue);
+                allergenQueue = allergenCalibrateCenter(design, context, label.allergens);
+                
             } else if (design.type === 'image') {
-                text = design.type; // there has to be way of getting the image and drawing it! 
+                imageQueue = generateImageQueue(design, context);
+                
 
             } else {
                 text = 'undefined';
-                const queue = txtCalibrateCenter(design, context, text);
-                queue && drawTextQueue(context, queue);
+                textQueue = txtCalibrateCenter(design, context, text);
             }
         } else {
             text = 'Undefined';
-            const queue = txtCalibrateCenter(design, context, text);
-            queue && drawTextQueue(context, queue);
+            textQueue = txtCalibrateCenter(design, context, text);
+
         }
-       
+        if (imageQueue && imageQueue.length > 0) drawImageLogoQueue(imageQueue);
+        if (allergenQueue && allergenQueue.length > 0) drawImageQueue(context, allergenQueue);
         
+        if (textQueue && textQueue.length > 0) drawTextQueue(context, textQueue);
 
         context.restore();
    
