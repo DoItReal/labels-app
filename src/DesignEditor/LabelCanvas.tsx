@@ -28,22 +28,67 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
 
         context.save();
         context.clearRect(0, 0, canvas.width, canvas.height);
-
+        const textQueue: ItextQueue[] = [];
+        const allergenQueue: IallergenQueue[] = [];
+        const imageQueue: IimageQueue[] = [];
         designs.forEach((design) => {
-            drawDesign(design, context);
-        });
+            const queue = drawDesign(design, context);
+           // console.log(queue);
+            if ('textQueue' in queue && queue.textQueue) {
+                queue.textQueue.forEach(item => {
+                    textQueue.push(item);
+                });
+                
+            } else if ('allergenQueue' in queue && queue.allergenQueue) {
+                queue.allergenQueue.forEach(item => {
+                    allergenQueue.push(item);
+                });
+            } else if ('imageQueue' in queue && queue.imageQueue) {
+                queue.imageQueue.forEach(item => {
+                    imageQueue.push(item);
+                })
+            } else {
 
+            }
+        });
+        
+        drawImageLogoQueue(imageQueue);
+        drawAllergenQueue(allergenQueue);
+        drawTextQueue(textQueue);
         context.restore();
     };
     //TO ADD design.multiline that can be true or false and to render the text on multiple lines or on single one!
-    const txtCalibrateCenter = (design: UnifiedDesign, context: CanvasRenderingContext2D, txt: string) => {
+    interface ItextQueue {
+        context: CanvasRenderingContext2D;
+        text: string;
+        x: number;
+        y: number;
+        position: Position;
+    }
+    interface IallergenQueue {
+        context: CanvasRenderingContext2D;
+        image: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        position: Position;
+    }
+    interface IimageQueue {
+        context: CanvasRenderingContext2D;
+        imageID: number;
+        width: number;
+        height: number;
+        position: Position;
+    }
+    const generateTextQueue = (design: UnifiedDesign, context: CanvasRenderingContext2D, txt: string) => {
         let textSize = parseInt(design.font);
         context.font = design.font;
         const margin = 1.1;
-        const renderQueue: { text: string; x: number; y: number, position: Position }[] = [];
+        const renderQueue: ItextQueue[] = [];
         const words = txt.split(' ');
 
-        const fitText = (): { text: string; x: number; y: number, position: Position }[] => {
+        const fitText = (): ItextQueue[] => {
             let lines: string[] = [];
             let line = '';
             for (let i = 0; i < words.length; i++) {
@@ -86,14 +131,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
             if (typeof (text) === 'string') {  //single line case
                 const x = (design.dimensions.width - context.measureText(text).width) / 2;
                 const y = (design.dimensions.height - textSize) / 2;
-                renderQueue.push({ text: text, x: x, y: y, position: design.position });
+                renderQueue.push({ context,text: text, x: x, y: y, position: design.position });
             } else { //multiline case
                 text.forEach((txt, index) => {
                     const totalTextHeight = text.length * textSize * margin;
                     const startY = (design.dimensions.height - totalTextHeight) / 2;
                     const x = (design.dimensions.width - context.measureText(txt).width) / 2;
                     const y = startY + index * textSize;
-                    renderQueue.push({ text: txt, x: x, y: y, position: design.position });
+                    renderQueue.push({ context, text: txt, x: x, y: y, position: design.position });
                 });
             }
             return renderQueue;     
@@ -101,20 +146,21 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
 
         return fitText();
     }
-    const drawTextQueue = (context: CanvasRenderingContext2D, renderQueue: { text: string; x: number; y: number, position:Position }[]) => {
+    const drawTextQueue = (renderQueue: ItextQueue[]) => {
         const margin = 1.1;
-        context.textBaseline = 'top';
+        
 
         renderQueue.forEach(item => {
-            context.save();
-            context.translate(item.position.x, item.position.y);
-            context.fillText(item.text, item.x, item.y * margin);
-            context.restore();
+            item.context.save();
+            item.context.textBaseline = 'top';
+            item.context.translate(item.position.x, item.position.y);
+            item.context.fillText(item.text, item.x, item.y * margin);
+            item.context.restore();
             });
     }
 
-    const allergenCalibrateCenter = (design: allergenFieldDesign, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
-        const renderQueue: { image: number; x: number; y: number, width: number, height: number, position: Position }[] = [];
+    const generateAllergenQueue = (design: allergenFieldDesign, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
+        const renderQueue: IallergenQueue[] = [];
         const border = 2; //to add it to design.border
         const generateAllergens = (arr: number[]) => {
     if (arr.length === 1 && arr[0] === 0) return;
@@ -132,7 +178,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
     for (let i = 0; i < arr.length; i++) {
         context.font = textSize + "px " + design.font.split(' ')[1];
         context.fillStyle = "blue";
-        renderQueue.push({ image: arr[i], x: dx + textSize / 2, y:dy, width:dWidth, height:dHeight, position: design.position });
+        renderQueue.push({context, image: arr[i], x: dx + textSize / 2, y:dy, width:dWidth, height:dHeight, position: design.position });
        // context.fillText(String(arr[i]), dx, dy + textSize * 0.9);
       //  context.drawImage(png.images[Number(arr[i] - 1)], dx + textSize / 2, dy, dWidth, dHeight)
         dx += textSize * 2;
@@ -167,34 +213,37 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
         generateAllergens(imageURLs as number[]);
         return renderQueue;
     }
-    const drawImageQueue = (context: CanvasRenderingContext2D, renderQueue: { image: number; x: number; y: number,width:number,height:number, position: Position }[]) => {
+    const drawAllergenQueue = (renderQueue: IallergenQueue[]) => {
         const margin = 1.1;
-        context.textBaseline = 'top';
-        const textSize = parseInt(context.font);
         renderQueue.forEach(item => {
-            context.save();
-            context.translate(item.position.x, item.position.y);
-                context.fillText(String(item.image), item.x, item.y);
-                typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  context.drawImage(png.images[Number(item.image - 1)], item.x + textSize / 2, item.y, item.width, item.height);
+            item.context.textBaseline = 'top';
+            const textSize = parseInt(item.context.font);
+            item.context.save();
+            item.context.translate(item.position.x, item.position.y);
+                item.context.fillText(String(item.image), item.x, item.y);
+                typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  item.context.drawImage(png.images[Number(item.image - 1)], item.x + textSize / 2, item.y, item.width, item.height);
             
-            context.restore();
+            item.context.restore();
         });
 
      //   context.fillText(String(arr[i]), dx, dy + textSize * 0.9);
       //  context.drawImage(png.images[Number(arr[i] - 1)], dx + textSize / 2, dy, dWidth, dHeight)
     }
     const generateImageQueue = (design: imageFieldDesign, context: CanvasRenderingContext2D) => {
-        const renderQueue: { context: CanvasRenderingContext2D, imageID: number, width: number, height: number, position: Position }[] = [];
+        const renderQueue: IimageQueue[] = [];
         renderQueue.push({ context,imageID: design.imageID, width: design.dimensions.width, height: design.dimensions.height, position: design.position })
         return renderQueue;
     }
-    const drawImageLogoQueue = (renderQueue: { context: CanvasRenderingContext2D, imageID: number, width: number, height: number, position: Position }[]) => {
+
+    //TO DO REMOVE THE GENERATING IMG IN THE FUNCTION !!! Generate it asynchrounusly and just get ref to it
+    const drawImageLogoQueue = (renderQueue: IimageQueue[]) => {
         renderQueue.forEach(item => {
             typeof (item.imageID) === 'number' && images.forEach(image => {
                 if (image.id === item.imageID) {
                     let tmp = new Image();
+                    tmp.style.opacity = '0.1';
+                   
                     tmp.onload = () => {
-                        tmp.style.opacity = '0.1';
                         item.context.drawImage(tmp, item.position.x, item.position.y, item.width, item.height);
                     };
                     tmp.src = image.url;
@@ -223,28 +272,30 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
             } else {
                 text = '';
             }
-            textQueue = txtCalibrateCenter(design, context, text);
+            textQueue = generateTextQueue(design, context, text);
+            return { textQueue };
         } else if ('type' in design) { // TO DO NEXT!! 
             if (design.type === 'allergens') {
-                allergenQueue = allergenCalibrateCenter(design, context, label.allergens);
-                
+                allergenQueue = generateAllergenQueue(design, context, label.allergens);
+                return { allergenQueue };
             } else if (design.type === 'image') {
                 imageQueue = generateImageQueue(design, context);
-                
+                return { imageQueue };
 
             } else {
                 text = 'undefined';
-                textQueue = txtCalibrateCenter(design, context, text);
+                textQueue = generateTextQueue(design, context, text);
+                return { textQueue };
             }
         } else {
             text = 'Undefined';
-            textQueue = txtCalibrateCenter(design, context, text);
-
+             textQueue = generateTextQueue(design, context, text);
+            return { textQueue };
         }
         if (imageQueue && imageQueue.length > 0) drawImageLogoQueue(imageQueue);
-        if (allergenQueue && allergenQueue.length > 0) drawImageQueue(context, allergenQueue);
+        if (allergenQueue && allergenQueue.length > 0) drawAllergenQueue(allergenQueue);
         
-        if (textQueue && textQueue.length > 0) drawTextQueue(context, textQueue);
+        if (textQueue && textQueue.length > 0) drawTextQueue(textQueue);
 
         context.restore();
    
