@@ -10,6 +10,7 @@ const StyledCanvas = styled('canvas')`
 interface CanvasProps {
     dimensions: Dimensions;
     designs: UnifiedDesign[];
+    canvasDim: Dimensions;
     label: labelDataType;
 }
 
@@ -40,20 +41,21 @@ interface CanvasProps {
                     return const fitText() - Its returned from the main function! Generates the queue and returns it!
                                             1. Measures the text using the selected design and reduces it if it doesnt fit!
                    ***  TO DO!!             2. centerText() - It centers the text and return ! To rework it later to can selected direction of the text in design
-    const generateAllergenQueue(design, context, imageURLs) - it generates allergen Queue and returns it!
+                                            3. returns $textQueue;
+                   const generateAllergenQueue(design, context, imageURLs) - it generates allergen Queue and returns it!
                    *** TO DO!! arr:string[] 1. imgCalibrate(arr:number[]) - Calibrates the design font to fit all the content! {AllergenNumber, AllergenImage}[];
                    *** TO DO!!              2. imgCenter(arr.length, textSize) - Returns dimensions for drawing centering the content in the box 
-                                            3. 
-    const generateImageQueue(design, context) - generates queue and returns it with the desired props from the selected design
+                                            3. returns $allergenQueue;
+    const generateImageQueue(design, context) - generates queue and returns it with the desired props from the selected design 
+            return $imageQueue;
+    const drawTextQueue(textQueue) - draws $textQueue
 
-    const drawTextQueue(textQueue)
+    const drawAllergenQueue(allergenQueue) - draws $textQueue
 
-    const drawAllergenQueue(allergenQueue)
-
-    const drawImageQueue(imageQueue)
+    const drawImageQueue(imageQueue) - draws the $imageQueue
 */
 
-const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
+const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const drawDesigns = () => {
         //check if canvas exists
@@ -115,27 +117,33 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
     interface IimageQueue {
         context: CanvasRenderingContext2D;
         imageID: number;
-        width: number;
-        height: number;
+        dimensions: Dimensions;
+        transperancy: number;
         position: Position;
     }
     const generateTextQueue = (design: UnifiedDesign, context: CanvasRenderingContext2D, txt: string) => {
         context.save();
+        //get font size
         let textSize = parseInt(design.font);
         context.font = design.font;
         const margin = 1.1;
         const renderQueue: ItextQueue[] = [];
         const words = txt.split(' ');
 
+        //converting to PX from %
+        const width = design.dimensions.width * canvasDim.width / 100;
+        const height = design.dimensions.height * canvasDim.height / 100;
+
         const fitText = (): ItextQueue[] => {
             let lines: string[] = [];
             let line = '';
+           
             for (let i = 0; i < words.length; i++) {
                 const testLine = line + words[i] + ' ';
                 const metrics = context.measureText(testLine);
                 const testWidth = metrics.width;
 
-                if (testWidth > design.dimensions.width - 10 && i > 0) {
+                if (testWidth > width - 10 && i > 0) {
                     lines.push(line);
                     line = words[i] + ' ';
                 } else {
@@ -153,7 +161,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
                 return maxWidth;
             };
             
-            if (totalTextHeight <= design.dimensions.height && maximumTextWidth() <= design.dimensions.width) { //calculated height <= maximum design height
+            if (totalTextHeight <= height && maximumTextWidth() <= width) { //calculated height <= maximum design height
                 return centerText(lines); // everything is OK we can draw that!
             } else {
                 if (textSize <= 1) {
@@ -168,15 +176,16 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
         const centerText = (text: string | string[]) => {
             const font = textSize + "px " + design.font.split(' ')[1];
             if (text.length === 1) text = text[0];
+            //not sure if this is neccesary but in ANY CASE
             if (typeof (text) === 'string') {  //single line case
-                const x = (design.dimensions.width - context.measureText(text).width) / 2;
-                const y = (design.dimensions.height - textSize) / 2;
+                const x = (width - context.measureText(text).width) / 2;
+                const y = (height - textSize) / 2;
                 renderQueue.push({ context,text: text, x: x, y: y,font, position: design.position });
             } else { //multiline case
                 text.forEach((txt, index) => {
                     const totalTextHeight = text.length * textSize * margin;
-                    const startY = (design.dimensions.height - totalTextHeight) / 2;
-                    const x = (design.dimensions.width - context.measureText(txt).width) / 2;
+                    const startY = (height - totalTextHeight) / 2;
+                    const x = (width - context.measureText(txt).width) / 2;
                     const y = startY + index * textSize;
                     renderQueue.push({ context, text: txt, x: x, y: y,font, position: design.position });
                 });
@@ -206,13 +215,15 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
         const border = 2; //to add it to design.border
         const generateAllergens = (arr: number[]) => {
     if (arr.length === 1 && arr[0] === 0) return; // ???
-    //calibrate and set this.fontSize
-    
-    const imgCalibrate = (arr: Array<number>) => { // return the required fontSize to fit the image in the design
-        let textSize = parseInt(design.font);
-        const width = design.dimensions.width;
-        const height = design.dimensions.height;
+            //calibrate and set this.fontSize
 
+        //convert to PX from %
+        const width = design.dimensions.width * dimensions.width / 100;
+        const height = design.dimensions.height * dimensions.height / 100;
+    const imgCalibrate = (arr: Array<number>) => { // return the required fontSize to fit the image in the design
+        //get font size
+        let textSize = parseInt(design.font);
+        //get full size of the content
         let wholeSize = arr.length * textSize * 4;
         while (wholeSize > width - (20) ) {
             textSize--;
@@ -225,14 +236,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
         return textSize;
             }
     const imgCenter = (length: number, textSize: number) => {
-        const width = design.dimensions.width - border * 2;
-        const height = design.dimensions.height - border * 2;
+        const realWidth = width - border * 2;
+        const realHeight = height - border * 2;
 
         let wholeSize = length * textSize * 2;
-        let dx = (width - wholeSize) / 2;
-        if (width > wholeSize) dx = (width - wholeSize) / 2;
-        else dx = (wholeSize - width) / 2;
-        let dy = textSize * 1.5 + height * 0.25;
+        let dx = (realWidth - wholeSize) / 2;
+        if (realWidth > wholeSize) dx = (realWidth - wholeSize) / 2;
+        else dx = (wholeSize - realWidth) / 2;
+        let dy = textSize * 1.5 + realHeight * 0.25;
         dy = (dy - border) / 2 - textSize;
         return { x: dx, y: dy };
             }
@@ -241,8 +252,6 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
     textSize *= 2;
     let dim = imgCenter(arr.length, textSize);
     let { x: dx, y: dy } = dim;
-       // let dx = (design.dimensions.width - (arr.length * textSize * 2)) / 2;
-        //let dy = (design.dimensions.height - border-textSize)/2;
 
     for (let i = 0; i < arr.length; i++) {
         context.font = textSize + "px " + design.font.split(' ')[1];
@@ -274,11 +283,15 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
     }
     const generateImageQueue = (design: imageFieldDesign, context: CanvasRenderingContext2D) => {
         const renderQueue: IimageQueue[] = [];
-        renderQueue.push({ context,imageID: design.imageID, width: design.dimensions.width, height: design.dimensions.height, position: design.position })
+        const imgDimensions = {
+            width: design.dimensions.width * dimensions.width / 100,
+            height: design.dimensions.height * dimensions.height / 100
+        }
+        const transperancy = 0.2;
+        renderQueue.push({ context,imageID: design.imageID,transperancy,dimensions:imgDimensions, position: design.position })
         return renderQueue;
     }
    
-    //TO DO REMOVE THE GENERATING IMG IN THE FUNCTION !!! Generate it asynchrounusly and just get ref to it
     const drawImageQueue = async(renderQueue: IimageQueue[]) => {
         if (!images) return;
         
@@ -286,7 +299,11 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, label }) => {
         renderQueue.forEach(item => {
             typeof (item.imageID) === 'number' && images.forEach(image => {
                 if (image.id === item.imageID) {
-                        item.context.drawImage(image.image, item.position.x, item.position.y, item.width, item.height);
+                    item.context.save();
+                    //set transperancy for the image 
+                    item.context.globalAlpha = item.transperancy;
+                        item.context.drawImage(image.image, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
+                    item.context.restore();
                 }
             });
                 

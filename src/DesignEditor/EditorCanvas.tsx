@@ -31,49 +31,22 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
         const context = canvas.getContext('2d');
         if (!context) return;
 
-        const handleDeleteKeyPress = (event: KeyboardEvent) => {
-            if (event.key === 'Delete' && selectedDesign) {
-                setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
-                setSelectedDesign(null); // Clear the selected design after deletion
-            }
-        };
-
         window.addEventListener('keydown', handleDeleteKeyPress);
-
-       
+ 
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        designs.forEach((design) => {
-            const { x, y } = design.position;
-
-            context.strokeStyle = design.color;
-            context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
-
-            const textDB: Record<string, string> = { bg: 'Bulgarian', en: 'English', de: 'Deutsch', rus: 'Russian' };
-            var text: string;
-            if ('textParameter' in design) {
-                text = textDB[design.textParameter];
-            } else if ('type' in design) {
-                text = design.type;
-            } else {
-                text = 'None';
-            }
-            context.fillStyle = 'black'; // Text color
-            context.textBaseline = 'top';
-            context.font = design.font;
-            context.fillText(text, x, y);
-
-            if (selectedDesign && design.id === selectedDesign.id) {
-                context.strokeStyle = 'black';
-                context.lineWidth = 2;
-                context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
-            }
-        });
+        drawDesigns();
         return () => {
             window.removeEventListener('keydown', handleDeleteKeyPress);
         };
     }, [canvasRef, designs, selectedDesign, setDesigns, setSelectedDesign]);
 
+    const handleDeleteKeyPress = (event: KeyboardEvent) => {
+        if (event.key === 'Delete' && selectedDesign) {
+            setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
+            setSelectedDesign(null); // Clear the selected design after deletion
+        }
+    };
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         let clientX, clientY;
         if ('touches' in event) {
@@ -97,12 +70,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
                 setDragStart(null);
                 return true; // Stop further processing, we're in resize mode
             }
-
+            //convert to PX from %
+            const width = design.dimensions.width * dimensions.width / 100;
+            const height = design.dimensions.height * dimensions.height / 100;
             return (
                 mouseX >= design.position.x &&
-                mouseX <= design.position.x + design.dimensions.width &&
+                mouseX <= design.position.x + width &&
                 mouseY >= design.position.y &&
-                mouseY <= design.position.y + design.dimensions.height
+                mouseY <= design.position.y + height
             );
         });
 
@@ -139,7 +114,9 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
                 prevDesigns.map((prevDesign) => {
                     if (prevDesign.id === selectedDesign.id) {
                         const { x, y } = prevDesign.position;
-                        const { width, height } = prevDesign.dimensions;
+                        //converting to PX from %
+                        const width = prevDesign.dimensions.width * dimensions.width / 100;
+                        const height = prevDesign.dimensions.height * dimensions.height / 100;
 
                         let newWidth = width;
                         let newHeight = height;
@@ -157,7 +134,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
                             if (resizeHandle.includes('bottom')) {
                                 newHeight = mouseY - y;
                             } else if (resizeHandle.includes('top')) {
-                                newHeight = y + height - mouseY;
+                                newHeight = (y + height - mouseY);
                                 newY = mouseY;
                             }
 
@@ -192,8 +169,9 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
                                 y: newY,
                             },
                             dimensions: {
-                                width: newWidth,
-                                height: newHeight,
+                                //converting back to % from PX 
+                                width: Math.trunc(newWidth * 10000 / dimensions.width)/100,
+                                height: Math.trunc(newHeight*10000/dimensions.height)/100,
                             },
                         };
                     }
@@ -217,7 +195,9 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
         if (!design) return null;
 
         const { x, y } = design.position;
-        const { width, height } = design.dimensions;
+       //converting to PX from %
+        const width = design.dimensions.width * dimensions.width / 100;
+        const height = design.dimensions.height * dimensions.height / 100;
 
         const handles = {
             'top-left': [x, y],
@@ -264,9 +244,12 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
     };
     const drawDesign = (design: UnifiedDesign, context: CanvasRenderingContext2D) => {
         const { x, y } = design.position;
+        //converting to PX from %
+        const width = design.dimensions.width * dimensions.width / 100;
+        const height = design.dimensions.height * dimensions.height / 100;
 
         context.strokeStyle = design.color;
-        context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
+        context.strokeRect(x, y, width, height);
 
         // Draw the text
         var text: string;
@@ -286,21 +269,21 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
         if (selectedDesign && design.id === selectedDesign.id) {
             context.strokeStyle = 'black';
             context.lineWidth = 2;
-            context.strokeRect(x, y, design.dimensions.width, design.dimensions.height);
+            context.strokeRect(x, y, width, height);
         }
 
         // Draw the resize handles
         if (design.id === selectedDesign?.id) {
             drawResizeHandle(context, x, y);
-            drawResizeHandle(context, x + design.dimensions.width, y);
-            drawResizeHandle(context, x, y + design.dimensions.height);
-            drawResizeHandle(context, x + design.dimensions.width, y + design.dimensions.height);
+            drawResizeHandle(context, x + width, y);
+            drawResizeHandle(context, x, y + height);
+            drawResizeHandle(context, x + width, y + height);
 
             // Draw additional handles
-            drawResizeHandle(context, x + design.dimensions.width / 2, y);
-            drawResizeHandle(context, x, y + design.dimensions.height / 2);
-            drawResizeHandle(context, x + design.dimensions.width, y + design.dimensions.height / 2);
-            drawResizeHandle(context, x + design.dimensions.width / 2, y + design.dimensions.height);
+            drawResizeHandle(context, x + width / 2, y);
+            drawResizeHandle(context, x, y + height / 2);
+            drawResizeHandle(context, x + width, y + height / 2);
+            drawResizeHandle(context, x + width / 2, y + height);
 
         }
     };

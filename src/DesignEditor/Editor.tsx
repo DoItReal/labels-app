@@ -93,11 +93,11 @@ export const dummyImageDesign: allergenFieldDesign = {
 const DesignPlayground: React.FC = () => { 
     const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
     const [designs, setDesigns] = useState<UnifiedDesign[]>([
-        { id: 1, position: { x: 20, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'blue',textParameter:'bg' },
-        { id: 2, position: { x: 150, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'green', textParameter:'en' },
-        { id: 3, position: { x: 280, y: 50 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'red', textParameter: 'de' },
-        { id: 4, position: { x: 50, y: 150 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'blue', type: 'allergens' },
-        { id: 5, position: { x: 200, y: 150 }, dimensions: { width: 100, height: 20 }, font: '20px Arial', color: 'green', type: 'image', imageID:1 }
+        { id: 1, position: { x: 20, y: 50 }, dimensions: { width: 80, height: 20 }, font: '20px Arial', color: 'blue',textParameter:'bg' },
+        { id: 2, position: { x: 150, y: 50 }, dimensions: { width: 80, height: 20 }, font: '20px Arial', color: 'green', textParameter:'en' },
+        { id: 3, position: { x: 280, y: 50 }, dimensions: { width: 80, height: 20 }, font: '20px Arial', color: 'red', textParameter: 'de' },
+        { id: 4, position: { x: 50, y: 150 }, dimensions: { width: 80, height: 20 }, font: '20px Arial', color: 'blue', type: 'allergens' },
+        { id: 5, position: { x: 200, y: 150 }, dimensions: { width: 80, height: 20 }, font: '20px Arial', color: 'green', type: 'image', imageID:1 }
     ]);
     const [selectedDesign, setSelectedDesign] = useState<UnifiedDesign | null>(dummyDesign);
 
@@ -125,7 +125,7 @@ const DesignPlayground: React.FC = () => {
              
                 
             />
-            <Label dimensions={ canvasDim } designs={designs} label={label } />
+            <Label dimensions={canvasDim} designs={designs} canvasDim={canvasDim } label={label } />
             <DesignUI
                 canvasDesign={canvasDim}
                 setCanvasDesign={setCanvasDim }

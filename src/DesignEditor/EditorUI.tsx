@@ -331,8 +331,8 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             <StyledInputLabel>Height:</StyledInputLabel>
                             <Slider
                                 value={selectedDesign.dimensions.height}
-                                min={0}
-                                max={400}
+                                min={1}
+                                max={100}
                                 onChange={(e, value) => updateSliderValue('dimensions.height', value as number)}
                                 style={{ width: '40%' }}
                             />
@@ -342,8 +342,8 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             <StyledInputLabel>Width:</StyledInputLabel>
                             <Slider
                                 value={selectedDesign.dimensions.width}
-                                min={0}
-                                max={400}
+                                min={1}
+                                max={100}
                                 onChange={(e, value) => updateSliderValue('dimensions.width', value as number)}
                                 style={{ width: '40%' }}
                             />
