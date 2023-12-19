@@ -18,3 +18,4 @@ test('Testing isNotNullOrUndefined', () => {
     expect(isNotNullOrUndefined(TestArr)).toBe(true);
     expect(isNotNullOrUndefined(undefined)).toBe(false);
 })
+

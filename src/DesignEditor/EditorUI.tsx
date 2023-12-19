@@ -190,7 +190,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
             ...prevDesigns,
             {
                 id: prevDesigns.length + 1,
-                position: { x: 250, y: 250 },
+                position: { x: 50, y: 250 },
                 dimensions: { width: 120, height: 120 },
                 font: '20px Helvetica',
                 color: 'red',
@@ -310,7 +310,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             <Slider
                                 value={selectedDesign ? selectedDesign.position.x : 0}
                                 min={0}
-                                max={400}
+                                max={100}
                                 onChange={(e, value) => updateSliderValue('position.x', value as number)}
                                 style={{ width: '40%' }}
                             />
@@ -321,7 +321,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             <Slider
                                 value={selectedDesign.position.y}
                                 min={0}
-                                max={400}
+                                max={100}
                                 onChange={(e, value) => updateSliderValue('position.y', value as number)}
                                 style={{width:'40%'} }
                             />

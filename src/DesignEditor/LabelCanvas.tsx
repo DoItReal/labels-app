@@ -133,7 +133,6 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
         //converting to PX from %
         const width = design.dimensions.width * canvasDim.width / 100;
         const height = design.dimensions.height * canvasDim.height / 100;
-
         const fitText = (): ItextQueue[] => {
             let lines: string[] = [];
             let line = '';
@@ -180,14 +179,16 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
             if (typeof (text) === 'string') {  //single line case
                 const x = (width - context.measureText(text).width) / 2;
                 const y = (height - textSize) / 2;
-                renderQueue.push({ context,text: text, x: x, y: y,font, position: design.position });
+                const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
+                renderQueue.push({ context,text: text, x: x, y: y,font, position: realPosition });
             } else { //multiline case
                 text.forEach((txt, index) => {
                     const totalTextHeight = text.length * textSize * margin;
                     const startY = (height - totalTextHeight) / 2;
                     const x = (width - context.measureText(txt).width) / 2;
                     const y = startY + index * textSize;
-                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: design.position });
+                    const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
+                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: realPosition });
                 });
             }
             context.restore();
@@ -256,7 +257,8 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
     for (let i = 0; i < arr.length; i++) {
         context.font = textSize + "px " + design.font.split(' ')[1];
         context.fillStyle = "blue";
-        renderQueue.push({context, image: arr[i], x: dx + textSize / 2, y:dy, fontSize:textSize, position: design.position });
+        const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
+        renderQueue.push({context, image: arr[i], x: dx + textSize / 2, y:dy, fontSize:textSize, position: realPosition });
         dx += textSize * 2;
 
              }
@@ -278,8 +280,6 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
             item.context.restore();
         });
 
-     //   context.fillText(String(arr[i]), dx, dy + textSize * 0.9);
-      //  context.drawImage(png.images[Number(arr[i] - 1)], dx + textSize / 2, dy, dWidth, dHeight)
     }
     const generateImageQueue = (design: imageFieldDesign, context: CanvasRenderingContext2D) => {
         const renderQueue: IimageQueue[] = [];
@@ -288,7 +288,8 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
             height: design.dimensions.height * dimensions.height / 100
         }
         const transperancy = 0.2;
-        renderQueue.push({ context,imageID: design.imageID,transperancy,dimensions:imgDimensions, position: design.position })
+        const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
+        renderQueue.push({ context,imageID: design.imageID,transperancy,dimensions:imgDimensions, position: realPosition })
         return renderQueue;
     }
    

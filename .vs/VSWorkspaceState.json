@@ -3,7 +3,9 @@
     "",
     "\\public",
     "\\src",
-    "\\src\\DesignEditor"
+    "\\src\\DesignEditor",
+    "\\src\\tools"
   ],
+  "SelectedNode": "\\src\\tools\\helpers.test.ts",
   "PreviewInSolutionExplorer": false
 }
