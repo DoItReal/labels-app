@@ -40,8 +40,10 @@ export function LoginUI() {
     }
 
     return (
-        <Container component="main" maxWidth="xs">
+        <>
         <Playground />
+        <Container component="main" maxWidth="xs">
+        
             {user.token && user.token !== '' ? <Navigate to="../" replace={true} /> : null}
             {error !== null ? error : null}
                 <Box
@@ -116,6 +118,7 @@ export function LoginUI() {
                 </Box>
                 <Copyright sx={{ mt: 5 }} />
             </Container>
+        </>
     );
 }
 

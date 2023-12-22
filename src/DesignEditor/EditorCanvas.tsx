@@ -39,7 +39,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
         return () => {
             window.removeEventListener('keydown', handleDeleteKeyPress);
         };
-    }, [canvasRef, designs, selectedDesign, setDesigns, setSelectedDesign]);
+    }, [canvasRef, designs,dimensions, selectedDesign, setDesigns, setSelectedDesign]);
 
     // Delete the selected design on delete key press
     const handleDeleteKeyPress = (event: KeyboardEvent) => {

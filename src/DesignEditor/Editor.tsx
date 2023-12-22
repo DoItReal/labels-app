@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import DesignUI from './EditorUI';
 import Canvas  from './EditorCanvas';
 import Label from './LabelCanvas';
@@ -115,27 +115,43 @@ const DesignPlayground: React.FC = () => {
     
     return (
         <>
-            <Canvas
-                dimensions={canvasDim}
-                designs={designs}
-                setDesigns={setDesigns}
-                selectedDesign={selectedDesign}
-                setSelectedDesign={setSelectedDesign}
-
-             
-                
-            />
-            <Label dimensions={canvasDim} designs={designs} canvasDim={canvasDim } label={label } />
-            <DesignUI
-                canvasDesign={canvasDim}
-                setCanvasDesign={setCanvasDim }
-                designs={designs}
-                setDesigns={setDesigns}
-                selectedDesign={selectedDesign}
-                setSelectedDesign={setSelectedDesign}
-            />
+            <Grid container spacing={0} justifyContent="center" alignItems="center" >
+                <Grid item xs={12} sm={12} md={4} lg={4} spacing={0} >
+                    <Grid container justifyContent="center" alignItems="center">
+                        <DesignUI
+                        canvasDesign={canvasDim}
+                        setCanvasDesign={setCanvasDim}
+                        designs={designs}
+                        setDesigns={setDesigns}
+                        selectedDesign={selectedDesign}
+                        setSelectedDesign={setSelectedDesign}
+                    />
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={4} justifyContent="center">
+                    <Grid container justifyContent="center" alignItems="center">
+                    <Canvas
+                        dimensions={canvasDim}
+                        designs={designs}
+                        setDesigns={setDesigns}
+                        selectedDesign={selectedDesign}
+                        setSelectedDesign={setSelectedDesign}
+                        />
+                            </Grid>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={4} >
+                    <Grid container justifyContent="center" alignItems="center">
+                        <Label
+                            dimensions={canvasDim}
+                            designs={designs}
+                            canvasDim={canvasDim}
+                            label={label} />
+            </Grid>
+                </Grid>
+               
             {/* Add any additional UI components or elements here */}
-            <Button onClick={() => console.log(designs)}>Log Text Designs</Button>
+                <Button onClick={() => console.log(designs)}>Log Text Designs</Button>
+            </Grid>
         </>
     );
 };

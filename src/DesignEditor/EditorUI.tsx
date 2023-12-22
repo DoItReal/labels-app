@@ -1,7 +1,9 @@
 import React from 'react';
 import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign} from './Editor'; // Make sure to import your Design type
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/system';
+import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
+
 interface DesignUIProps {
     canvasDesign: Dimensions,
     setCanvasDesign: React.Dispatch<React.SetStateAction<Dimensions>>;
@@ -115,7 +117,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
     const updateSliderValue = (property: string, value: number) => {
         if (selectedDesign) {
             const [field, attribute] = property.split('.');
-
+            
             setSelectedDesign(prevSelectedDesign => {
                 if (prevSelectedDesign && prevSelectedDesign.id === selectedDesign.id) {
                     if (field === 'position') {
@@ -179,7 +181,25 @@ const DesignUI: React.FC<DesignUIProps> = ({
             },
         ]);
     };
-
+    const dialogMap = new Map<string, boolean>([
+        ['canvasHeight', false],
+        ['canvasWidth', false],
+        ['positionX', false],
+        ['positionY', false],
+        ['height', false],
+        ['width', false],
+    ]);
+    const [openDialog, setOpenDialog] = React.useState(dialogMap);
+    const handleCloseDialog = () => {
+        setOpenDialog(dialogMap);
+    }
+    const handleOpenDialog = (dialogName: string) => {
+        handleCloseDialog();
+setOpenDialog(prevOpenDialog => {
+            return new Map(prevOpenDialog.set(dialogName, true));
+        });
+    }
+        
     const saveDesignsToDatabase = () => {
         // Save the designs to the database (you can replace this with your actual database saving logic)
         console.log('Designs saved to the database:', designs);
@@ -205,11 +225,17 @@ const DesignUI: React.FC<DesignUIProps> = ({
             setSelectedDesign(null); // Clear the selected design after deletion
         }
     };
+    const theme = useTheme();
+
     return (
         <StyledDiv>
             <h2>Playground UI</h2>
+            <StyledInputLabel>Canvas Height: {canvasDesign.height}  <Button onClick={() => handleOpenDialog('canvasHeight')}>Edit</Button></StyledInputLabel>
+           
+            <Dialog fullWidth maxWidth={ 'sm'} open={openDialog.get('canvasHeight') || false} onClose={handleCloseDialog}>
+                <DialogTitle>Edit Canvas Height</DialogTitle>
+                <DialogContent>
             <StyledSliderContainer>
-                <StyledInputLabel>Canvas Height:</StyledInputLabel>
                 <Slider
                     value={canvasDesign ? canvasDesign.height : 0}
                     min={0}
@@ -223,10 +249,27 @@ const DesignUI: React.FC<DesignUIProps> = ({
                     }}
                     style={{ width: '40%' }}
                 />
-                <InputLabel>Canvas Height: {canvasDesign.height}</InputLabel>
-            </StyledSliderContainer>
+                <NumberInput
+                    aria-label="Canvas Height number input"
+                    placeholder="Type a number…"
+                    value={canvasDesign ? canvasDesign.height : 0}
+                    onChange={(e, value) => {
+                        if (typeof value === 'number')
+                            setCanvasDesign(prevDesign => ({
+                                ...prevDesign,
+                                height: value
+                            }))
+                    }}
+                />
+                    </StyledSliderContainer>
+                </DialogContent>
+            </Dialog>
+            <StyledInputLabel>Canvas Width: {canvasDesign.width}  <Button onClick={() => handleOpenDialog('canvasWidth')}>Edit</Button></StyledInputLabel>
+
+            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvasWidth') || false} onClose={handleCloseDialog}>
+                <DialogTitle>Edit Canvas Width</DialogTitle>
+                <DialogContent>
             <StyledSliderContainer>
-                <StyledInputLabel>Canvas Width:</StyledInputLabel>
                 <Slider
                     value={canvasDesign ? canvasDesign.width : 0}
                     min={0}
@@ -240,8 +283,22 @@ const DesignUI: React.FC<DesignUIProps> = ({
                     }}
                     style={{ width: '40%' }}
                 />
-                <InputLabel>Canvas Width: {canvasDesign.width}</InputLabel>
-            </StyledSliderContainer>
+                <NumberInput
+                    aria-label="Canvas Width number input"
+                    placeholder="Type a number…"
+                    value={canvasDesign ? canvasDesign.width : 0}
+                    onChange={(e, value) => {
+                        if (typeof value === 'number')
+                            setCanvasDesign(prevDesign => ({
+                                ...prevDesign,
+                                width: value
+                            }))
+                    }}
+                    
+                />
+                    </StyledSliderContainer>
+                </DialogContent>
+            </Dialog>
             <div>
                 <FormControl>
                     <InputLabel>Selected Design:</InputLabel>
@@ -275,7 +332,8 @@ const DesignUI: React.FC<DesignUIProps> = ({
                                     ) : null}
                                 </>
                             ) : (
-                                <>
+                                    <>
+
                                     <InputLabel>Selected Text Parameter:</InputLabel>
                                     <Select
                                         value={
@@ -303,52 +361,94 @@ const DesignUI: React.FC<DesignUIProps> = ({
                     {selectedDesign && selectedDesign.id > 0 ? <h3>Design {selectedDesign.id}</h3> :
                         <h3>Select Block to edit or add a new Block</h3>}
 
-                {selectedDesign && (
-                  <>
+                    {selectedDesign && selectedDesign !== dummyDesign &&(
+                        <>
+                            <StyledInputLabel>Position X: {selectedDesign.position.x}  <Button onClick={() => handleOpenDialog('positionX')}>Edit</Button></StyledInputLabel>
+
+                            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('positionX') || false} onClose={handleCloseDialog}>
+                                <DialogTitle>Edit Position X</DialogTitle>
+                                <DialogContent>
                         <StyledSliderContainer>
-                            <StyledInputLabel>Position X:</StyledInputLabel>
                             <Slider
                                 value={selectedDesign ? selectedDesign.position.x : 0}
                                 min={0}
                                 max={100}
                                 onChange={(e, value) => updateSliderValue('position.x', value as number)}
                                 style={{ width: '40%' }}
-                            />
-                            <InputLabel>X: {selectedDesign.position.x}</InputLabel>
-                        </StyledSliderContainer>
+                                        />
+                                        <NumberInput
+                                            aria-label="Position X number input"
+                                            placeholder="Type a number…"
+                                            value={selectedDesign ? selectedDesign.position.x : 0}
+                                            onChange={(e, value) => updateSliderValue('position.x', value as number)}
+                                        />
+                                    </StyledSliderContainer>
+                                </DialogContent>
+                            </Dialog>   
+                            <StyledInputLabel>Position Y: {selectedDesign.position.y}  <Button onClick={() => handleOpenDialog('positionY')}>Edit</Button></StyledInputLabel>
+
+                            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('positionY') || false} onClose={handleCloseDialog}>
+                                <DialogTitle>Edit Position Y</DialogTitle>
+                                <DialogContent>
                         <StyledSliderContainer>
-                            <StyledInputLabel>Position Y:</StyledInputLabel>
                             <Slider
                                 value={selectedDesign.position.y}
                                 min={0}
                                 max={100}
                                 onChange={(e, value) => updateSliderValue('position.y', value as number)}
                                 style={{width:'40%'} }
-                            />
-                            <InputLabel>Y: {selectedDesign.position.y}</InputLabel>
-                        </StyledSliderContainer>
+                                />
+                                <NumberInput
+                                    aria-label="Position Y number input"
+                                    placeholder="Type a number…"
+                                    value={selectedDesign ? selectedDesign.position.y : 0}
+                                    onChange={(e, value) => updateSliderValue('position.y', value as number)}
+                                />
+                                    </StyledSliderContainer>
+                                </DialogContent>
+                            </Dialog>
+                            <StyledInputLabel>Design Height: {selectedDesign.dimensions.height}  <Button onClick={() => handleOpenDialog('height')}>Edit</Button></StyledInputLabel>
+                            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('height') || false} onClose={handleCloseDialog}>
+                                <DialogTitle>Edit Design Height</DialogTitle>
+                                <DialogContent>
                         <StyledSliderContainer>
-                            <StyledInputLabel>Height:</StyledInputLabel>
                             <Slider
                                 value={selectedDesign.dimensions.height}
                                 min={1}
                                 max={100}
                                 onChange={(e, value) => updateSliderValue('dimensions.height', value as number)}
                                 style={{ width: '40%' }}
-                            />
-                            <InputLabel>Y: {selectedDesign.dimensions.height}</InputLabel>
-                        </StyledSliderContainer>
+                                />
+                                <NumberInput
+                                    aria-label="Design Height number input"
+                                    placeholder="Type a number…"
+                                    value={selectedDesign ? selectedDesign.dimensions.height : 0}
+                                    onChange={(e, value) => updateSliderValue('dimensions.height', value as number)}
+                                />
+                                    </StyledSliderContainer>
+                                </DialogContent>
+                            </Dialog>
+                            <StyledInputLabel>Design Width: {selectedDesign.dimensions.width}  <Button onClick={() => handleOpenDialog('width')}>Edit</Button></StyledInputLabel>
+                            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('width') || false} onClose={handleCloseDialog}>
+                                <DialogTitle>Edit Design Width</DialogTitle>
+                                <DialogContent>
                         <StyledSliderContainer>
-                            <StyledInputLabel>Width:</StyledInputLabel>
                             <Slider
                                 value={selectedDesign.dimensions.width}
                                 min={1}
                                 max={100}
                                 onChange={(e, value) => updateSliderValue('dimensions.width', value as number)}
                                 style={{ width: '40%' }}
-                            />
-                            <InputLabel>Y: {selectedDesign.dimensions.width}</InputLabel>
-                        </StyledSliderContainer>
+                                />
+                                <NumberInput
+                                    aria-label="Design Width number input"
+                                    placeholder="Type a number…"
+                                    value={selectedDesign ? selectedDesign.dimensions.width : 0}
+                                    onChange={(e, value) => updateSliderValue('dimensions.width', value as number)}
+                                />
+                                    </StyledSliderContainer>
+                                </DialogContent>
+                            </Dialog>
                         {/* Add other sliders similarly */}
                         <Button onClick={saveDesignsToDatabase } variant="contained" color="primary">
                             Save Design
