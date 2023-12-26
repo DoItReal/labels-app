@@ -70,12 +70,19 @@ function App() {
                         <Routes>
                     <Route path="/" element={
                                 <RequireAuth user={user}>
-                                                <Playground />
-                                                <Content />
-                                    
+                                                <Content />        
                         </RequireAuth>
                     } />
-                        
+                        <Route path="/home" element={
+                                <RequireAuth user={user}>
+                                                <Content />        
+                        </RequireAuth>
+                    } />
+                                <Route path="/editor" element={
+                                    <RequireAuth user={user}>
+                                        <Playground />
+                                    </RequireAuth>
+                                } />
                         <Route path="/login" element={<LoginUI />} />
                                 <Route path="/register" element={<SignUp />} />
          

@@ -35,6 +35,22 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
     }
     const pages = [
         {
+            name: 'Home',
+            key: 'Home',
+            handleClick: () => {
+                handleCloseNavMenu();
+                navigate('./home');
+            }
+        },
+        {
+            name: 'Design Editor',
+            key: 'DesignEditor',
+            handleClick: () => {
+                handleCloseNavMenu(); 
+                navigate('./editor');
+            }
+        },
+        {
         name: 'Create PDF',
         key:'CreatePDF',
             handleClick: () => {
