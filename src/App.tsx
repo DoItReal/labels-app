@@ -15,7 +15,9 @@ import { Theme, ThemeProvider } from '@emotion/react';
 import { Container, createTheme, CssBaseline } from '@mui/material';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
-import Playground from './DesignEditor/Editor';
+//import Playground from './DesignEditor/Editor';
+
+import Playground from './Designs/index';
 
 export var db = new DB();
 

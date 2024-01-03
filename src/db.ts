@@ -1,3 +1,6 @@
+//To be removed the storing function from here and to be added to the local storage implemented in the browser
+//Will include just functionality for manipulating that data
+
 import { findIndexByProperty } from './tools/helpers';
 
 export interface labelDataType {

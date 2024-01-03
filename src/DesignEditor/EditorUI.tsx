@@ -1,8 +1,27 @@
+/*
+    It is called in Editor.tsx then it is called in App.tsx
+    -EditorUI.tsx
+       - Editor.tsx
+            - App.tsx - renders $Editor on https://address/editor
+                 
+      ***To be developed *** To make parent Design which will host all designs and feature to manipulate them
+      * It will have UI
+      * Editor will become feauture for the parent Design
+      * This way we can have multiple designs on the same page
+      * We can have multiple pages with multiple designs
+      * We can add features as we go along as:
+      * $$$ Paid features (the most important ones) - more advanced functionality - as customaizable as possible
+      *     Free features (the least important ones) - just basic functionality 
+It is the UI of the editor
+
+*/
+
 import React from 'react';
 import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign} from './Editor'; // Make sure to import your Design type
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
+import {createNewDesign } from './DesignDB';
 
 interface DesignUIProps {
     canvasDesign: Dimensions,
@@ -200,9 +219,19 @@ setOpenDialog(prevOpenDialog => {
         });
     }
         
-    const saveDesignsToDatabase = () => {
+    const saveDesignsToDatabase = async() => {
         // Save the designs to the database (you can replace this with your actual database saving logic)
         console.log('Designs saved to the database:', designs);
+        const design = {
+            name: 'DemoDesign1',
+            owner: 'Admin',
+            designs: designs
+        }
+        try {
+createNewDesign(design);
+}catch (error) {
+console.log(error)
+}
     };
      //TO DO
     const addImageDesign = () => {
@@ -251,7 +280,7 @@ setOpenDialog(prevOpenDialog => {
                 />
                 <NumberInput
                     aria-label="Canvas Height number input"
-                    placeholder="Type a number…"
+                    placeholder="Type a number "
                     value={canvasDesign ? canvasDesign.height : 0}
                     onChange={(e, value) => {
                         if (typeof value === 'number')
@@ -285,7 +314,7 @@ setOpenDialog(prevOpenDialog => {
                 />
                 <NumberInput
                     aria-label="Canvas Width number input"
-                    placeholder="Type a number…"
+                    placeholder="Type a number "
                     value={canvasDesign ? canvasDesign.width : 0}
                     onChange={(e, value) => {
                         if (typeof value === 'number')
@@ -378,7 +407,7 @@ setOpenDialog(prevOpenDialog => {
                                         />
                                         <NumberInput
                                             aria-label="Position X number input"
-                                            placeholder="Type a number…"
+                                            placeholder="Type a number "
                                             value={selectedDesign ? selectedDesign.position.x : 0}
                                             onChange={(e, value) => updateSliderValue('position.x', value as number)}
                                         />
@@ -400,7 +429,7 @@ setOpenDialog(prevOpenDialog => {
                                 />
                                 <NumberInput
                                     aria-label="Position Y number input"
-                                    placeholder="Type a number…"
+                                    placeholder="Type a number "
                                     value={selectedDesign ? selectedDesign.position.y : 0}
                                     onChange={(e, value) => updateSliderValue('position.y', value as number)}
                                 />
@@ -421,7 +450,7 @@ setOpenDialog(prevOpenDialog => {
                                 />
                                 <NumberInput
                                     aria-label="Design Height number input"
-                                    placeholder="Type a number…"
+                                    placeholder="Type a number "
                                     value={selectedDesign ? selectedDesign.dimensions.height : 0}
                                     onChange={(e, value) => updateSliderValue('dimensions.height', value as number)}
                                 />
@@ -442,7 +471,7 @@ setOpenDialog(prevOpenDialog => {
                                 />
                                 <NumberInput
                                     aria-label="Design Width number input"
-                                    placeholder="Type a number…"
+                                    placeholder="Type a number "
                                     value={selectedDesign ? selectedDesign.dimensions.width : 0}
                                     onChange={(e, value) => updateSliderValue('dimensions.width', value as number)}
                                 />
