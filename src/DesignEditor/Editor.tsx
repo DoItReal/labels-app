@@ -75,7 +75,12 @@ export interface imageFieldDesign extends TypeDesign {
 export type UnifiedDesign = textFieldDesign | imageFieldDesign | allergenFieldDesign;
 
 export interface Design {
-    _id?: string; // Represents the ID in the database
+    _id: string; // Represents the ID in the database
+    name: string;
+    owner: string; //Represents the ID of the owner in the database
+    designs: UnifiedDesign[];
+}
+export interface NewDesign {
     name: string;
     owner: string; //Represents the ID of the owner in the database
     designs: UnifiedDesign[];
@@ -103,18 +108,23 @@ export const dummyImageDesign: allergenFieldDesign = {
     color: 'black',
     type: 'allergens'
 }
-
-const DesignPlayground: React.FC = () => { 
-    const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
-    const [designs, setDesigns] = useState<UnifiedDesign[]>([
-        { id: 1, position: { x: 10, y: 5 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', type: 'allergens' },
-        { id: 2, position: { x: 10, y: 23 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue',textParameter:'bg' },
-        { id: 3, position: { x: 10, y: 41 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'green', textParameter:'en' },
+const initDesign = {
+    _id: 'new Design',
+    name: 'New Design',
+    owner: 'LocalUser',
+    designs:
+        [
+        //{ id: 1, position: { x: 10, y: 5 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', type: 'allergens' },
+        { id: 2, position: { x: 10, y: 23 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', textParameter: 'bg' },
+        { id: 3, position: { x: 10, y: 41 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'green', textParameter: 'en' },
         { id: 4, position: { x: 10, y: 59 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'de' },
-        { id: 5, position: { x: 10, y: 77 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'rus' },
-        
-
-    ]);
+        { id: 5, position: { x: 10, y: 77 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'rus' }
+        ]
+} as Design;
+const DesignPlayground = ({ design = initDesign }: { design: Design | undefined }) => { 
+    if (design === undefined) design = initDesign;
+    const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
+    const [designs, setDesigns] = useState<UnifiedDesign[]>(design.designs);
     const [selectedDesign, setSelectedDesign] = useState<UnifiedDesign | null>(dummyDesign);
 
     const label: labelDataType = {
@@ -131,7 +141,7 @@ const DesignPlayground: React.FC = () => {
     
     return (
         <Container component="main" maxWidth='xl' style={{
-            height: '100vh', // Ensure full viewport height
+            height: '100%', // Ensure full viewport height
             display: 'flex',
             alignItems: 'center', // Vertically center items
             justifyContent: 'center', // Horizontally center items
@@ -142,6 +152,7 @@ const DesignPlayground: React.FC = () => {
                 <Grid item xs={12} sm={12} md={4} lg={4} spacing={0} >
                     <Grid container justifyContent="center" alignItems="center">
                         <DesignUI
+                            design={design }
                         canvasDesign={canvasDim}
                         setCanvasDesign={setCanvasDim}
                         designs={designs}

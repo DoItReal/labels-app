@@ -9,7 +9,6 @@ import { Iuser, loginUser } from '../Login/Login';
 import { Alert } from '../components/Alert';
 import { Copyright } from './Copyright';
 import { userContext } from '../App';
-import Playground from '../DesignEditor/Editor';
 export function LoginUI() {
   
     const [user, setUser]:[user:Iuser,setUser:(arg:Iuser)=>void] = useContext(userContext);
@@ -40,8 +39,6 @@ export function LoginUI() {
     }
 
     return (
-        <>
-        <Playground />
         <Container component="main" maxWidth="xs">
         
             {user.token && user.token !== '' ? <Navigate to="../" replace={true} /> : null}
@@ -118,7 +115,6 @@ export function LoginUI() {
                 </Box>
                 <Copyright sx={{ mt: 5 }} />
             </Container>
-        </>
     );
 }
 

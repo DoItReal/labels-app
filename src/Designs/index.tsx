@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     List,
     ListItem,
@@ -11,12 +11,9 @@ import {
     DialogActions,
     Grid,
 } from '@mui/material';
+import Editor from '../DesignEditor/Editor';
+import { Design } from '../DesignEditor/Editor';
 
-interface Design {
-    id: number;
-    name: string;
-    // Add other design properties as needed
-}
 
 function fetchDesigns() {
 const address = "http://localhost:8080/";
@@ -43,21 +40,20 @@ const address = "http://localhost:8080/";
 }
 const Designs: React.FC = () => {
     const [designs, setDesigns] = useState<Design[]>([]);
-    const [editingDesign, setEditingDesign] = useState<Design | null>(null);
+    const [editingDesignId, setEditingDesignId] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
     const [newDesignName, setNewDesignName] = useState('');
-    const [renamingDesignId, setRenamingDesignId] = useState<number | null>(null);
+    const [renamingDesignId, setRenamingDesignId] = useState<string | null>(null);
     const [renamingDesignName, setRenamingDesignName] = useState('');
 
     useEffect(() => {
         const storedDesigns = sessionStorage.getItem('designs');
         if (storedDesigns) {
             setDesigns(JSON.parse(storedDesigns));
+            
         } else {
             const fetchDesignsFromDB = async () => {
                 try {
-                    console.log('try');
-                    // Simulating fetching designs from a database using an API call
                     const fetchedDesigns: string = await fetchDesigns();
                     const JSONfetchedDesigns: Design[] = JSON.parse(fetchedDesigns);
                     setDesigns(JSONfetchedDesigns);
@@ -71,9 +67,10 @@ const Designs: React.FC = () => {
             fetchDesignsFromDB();
         }
     }, []);
-
+    
     const handleEditDesign = (design: Design) => {
-        setEditingDesign(design);
+        setEditingDesignId(design._id);
+        
         // Logic to display the editor UI for the selected design
         // Move designs list to the left to make room for the editor UI
     };
@@ -81,8 +78,10 @@ const Designs: React.FC = () => {
     const handleAddDesign = () => {
         // Logic to add a new design to the list
         const newDesign: Design = {
-            id: designs.length + 1,
+            _id: String('LocalDesign' + designs.length + 1),
             name: newDesignName,
+            owner: 'LocalUser',
+            designs: [],
             // Set other properties for the new design
         };
         const updatedDesigns = [...designs, newDesign];
@@ -91,17 +90,17 @@ const Designs: React.FC = () => {
         handleClose();
     };
 
-    const handleDeleteDesign = (designId: number) => {
+    const handleDeleteDesign = (designId: string) => {
         // Logic to delete a design from the list
 
-        const updatedDesigns = designs.filter((design) => design.id !== designId);
+        const updatedDesigns = designs.filter((design) => design._id !== designId);
         setDesigns(updatedDesigns);
         sessionStorage.setItem('designs', JSON.stringify(updatedDesigns));
     };
 
-     const handleRenameDesign = (designId: number, newName: string) => {
-        const updatedDesigns = designs.map((design) =>
-            design.id === designId ? { ...design, name: newName } : design
+     const handleRenameDesign = (designId: string, newName: string) => {
+        const updatedDesigns = designs.map((design:Design) =>
+            design._id === designId ? { ...design, name: newName } : design
         );
         setDesigns(updatedDesigns);
         sessionStorage.setItem('designs', JSON.stringify(updatedDesigns));
@@ -111,31 +110,32 @@ const Designs: React.FC = () => {
     const handleClose = () => {
         setOpen(false);
     };
-    const handleDoubleClick = (designId: number, designName: string) => {
+    const handleDoubleClick = (designId: string, designName: string) => {
         setRenamingDesignId(designId);
         setRenamingDesignName(designName);
     };
 
     return (
         <Grid container>
-            <Grid item xs={5}>
+            <Grid item xs={3}>
                 {/* Design List */}
                 <List>
-                    {designs.map((design) => (
-                        <ListItem key={design.id}>
-                            {renamingDesignId === design.id ? (
+                    {designs.map((design: Design) => (
+                        <ListItem key={'design ' + design._id}>
+                            {renamingDesignId === design._id ? (
                                 <TextField
                                     value={renamingDesignName}
                                     onChange={(e) => setRenamingDesignName(e.target.value)}
-                                    onBlur={() => handleRenameDesign(design.id, renamingDesignName)}
+                                    onBlur={() => handleRenameDesign(design._id, renamingDesignName)}
+                                    autoFocus
                                 />
                             ) : (
-                                    <span onDoubleClick={() => { setRenamingDesignId(design.id); setRenamingDesignName(design.name); } }>{design.name}</span>
+                                    <span onDoubleClick={() => handleDoubleClick(design._id, design.name) }>{design.name}</span>
                             )}
                             
                             <Button onClick={() => handleEditDesign(design)}>Edit</Button>
-                            <Button onClick={() => handleDeleteDesign(design.id)}>Delete</Button>
-                            <Button onClick={() => { setRenamingDesignId(design.id); setRenamingDesignName(design.name); } }>Rename</Button>
+                            <Button onClick={() => handleDeleteDesign(design._id)}>Delete</Button>
+                            <Button onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); } }>Rename</Button>
                         
                         </ListItem>
                     ))}
@@ -158,9 +158,13 @@ const Designs: React.FC = () => {
                     </DialogActions>
                 </Dialog>
             </Grid>
-            <Grid item xs={7}>
-                {/* Editor UI (your existing implementation) */}
-                {/* Display editor for the selected design */}
+            <Grid item xs={9} >
+                {editingDesignId !== null ? (
+                    <Editor
+                        key={'editor' + editingDesignId }
+                        design={designs.find((design) => design._id === editingDesignId)}
+                    />
+                ) : null}
             </Grid>
     
         </Grid>

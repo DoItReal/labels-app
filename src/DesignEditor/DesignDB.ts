@@ -1,7 +1,8 @@
-import { Design } from "./Editor";
+import { NewDesign as Design } from "./Editor";
 const address = "http://localhost:8080/";
 export const createNewDesign = (design: Design) => {
-console.log('test');
+    console.log('test');
+    console.log(design);
     return (new Promise<Design>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", address + 'designs');

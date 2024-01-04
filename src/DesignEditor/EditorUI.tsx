@@ -17,14 +17,15 @@ It is the UI of the editor
 */
 
 import React from 'react';
-import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign} from './Editor'; // Make sure to import your Design type
+import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design} from './Editor'; // Make sure to import your Design type
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import {createNewDesign } from './DesignDB';
 
 interface DesignUIProps {
-    canvasDesign: Dimensions,
+    canvasDesign: Dimensions;
+    design: Design;
     setCanvasDesign: React.Dispatch<React.SetStateAction<Dimensions>>;
     designs: UnifiedDesign[];
     selectedDesign: UnifiedDesign | null;
@@ -51,6 +52,7 @@ const StyledInputLabel = styled(InputLabel)`
 
 const DesignUI: React.FC<DesignUIProps> = ({
     canvasDesign,
+    design,
     setCanvasDesign,
     designs,
     selectedDesign,
@@ -192,7 +194,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
             ...prevDesigns,
             {
                 id: prevDesigns.length + 1,
-                position: { x: 350, y: 50 },
+                position: { x: 50, y: 50 },
                 dimensions: { width: 100, height: 20 },
                 font: '20px Arial',
                 color: 'red',
@@ -221,13 +223,10 @@ setOpenDialog(prevOpenDialog => {
         
     const saveDesignsToDatabase = async() => {
         // Save the designs to the database (you can replace this with your actual database saving logic)
-        console.log('Designs saved to the database:', designs);
-        const design = {
-            name: 'DemoDesign1',
-            owner: 'Admin',
-            designs: designs
-        }
+        console.log('Design saved to the database:', design);
         try {
+            design.designs = designs;
+            //to create logic for saving instead of creating new design
 createNewDesign(design);
 }catch (error) {
 console.log(error)
@@ -479,11 +478,11 @@ console.log(error)
                                 </DialogContent>
                             </Dialog>
                         {/* Add other sliders similarly */}
-                        <Button onClick={saveDesignsToDatabase } variant="contained" color="primary">
-                            Save Design
-                        </Button>
+                       
                         </>)}
-                  
+                    <Button onClick={saveDesignsToDatabase} variant="contained" color="primary">
+                        Save Design
+                    </Button>
                         <Button onClick={addTextDesign} variant="contained" color="primary">
                             Add Text Design
                         </Button>

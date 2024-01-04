@@ -4,7 +4,9 @@
     "\\public",
     "\\src",
     "\\src\\DesignEditor",
+    "\\src\\Designs",
     "\\src\\UI"
   ],
+  "SelectedNode": "\\src\\db.ts",
   "PreviewInSolutionExplorer": false
 }
