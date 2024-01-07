@@ -61,6 +61,7 @@ type TypeDesign  = {
     dimensions: Dimensions;
     font: string;
     color: string;
+    __v?: number;
 }
 export interface textFieldDesign extends TypeDesign {
     textParameter: TtextParameter;
@@ -73,12 +74,61 @@ export interface imageFieldDesign extends TypeDesign {
     imageID: number;
 }
 export type UnifiedDesign = textFieldDesign | imageFieldDesign | allergenFieldDesign;
+export function isUnifiedDesign(obj: any): obj is UnifiedDesign {
+    if (!obj || typeof obj !== 'object') {
+        return false;
+    }
+    if ('type' in obj) {
+        if (obj.type === 'allergens') {
+            return (
+                typeof obj.id === 'number' &&
+                typeof obj.position === 'object' && /* You may need a more specific check for Position */
+                typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
+                typeof obj.font === 'string' &&
+                typeof obj.color === 'string'
+            );
+        } else if (obj.type === 'image') {
+            return (
+                typeof obj.id === 'number' &&
+                typeof obj.position === 'object' && /* You may need a more specific check for Position */
+                typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
+                typeof obj.font === 'string' &&
+                typeof obj.color === 'string' &&
+                typeof obj.imageID === 'number'
+            );
+        }
+    } else if ('textParameter' in obj) {
+        return (
+            typeof obj.id === 'number' &&
+            typeof obj.position === 'object' && /* You may need a more specific check for Position */
+            typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
+            typeof obj.font === 'string' &&
+            typeof obj.color === 'string' &&
+            typeof obj.textParameter === 'string' /* You may need a more specific check for TtextParameter */
+        );
+    }
+
+    return false;
+}
 
 export interface Design {
     _id: string; // Represents the ID in the database
     name: string;
     owner: string; //Represents the ID of the owner in the database
     designs: UnifiedDesign[];
+}
+export function isDesign(obj: any): obj is Design {
+ 
+    return (
+        typeof obj._id === 'string' &&
+        typeof obj.name === 'string' &&
+        typeof obj.owner === 'string' &&
+        Array.isArray(obj.designs) &&
+        obj.designs.every((d: any) => isUnifiedDesign(d) /* Check UnifiedDesign properties here */) // Add conditions for UnifiedDesign if needed
+    );
+}
+export function isDesignArray(arr: any): arr is Design[] {
+    return Array.isArray(arr) && arr.every((obj: any) =>  isDesign(obj));
 }
 export interface NewDesign {
     name: string;

@@ -17,11 +17,11 @@ It is the UI of the editor
 */
 
 import React from 'react';
-import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design} from './Editor'; // Make sure to import your Design type
+import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design, isDesignArray} from './Editor'; // Make sure to import your Design type
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
-import {createNewDesign } from './DesignDB';
+import {createNewDesign, updateDesign } from './DesignDB';
 
 interface DesignUIProps {
     canvasDesign: Dimensions;
@@ -221,17 +221,41 @@ setOpenDialog(prevOpenDialog => {
         });
     }
         
-    const saveDesignsToDatabase = async() => {
+    const saveDesign = async() => {
         // Save the designs to the database (you can replace this with your actual database saving logic)
         console.log('Design saved to the database:', design);
         try {
             design.designs = designs;
-            //to create logic for saving instead of creating new design
-createNewDesign(design);
-}catch (error) {
-console.log(error)
-}
+        //to create logic for saving (updating) instead of creating new design if the design already exists in the database
+            const storedDesignsString: string | null = sessionStorage.getItem('designs');
+            //try to parse the string to Design[]
+            const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
+            //check against null
+            if (!storedDesigns) {
+                console.log('The fetched Design is null! Creating new Design!');
+                await createNewDesign(design);
+                return;
+            }
+            //check if storedDesigns is from Design[] type
+            if (!isDesignArray(storedDesigns)) {
+                console.log('The fetched Design is not from Design[] type! Cant proceed further, please reload the window!');
+                return;
+            }
+            for (let i = 0; i < storedDesigns.length; i++) {
+                if (storedDesigns[i]._id === design._id) {
+                    //TO DO
+                    await updateDesign(design);
+                    //await updateDesign then return;
+                    return;
+                }
+            }
+            await createNewDesign(design);
+            
+        }catch (error) {
+            console.log(error)
+        }
     };
+
      //TO DO
     const addImageDesign = () => {
         setDesigns((prevDesigns) => [
@@ -248,6 +272,7 @@ console.log(error)
         ]);
     };
     const deleteDesign = () => {
+
         if (selectedDesign && selectedDesign.id > 0) {
             setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
             setSelectedDesign(null); // Clear the selected design after deletion
@@ -480,7 +505,7 @@ console.log(error)
                         {/* Add other sliders similarly */}
                        
                         </>)}
-                    <Button onClick={saveDesignsToDatabase} variant="contained" color="primary">
+                    <Button onClick={saveDesign} variant="contained" color="primary">
                         Save Design
                     </Button>
                         <Button onClick={addTextDesign} variant="contained" color="primary">
