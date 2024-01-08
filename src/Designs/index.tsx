@@ -10,11 +10,28 @@ import {
     DialogContent,
     DialogActions,
     Grid,
+    IconButton,
 } from '@mui/material';
 import Editor from '../DesignEditor/Editor';
 import { Design } from '../DesignEditor/Editor';
 import { deleteDesign, fetchDesigns } from '../DesignEditor/DesignDB';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { makeStyles } from '@mui/styles';
 
+const useStyles = makeStyles((theme) => ({
+    buttonStyle: {
+        backgroundColor: 'lightgray',
+        border: '5px double gray',
+        borderRadius: '0',
+        color: 'white',
+        '&:hover': {
+            backgroundColor: 'darkgray',
+            border: '5px double black',
+            borderRadius: '0',
+            color:'white',
+        },
+    },
+}));
 
 const Designs: React.FC = () => {
     const [designs, setDesigns] = useState<Design[]>([]);
@@ -23,7 +40,8 @@ const Designs: React.FC = () => {
     const [newDesignName, setNewDesignName] = useState('');
     const [renamingDesignId, setRenamingDesignId] = useState<string | null>(null);
     const [renamingDesignName, setRenamingDesignName] = useState('');
-
+    const [menuCollapsed, setMenuCollapsed] = useState(false);
+    const classes = useStyles();
     useEffect(() => {
         const storedDesigns = sessionStorage.getItem('designs');
         if (storedDesigns) {
@@ -48,11 +66,13 @@ const Designs: React.FC = () => {
     
     const handleEditDesign = (design: Design) => {
         setEditingDesignId(design._id);
-        
+        setMenuCollapsed(true); // Move designs list to the left to make room for the editor UI
         // Logic to display the editor UI for the selected design
         // Move designs list to the left to make room for the editor UI
     };
-
+    const toggleMenu = () => {
+        setMenuCollapsed(!menuCollapsed);
+    };
     const handleAddDesign = () => {
         // Logic to add a new design to the list
         const newDesign: Design = {
@@ -95,7 +115,11 @@ const Designs: React.FC = () => {
 
     return (
         <Grid container>
-            <Grid item xs={3}>
+            <Grid item xs={menuCollapsed ? 1 : 3}>
+                {/* Button to toggle menu */}
+                <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >
+                    {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
+                </IconButton>
                 {/* Design List */}
                 <List>
                     {designs.map((design: Design) => (
@@ -108,17 +132,26 @@ const Designs: React.FC = () => {
                                     autoFocus
                                 />
                             ) : (
-                                    <span onDoubleClick={() => handleDoubleClick(design._id, design.name) }>{design.name}</span>
+                                    <span onDoubleClick={() => handleDoubleClick(design._id, design.name)} style={{
+                                        fontSize: menuCollapsed ? '0.6rem' : '1rem',
+                                    } }>{design.name}</span>
                             )}
                             
+                            {!menuCollapsed && (
+                                <>
                             <Button onClick={() => handleEditDesign(design)}>Edit</Button>
                             <Button onClick={() => handleDeleteDesign(design._id)}>Delete</Button>
                             <Button onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); } }>Rename</Button>
+                            </>
+                            )}
                         
                         </ListItem>
                     ))}
                 </List>
+                
                 {/* Button to add new design */}
+                {!menuCollapsed && (
+                    <>
                 <Button onClick={() => setOpen(true)}>Add Design</Button>
                 {/* Dialog for adding a new design */}
                 <Dialog open={open} onClose={handleClose}>
@@ -134,9 +167,11 @@ const Designs: React.FC = () => {
                         <Button onClick={handleAddDesign}>Add</Button>
                         <Button onClick={handleClose}>Cancel</Button>
                     </DialogActions>
-                </Dialog>
+                        </Dialog>
+                </>
+)}
             </Grid>
-            <Grid item xs={9} >
+            <Grid item xs={menuCollapsed ? 11 : 9} >
                 {editingDesignId !== null ? (
                     <Editor
                         key={'editor' + editingDesignId }
