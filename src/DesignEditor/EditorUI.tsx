@@ -18,15 +18,15 @@ It is the UI of the editor
 
 import React from 'react';
 import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design, isDesignArray} from './Editor'; // Make sure to import your Design type
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
-import {createNewDesign, updateDesign } from './DesignDB';
+import { createNewDesign, updateDesign } from './DesignDB';
+import SaveIcon from '@mui/icons-material/Save';
 
 interface DesignUIProps {
-    canvasDesign: Dimensions;
     design: Design;
-    setCanvasDesign: React.Dispatch<React.SetStateAction<Dimensions>>;
+    setDesign: (design: Design) => void;
     designs: UnifiedDesign[];
     selectedDesign: UnifiedDesign | null;
     setDesigns: React.Dispatch<React.SetStateAction<UnifiedDesign[]>>;
@@ -51,9 +51,8 @@ const StyledInputLabel = styled(InputLabel)`
 `;
 
 const DesignUI: React.FC<DesignUIProps> = ({
-    canvasDesign,
     design,
-    setCanvasDesign,
+    setDesign,
     designs,
     selectedDesign,
     setDesigns,
@@ -221,16 +220,21 @@ setOpenDialog(prevOpenDialog => {
         });
     }
         
-    const saveDesign = async() => {
-        // Save the designs to the database (you can replace this with your actual database saving logic)
-        console.log('Design saved to the database:', design);
+    const saveDesign = async () => {
+
+        //it gets storedDesigns from session storage
+        //it checks if the design is already in the storedDesigns
+        //if it is, it updates the design
+        //if it is not, it creates new design
+
         try {
+            //not sure if this line is needed
             design.designs = designs;
-        //to create logic for saving (updating) instead of creating new design if the design already exists in the database
+            //get designs from session storage
             const storedDesignsString: string | null = sessionStorage.getItem('designs');
             //try to parse the string to Design[]
             const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
-            //check against null
+            //check against null value in case the session storage is empty. In this case we have no designs stored
             if (!storedDesigns) {
                 console.log('The fetched Design is null! Creating new Design!');
                 await createNewDesign(design);
@@ -241,22 +245,30 @@ setOpenDialog(prevOpenDialog => {
                 console.log('The fetched Design is not from Design[] type! Cant proceed further, please reload the window!');
                 return;
             }
+            //check if the design is already in the storedDesigns
+            //if it is then update it
+            //if it is not then create new design
             for (let i = 0; i < storedDesigns.length; i++) {
                 if (storedDesigns[i]._id === design._id) {
-                    //TO DO
-                    await updateDesign(design);
+                    //update DB
+                    storedDesigns[i] = await updateDesign(design);
+                    //update sessionStorage
+                    sessionStorage.setItem('designs', JSON.stringify(storedDesigns));
                     //await updateDesign then return;
                     return;
                 }
             }
+            //if we are here this means that the design is not in the storedDesigns
+                //create new design in DB
             await createNewDesign(design);
-            
+                //update session storage
+            storedDesigns.push(design);
+            sessionStorage.setItem('designs', JSON.stringify(storedDesigns));    
         }catch (error) {
             console.log(error)
         }
     };
 
-     //TO DO
     const addImageDesign = () => {
         setDesigns((prevDesigns) => [
             ...prevDesigns,
@@ -282,71 +294,83 @@ setOpenDialog(prevOpenDialog => {
 
     return (
         <StyledDiv>
+            <IconButton
+                size="large"
+                color="primary"
+                aria-label="Save"
+                title="Save"
+                onClick={saveDesign}
+                style={{
+                    float: 'left',
+                    background: 'primary',
+                }}
+            >
+                <SaveIcon />
+            </IconButton>
             <h2>Playground UI</h2>
-            <StyledInputLabel>Canvas Height: {canvasDesign.height}  <Button onClick={() => handleOpenDialog('canvasHeight')}>Edit</Button></StyledInputLabel>
+            <StyledInputLabel>Canvas Height: {design.canvas.dim.height}  <Button onClick={() => handleOpenDialog('canvasHeight')}>Edit</Button></StyledInputLabel>
            
             <Dialog fullWidth maxWidth={ 'sm'} open={openDialog.get('canvasHeight') || false} onClose={handleCloseDialog}>
                 <DialogTitle>Edit Canvas Height</DialogTitle>
                 <DialogContent>
             <StyledSliderContainer>
                 <Slider
-                    value={canvasDesign ? canvasDesign.height : 0}
+                    value={design.canvas.dim ? design.canvas.dim.height : 0}
                     min={0}
                     max={1000}
-                    onChange={(e, value) => {
-                        if(typeof value === 'number')
-                        setCanvasDesign(prevDesign => ({
-                            ...prevDesign,
-                            height: value
-                        }))
-                    }}
+                            onChange={(e, value) => {
+                                if (typeof value === 'number') {
+                                    design.canvas.dim.height = value;
+                                    setDesign(design);
+                        }}
+                    }
                     style={{ width: '40%' }}
                 />
                 <NumberInput
                     aria-label="Canvas Height number input"
                     placeholder="Type a number "
-                    value={canvasDesign ? canvasDesign.height : 0}
-                    onChange={(e, value) => {
-                        if (typeof value === 'number')
-                            setCanvasDesign(prevDesign => ({
-                                ...prevDesign,
-                                height: value
-                            }))
-                    }}
+                    value={design.canvas.dim ? design.canvas.dim.height : 0}
+                            onChange={(e, value) => {
+                                if (typeof value === 'number') {
+                                    design.canvas.dim.height = value;
+                                    setDesign(design);
+                                }
+                            }
+                            }
                 />
                     </StyledSliderContainer>
                 </DialogContent>
             </Dialog>
-            <StyledInputLabel>Canvas Width: {canvasDesign.width}  <Button onClick={() => handleOpenDialog('canvasWidth')}>Edit</Button></StyledInputLabel>
+            <StyledInputLabel>Canvas Width: {design.canvas.dim.width}  <Button onClick={() => handleOpenDialog('canvasWidth')}>Edit</Button></StyledInputLabel>
 
             <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvasWidth') || false} onClose={handleCloseDialog}>
                 <DialogTitle>Edit Canvas Width</DialogTitle>
                 <DialogContent>
             <StyledSliderContainer>
                 <Slider
-                    value={canvasDesign ? canvasDesign.width : 0}
+                    value={design.canvas.dim.width ? design.canvas.dim.width : 0}
                     min={0}
                     max={1000}
-                    onChange={(e, value) => {
-                        if (typeof value === 'number')
-                            setCanvasDesign(prevDesign => ({
-                                ...prevDesign,
-                                width: value
-                            }))
-                    }}
+                            onChange={(e, value) => {
+                                if (typeof value === 'number') {
+                                    design.canvas.dim.width = value;
+                                    setDesign(design);
+                                }
+                            }
+                            }
                     style={{ width: '40%' }}
                 />
                 <NumberInput
                     aria-label="Canvas Width number input"
                     placeholder="Type a number "
-                    value={canvasDesign ? canvasDesign.width : 0}
-                    onChange={(e, value) => {
-                        if (typeof value === 'number')
-                            setCanvasDesign(prevDesign => ({
-                                ...prevDesign,
-                                width: value
-                            }))
-                    }}
+                    value={design.canvas.dim ? design.canvas.dim.width : 0}
+                            onChange={(e, value) => {
+                                if (typeof value === 'number') {
+                                    design.canvas.dim.width = value;
+                                    setDesign(design);
+                                }
+                            }
+                            }
                     
                 />
                     </StyledSliderContainer>
@@ -505,9 +529,7 @@ setOpenDialog(prevOpenDialog => {
                         {/* Add other sliders similarly */}
                        
                         </>)}
-                    <Button onClick={saveDesign} variant="contained" color="primary">
-                        Save Design
-                    </Button>
+
                         <Button onClick={addTextDesign} variant="contained" color="primary">
                             Add Text Design
                         </Button>

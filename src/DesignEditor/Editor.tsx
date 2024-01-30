@@ -115,6 +115,7 @@ export interface Design {
     _id: string; // Represents the ID in the database
     name: string;
     owner: string; //Represents the ID of the owner in the database
+    canvas: { dim: Dimensions };
     designs: UnifiedDesign[];
 }
 export function isDesign(obj: any): obj is Design {
@@ -123,6 +124,7 @@ export function isDesign(obj: any): obj is Design {
         typeof obj._id === 'string' &&
         typeof obj.name === 'string' &&
         typeof obj.owner === 'string' &&
+        typeof obj.canvas === 'object' && obj.canvas.dim && obj.canvas.dim.width && obj.canvas.dim.height &&
         Array.isArray(obj.designs) &&
         obj.designs.every((d: any) => isUnifiedDesign(d) /* Check UnifiedDesign properties here */) // Add conditions for UnifiedDesign if needed
     );
@@ -133,6 +135,7 @@ export function isDesignArray(arr: any): arr is Design[] {
 export interface NewDesign {
     name: string;
     owner: string; //Represents the ID of the owner in the database
+    canvas: {dim: Dimensions };
     designs: UnifiedDesign[];
 }
 
@@ -162,6 +165,9 @@ const initDesign = {
     _id: 'new Design',
     name: 'New Design',
     owner: 'LocalUser',
+    canvas: {
+        dim: { width: 300, height: 200 }
+},
     designs:
         [
         //{ id: 1, position: { x: 10, y: 5 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', type: 'allergens' },
@@ -171,9 +177,10 @@ const initDesign = {
         { id: 5, position: { x: 10, y: 77 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'rus' }
         ]
 } as Design;
-const DesignPlayground = ({ design = initDesign }: { design: Design | undefined }) => { 
+
+const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design | undefined, setDesign:(design:Design)=>void }) => { 
     if (design === undefined) design = initDesign;
-    const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
+   // const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
     const [designs, setDesigns] = useState<UnifiedDesign[]>(design.designs);
     const [selectedDesign, setSelectedDesign] = useState<UnifiedDesign | null>(dummyDesign);
 
@@ -202,9 +209,8 @@ const DesignPlayground = ({ design = initDesign }: { design: Design | undefined 
                 <Grid item xs={12} sm={12} md={4} lg={4} spacing={0} >
                     <Grid container justifyContent="center" alignItems="center">
                         <DesignUI
-                            design={design }
-                        canvasDesign={canvasDim}
-                        setCanvasDesign={setCanvasDim}
+                            design={design}
+                            setDesign={setDesign }
                         designs={designs}
                         setDesigns={setDesigns}
                         selectedDesign={selectedDesign}
@@ -215,7 +221,7 @@ const DesignPlayground = ({ design = initDesign }: { design: Design | undefined 
                 <Grid item xs={12} sm={6} md={4} lg={4} justifyContent="center">
                     <Grid container justifyContent="center" alignItems="center">
                     <Canvas
-                        dimensions={canvasDim}
+                        dimensions={design.canvas.dim}
                         designs={designs}
                         setDesigns={setDesigns}
                         selectedDesign={selectedDesign}
@@ -226,9 +232,9 @@ const DesignPlayground = ({ design = initDesign }: { design: Design | undefined 
                 <Grid item xs={12} sm={6} md={4} lg={4} >
                     <Grid container justifyContent="center" alignItems="center">
                         <Label
-                            dimensions={canvasDim}
+                            dimensions={design.canvas.dim}
                             designs={designs}
-                            canvasDim={canvasDim}
+                            canvasDim={design.canvas.dim}
                             label={label} />
             </Grid>
                 </Grid>

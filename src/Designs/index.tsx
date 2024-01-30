@@ -42,6 +42,16 @@ const Designs: React.FC = () => {
     const [renamingDesignName, setRenamingDesignName] = useState('');
     const [menuCollapsed, setMenuCollapsed] = useState(false);
     const classes = useStyles();
+
+    const setDesign = (design: Design) => {
+        const updatedDesigns = designs.map((d) => {
+            if (d._id === design._id) {
+                return design;
+            }
+            return d;
+        });
+        setDesigns(updatedDesigns);
+    }
     useEffect(() => {
         const storedDesigns = sessionStorage.getItem('designs');
         if (storedDesigns) {
@@ -79,6 +89,9 @@ const Designs: React.FC = () => {
             _id: String('LocalDesign' + designs.length + 1),
             name: newDesignName,
             owner: 'LocalUser',
+            canvas: {
+                dim: {width:200,height:300}
+            },
             designs: [],
             // Set other properties for the new design
         };
@@ -108,6 +121,7 @@ const Designs: React.FC = () => {
     const handleClose = () => {
         setOpen(false);
     };
+    
     const handleDoubleClick = (designId: string, designName: string) => {
         setRenamingDesignId(designId);
         setRenamingDesignName(designName);
@@ -174,8 +188,9 @@ const Designs: React.FC = () => {
             <Grid item xs={menuCollapsed ? 11 : 9} >
                 {editingDesignId !== null ? (
                     <Editor
-                        key={'editor' + editingDesignId }
+                        key={'editor' + editingDesignId}
                         design={designs.find((design) => design._id === editingDesignId)}
+                        setDesign={setDesign }
                     />
                 ) : null}
             </Grid>
