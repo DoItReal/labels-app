@@ -18,7 +18,7 @@ It is the UI of the editor
 
 import React from 'react';
 import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design, isDesignArray} from './Editor'; // Make sure to import your Design type
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import { createNewDesign, updateDesign } from './DesignDB';
@@ -293,7 +293,8 @@ setOpenDialog(prevOpenDialog => {
     const theme = useTheme();
 
     return (
-        <StyledDiv>
+        <>
+         <Container>
             <IconButton
                 size="large"
                 color="primary"
@@ -306,76 +307,16 @@ setOpenDialog(prevOpenDialog => {
                 }}
             >
                 <SaveIcon />
-            </IconButton>
+                </IconButton>
+            </Container>
+        <StyledDiv>
+        
             <h2>Playground UI</h2>
-            <StyledInputLabel>Canvas Height: {design.canvas.dim.height}  <Button onClick={() => handleOpenDialog('canvasHeight')}>Edit</Button></StyledInputLabel>
-           
-            <Dialog fullWidth maxWidth={ 'sm'} open={openDialog.get('canvasHeight') || false} onClose={handleCloseDialog}>
-                <DialogTitle>Edit Canvas Height</DialogTitle>
-                <DialogContent>
-            <StyledSliderContainer>
-                <Slider
-                    value={design.canvas.dim ? design.canvas.dim.height : 0}
-                    min={0}
-                    max={1000}
-                            onChange={(e, value) => {
-                                if (typeof value === 'number') {
-                                    design.canvas.dim.height = value;
-                                    setDesign(design);
-                        }}
-                    }
-                    style={{ width: '40%' }}
-                />
-                <NumberInput
-                    aria-label="Canvas Height number input"
-                    placeholder="Type a number "
-                    value={design.canvas.dim ? design.canvas.dim.height : 0}
-                            onChange={(e, value) => {
-                                if (typeof value === 'number') {
-                                    design.canvas.dim.height = value;
-                                    setDesign(design);
-                                }
-                            }
-                            }
-                />
-                    </StyledSliderContainer>
-                </DialogContent>
-            </Dialog>
-            <StyledInputLabel>Canvas Width: {design.canvas.dim.width}  <Button onClick={() => handleOpenDialog('canvasWidth')}>Edit</Button></StyledInputLabel>
 
-            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvasWidth') || false} onClose={handleCloseDialog}>
-                <DialogTitle>Edit Canvas Width</DialogTitle>
-                <DialogContent>
-            <StyledSliderContainer>
-                <Slider
-                    value={design.canvas.dim.width ? design.canvas.dim.width : 0}
-                    min={0}
-                    max={1000}
-                            onChange={(e, value) => {
-                                if (typeof value === 'number') {
-                                    design.canvas.dim.width = value;
-                                    setDesign(design);
-                                }
-                            }
-                            }
-                    style={{ width: '40%' }}
-                />
-                <NumberInput
-                    aria-label="Canvas Width number input"
-                    placeholder="Type a number "
-                    value={design.canvas.dim ? design.canvas.dim.width : 0}
-                            onChange={(e, value) => {
-                                if (typeof value === 'number') {
-                                    design.canvas.dim.width = value;
-                                    setDesign(design);
-                                }
-                            }
-                            }
-                    
-                />
-                    </StyledSliderContainer>
-                </DialogContent>
-            </Dialog>
+            <br/>
+            <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
+            <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
+  
             <div>
                 <FormControl>
                     <InputLabel>Selected Design:</InputLabel>
@@ -544,8 +485,84 @@ setOpenDialog(prevOpenDialog => {
                 )}
             </div>
             </div>
-        </StyledDiv>
+            </StyledDiv>
+        </>
     );
+};
+
+const DimensionsMenu: React.FC<{ type: string, value: number, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void, setDesign: (design: Design) => void, design: Design }>
+= ({ type, value, openDialog, handleOpenDialog, handleCloseDialog, setDesign, design }) => {
+const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+    return (
+        <>
+            <StyledInputLabel>Canvas {type}: {value}
+                <Button key={'button' + type} onClick={() => handleOpenDialog('canvas' + type)}>Edit</Button>
+            </StyledInputLabel> 
+                <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvas'+type) || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
+                <DialogTitle>Edit Canvas {type}</DialogTitle>
+                    <DialogContent>
+                    {type === 'Height' ? (
+                    <StyledSliderContainer>
+                    <Slider
+                        value={value}
+                        min={0}
+                        max={1000}
+                        onChange={(e, value) => {
+                            if (typeof value === 'number') {
+                                design.canvas.dim.height = value;
+                                setDesign(design);
+                            }
+                        }
+                        }
+                        style={{ width: '40%' }}
+                    />
+                    <NumberInput
+                        aria-label="Canvas Height number input"
+                        placeholder="Type a number "
+                        value={value}
+                        onChange={(e, value) => {
+                            if (typeof value === 'number') {
+                                design.canvas.dim.height = value;
+                                setDesign(design);
+                            }
+                        }
+                        }
+                    />
+                        </StyledSliderContainer>) : type === "Width" ? (
+<StyledSliderContainer>
+                                <Slider
+                                    value={value}
+                                    min={0}
+                                    max={1000}
+                                    onChange={(e, value) => {
+                                        if (typeof value === 'number') {
+                                            design.canvas.dim.width = value;
+                                            setDesign(design);
+                                        }
+                                    }
+                                    }
+                                    style={{ width: '40%' }}
+                                />
+                                <NumberInput
+                                    aria-label="Canvas Width number input"
+                                    placeholder="Type a number "
+                                    value={value}
+                                    onChange={(e, value) => {
+                                        if (typeof value === 'number') {
+                                            design.canvas.dim.width = value;
+                                            setDesign(design);
+                                        }
+                                    }
+                                    }
+                                />
+                            </StyledSliderContainer>
+                        ) : null}
+                    </DialogContent>
+                </Dialog>
+            </>
+        );
 };
 
 export default DesignUI;

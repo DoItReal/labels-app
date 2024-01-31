@@ -240,7 +240,6 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                 </Grid>
                
             {/* Add any additional UI components or elements here */}
-                <Button onClick={() => console.log(designs)}>Log Text Designs</Button>
             </Grid>
         </Container>
     );

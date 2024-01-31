@@ -5,7 +5,9 @@
     "\\src",
     "\\src\\DesignEditor",
     "\\src\\Designs",
+    "\\src\\nav",
     "\\src\\UI"
   ],
+  "SelectedNode": "\\src\\DesignEditor\\EditorCanvas.tsx",
   "PreviewInSolutionExplorer": false
 }
