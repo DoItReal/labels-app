@@ -311,68 +311,36 @@ setOpenDialog(prevOpenDialog => {
                 <SaveIcon />
                 </IconButton>
             </Container>
-            <Container>
-                <IconButton
-                    size="medium"
-                    color="primary"
-                    aria-label="AlignLeft"
-                    title="Align Left"
-                >
-                    <FormatAlignLeftIcon />
-                </IconButton>
-                <IconButton 
-                    size="medium"
-                    color="primary"
-                aria-label = "Center"
-                    title="Center"
-                >
-                    <FormatAlignCenterIcon />
-                </IconButton>
-                <IconButton
-                    size="medium"
-                    color="primary"
-                    aria-label="AlignRight"
-                    title="Align Right"
-                >
-
-                    <FormatAlignRightIcon />
-                </IconButton>
-            </Container>
-        <StyledDiv>
-        
+           
+        <StyledDiv> 
             <h2>Playground UI</h2>
-
             <br/>
             <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
             <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-            <Container>
-                <DesignSelector designs={designs} selectedDesign={selectedDesign} handleDesignSelection={handleDesignSelection} />
-                <BlockParameterSelector selectedDesign={selectedDesign} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
-            </Container>
-                <BlockManipulator selectedDesign={selectedDesign} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
                 <div key={selectedDesign ? selectedDesign.id : -10} style={{ marginBottom: '20px' }}>
-                    {selectedDesign && selectedDesign.id > 0 ? <h3>Design {selectedDesign.id}</h3> :
+                    {selectedDesign && selectedDesign.id > 0 ? <h3>Block {selectedDesign.id}</h3> :
                         <h3>Select Block to edit or add a new Block</h3>}
 
-                    
+                    <Container>
+                        <ButtonsContainer addTextDesign={addTextDesign} addImageDesign={addImageDesign} deleteDesign={deleteDesign} selectedDesign={selectedDesign} />
 
-                        <Button onClick={addTextDesign} variant="contained" color="primary">
-                            Add Text Design
-                        </Button>
-                    <Button onClick={addImageDesign} variant="contained" color="primary"> Add Image Design</Button>
-                    {selectedDesign && (
-                        <>
-                        <Button onClick={deleteDesign} variant="contained" color="secondary">
-                            Delete Selected Design
-                        </Button>
-                    
-                    </>
-                )}
-            </div>
+                    </Container>
+                </div>
+
+                <Container>
+                <DesignSelector designs={designs} selectedDesign={selectedDesign} handleDesignSelection={handleDesignSelection} />
+                    <BlockParameterSelector selectedDesign={selectedDesign} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
+                </Container>
+                <Container>
+                    <AlignContainer selectedDesign={selectedDesign } />
+                </Container>
+                <BlockManipulator selectedDesign={selectedDesign} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
+
             </StyledDiv>
         </>
     );
 };
+
 
 const DimensionsMenu: React.FC<{ type: string, value: number, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void, setDesign: (design: Design) => void, design: Design }>
 = ({ type, value, openDialog, handleOpenDialog, handleCloseDialog, setDesign, design }) => {
@@ -605,6 +573,25 @@ const BlockManipulator: React.FC<{ selectedDesign: UnifiedDesign | null, updateS
                 {/* Add other sliders similarly */}
 
             </>
+    );
+};
+const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedDesign: UnifiedDesign | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedDesign }) => {
+return (
+    <Container>
+        <Button onClick={addTextDesign} variant="contained" color="primary" size="small" >Add Text Design</Button>
+            <Button onClick={addImageDesign} variant="contained" color="primary" size="small">Add Image Design</Button>
+            <Button onClick={deleteDesign} variant="contained" color="secondary" size="small" disabled={!selectedDesign || selectedDesign.id < 1}>Delete Design</Button>
+        </Container>
+    );
+};
+const AlignContainer: React.FC<{ selectedDesign: UnifiedDesign | null }> = ({ selectedDesign }) => {
+    if (!selectedDesign || selectedDesign === null || selectedDesign === dummyDesign) return null;
+    return (
+        <Container>
+            <Button variant="contained" title="Align Left" color="primary" size="small" startIcon={<FormatAlignLeftIcon />}>Left</Button>
+            <Button variant="contained" title="Align Center" color="primary" size="small" startIcon={<FormatAlignCenterIcon />}>Center</Button>
+            <Button variant="contained" title="Align Right" color="primary" size="small" startIcon={<FormatAlignRightIcon />}>Right</Button>
+            </Container>
     );
 };
 
