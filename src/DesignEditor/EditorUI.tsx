@@ -293,7 +293,51 @@ setOpenDialog(prevOpenDialog => {
         }
     };
     const theme = useTheme();
+    const alignLeft = () => {
+        if (selectedDesign && selectedDesign.id > 0) {
+            const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
+            const canvasWidth = design.canvas.dim.width - 2 * canvasBorder; // Adjust for both left and right borders
+            const newX = 0 + canvasBorder; // Set the new x value for left alignment
 
+            // Calculate the percentage of newX based on canvas width
+            const percentageX = (newX / canvasWidth) * 100;
+
+            // Update the position.x property using the updateSliderValue function
+            updateSliderValue('position.x', percentageX);
+        }
+    };
+    const alignCenter = () => {
+        if (selectedDesign && selectedDesign.id > 0) {
+            const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
+            const canvasWidth = design.canvas.dim.width - 2 * canvasBorder; // Adjust for both left and right borders
+            const designWidthPercentage = selectedDesign.dimensions.width; // Assuming design width is a percentage
+
+            // Calculate the new x value for center alignment in pixels
+            const newX = (canvasWidth - (canvasWidth * designWidthPercentage) / 100) / 2 + canvasBorder;
+
+            // Calculate the percentage of newX based on canvas width
+            const percentageX = (newX / canvasWidth) * 100;
+
+            // Update the position.x property using the updateSliderValue function
+            updateSliderValue('position.x', percentageX);
+        }
+    };
+    const alignRight = () => {
+        if (selectedDesign && selectedDesign.id > 0) {
+            const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
+            const canvasWidth = design.canvas.dim.width - 2 * canvasBorder; // Adjust for both left and right borders
+            const designWidthPercentage = selectedDesign.dimensions.width; // Assuming design width is a percentage
+
+            // Calculate the new x value for right alignment in pixels
+            const newX = canvasWidth - (canvasWidth * designWidthPercentage) / 100 + canvasBorder;
+
+            // Calculate the percentage of newX based on canvas width
+            const percentageX = (newX / canvasWidth) * 100;
+
+            // Update the position.x property using the updateSliderValue function
+            updateSliderValue('position.x', percentageX);
+        }
+    };
     return (
         <>
          <Container>
@@ -317,6 +361,7 @@ setOpenDialog(prevOpenDialog => {
             <br/>
             <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
             <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
+            <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
                 <div key={selectedDesign ? selectedDesign.id : -10} style={{ marginBottom: '20px' }}>
                     {selectedDesign && selectedDesign.id > 0 ? <h3>Block {selectedDesign.id}</h3> :
                         <h3>Select Block to edit or add a new Block</h3>}
@@ -328,11 +373,11 @@ setOpenDialog(prevOpenDialog => {
                 </div>
 
                 <Container>
-                <DesignSelector designs={designs} selectedDesign={selectedDesign} handleDesignSelection={handleDesignSelection} />
+                <BlockSelector designs={designs} selectedDesign={selectedDesign} handleDesignSelection={handleDesignSelection} />
                     <BlockParameterSelector selectedDesign={selectedDesign} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
                 </Container>
                 <Container>
-                    <AlignContainer selectedDesign={selectedDesign } />
+                    <AlignContainer selectedDesign={selectedDesign} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
                 </Container>
                 <BlockManipulator selectedDesign={selectedDesign} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
 
@@ -346,14 +391,41 @@ const DimensionsMenu: React.FC<{ type: string, value: number, openDialog: Map<st
 = ({ type, value, openDialog, handleOpenDialog, handleCloseDialog, setDesign, design }) => {
 const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
+    if (type === 'Border') {
+        return (
+            <>
+            <StyledInputLabel>Design {type}: {value}px
+                <Button key={'button' + type} onClick={() => handleOpenDialog('canvas' + type)}>Edit</Button>
+            </StyledInputLabel> 
+                <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvas' + type) || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
+                    <DialogTitle>Edit Design {type}</DialogTitle>
+                <DialogContent>
+                    <StyledSliderContainer> 
+                        <NumberInput
+                            aria-label="Canvas Border number input"
+                            placeholder="Type a number "
+                            value={value}
+                            onChange={(e, value) => {
+                                if (typeof value === 'number') {
+                                    design.canvas.border = value;
+                                    setDesign(design);
+                                }
+                            }
+                            }
+                        />
+                    </StyledSliderContainer>
+                </DialogContent>
+            </Dialog>
+            </>
+        );
+    }
     return (
         <>
-            <StyledInputLabel>Canvas {type}: {value}
+            <StyledInputLabel>Design {type}: {value}
                 <Button key={'button' + type} onClick={() => handleOpenDialog('canvas' + type)}>Edit</Button>
             </StyledInputLabel> 
                 <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvas'+type) || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
-                <DialogTitle>Edit Canvas {type}</DialogTitle>
+                <DialogTitle>Edit Design {type}</DialogTitle>
                     <DialogContent>
                     {type === 'Height' ? (
                     <StyledSliderContainer>
@@ -417,10 +489,10 @@ const theme = useTheme();
         );
 };
 
-const DesignSelector: React.FC<{ designs: UnifiedDesign[], selectedDesign: UnifiedDesign | null, handleDesignSelection: (designId: number) => void }> = ({ designs, selectedDesign, handleDesignSelection }) => {
+const BlockSelector: React.FC<{ designs: UnifiedDesign[], selectedDesign: UnifiedDesign | null, handleDesignSelection: (designId: number) => void }> = ({ designs, selectedDesign, handleDesignSelection }) => {
     return (
          <FormControl>
-                    <InputLabel>Selected Design:</InputLabel>
+                    <InputLabel>Selected Block:</InputLabel>
                     <Select
                         value={selectedDesign && selectedDesign.id>0 ? selectedDesign.id : 'None'}
                         onChange={(e) => handleDesignSelection(Number(e.target.value))}
@@ -575,7 +647,7 @@ const BlockManipulator: React.FC<{ selectedDesign: UnifiedDesign | null, updateS
             </>
     );
 };
-const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedDesign: UnifiedDesign | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedDesign }) => {
+const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedDesign: UnifiedDesign | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedDesign}) => {
 return (
     <Container>
         <Button onClick={addTextDesign} variant="contained" color="primary" size="small" >Add Text Design</Button>
@@ -584,13 +656,13 @@ return (
         </Container>
     );
 };
-const AlignContainer: React.FC<{ selectedDesign: UnifiedDesign | null }> = ({ selectedDesign }) => {
+const AlignContainer: React.FC<{ selectedDesign: UnifiedDesign | null, alignLeft:()=>void, alignCenter:()=>void,alignRight:()=>void }> = ({ selectedDesign, alignLeft, alignCenter,alignRight }) => {
     if (!selectedDesign || selectedDesign === null || selectedDesign === dummyDesign) return null;
     return (
         <Container>
-            <Button variant="contained" title="Align Left" color="primary" size="small" startIcon={<FormatAlignLeftIcon />}>Left</Button>
-            <Button variant="contained" title="Align Center" color="primary" size="small" startIcon={<FormatAlignCenterIcon />}>Center</Button>
-            <Button variant="contained" title="Align Right" color="primary" size="small" startIcon={<FormatAlignRightIcon />}>Right</Button>
+            <Button variant="contained" title="Align Left" color="primary" size="small" onClick={alignLeft} startIcon={<FormatAlignLeftIcon />}>Left</Button>
+            <Button variant="contained" title="Align Center" color="primary" size="small" onClick={alignCenter} startIcon={<FormatAlignCenterIcon />}>Center</Button>
+            <Button variant="contained" title="Align Right" color="primary" size="small" onClick={alignRight} startIcon={<FormatAlignRightIcon />}>Right</Button>
             </Container>
     );
 };

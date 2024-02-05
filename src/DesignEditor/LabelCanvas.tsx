@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { UnifiedDesign,loadImages,images, textFieldDesign,allergenFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions } from './Editor'; // Import the Design type
+import { UnifiedDesign,loadImages,images, textFieldDesign,allergenFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions, Design } from './Editor'; // Import the Design type
 import { styled } from '@mui/system';
 import { labelDataType } from '../db';
 import { png } from '../labels';
@@ -8,9 +8,8 @@ const StyledCanvas = styled('canvas')`
   margin-bottom: 10px;
 `;
 interface CanvasProps {
-    dimensions: Dimensions;
+    design: Design;
     designs: UnifiedDesign[];
-    canvasDim: Dimensions;
     label: labelDataType;
 }
 
@@ -55,8 +54,11 @@ interface CanvasProps {
     const drawImageQueue(imageQueue) - draws the $imageQueue
 */
 
-const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }) => {
+const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const dimensions = design.canvas.dim;
+    const border = design.canvas.border;
+
     const drawDesigns = () => {
         //check if canvas exists
         const canvas = canvasRef.current;
@@ -91,7 +93,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
 
             }
         });
-        
+        drawBorder(context);
         drawImageQueue(imageQueue);
         drawAllergenQueue(allergenQueue);
         drawTextQueue(textQueue);
@@ -121,6 +123,13 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
         transperancy: number;
         position: Position;
     }
+    const drawBorder = (context:CanvasRenderingContext2D) => {
+        context.save();
+        context.strokeStyle = 'black';
+        context.lineWidth = border;
+        context.strokeRect(0, 0, dimensions.width, dimensions.height);
+        context.restore();
+    }
     const generateTextQueue = (design: UnifiedDesign, context: CanvasRenderingContext2D, txt: string) => {
         context.save();
         //get font size
@@ -131,8 +140,8 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
         const words = txt.split(' ');
 
         //converting to PX from %
-        const width = design.dimensions.width * canvasDim.width / 100;
-        const height = design.dimensions.height * canvasDim.height / 100;
+        const width = design.dimensions.width * dimensions.width / 100;
+        const height = design.dimensions.height * dimensions.height / 100;
         const fitText = (): ItextQueue[] => {
             let lines: string[] = [];
             let line = '';
@@ -349,7 +358,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, canvasDim, label }
     };
     useEffect(() => {
         drawDesigns();
-    }, [designs, dimensions]);
+    }, [design, designs]);
     return (
         <canvas
             ref={canvasRef}

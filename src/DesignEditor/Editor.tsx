@@ -115,7 +115,7 @@ export interface Design {
     _id: string; // Represents the ID in the database
     name: string;
     owner: string; //Represents the ID of the owner in the database
-    canvas: { dim: Dimensions };
+    canvas: { dim: Dimensions, border: number };
     designs: UnifiedDesign[];
 }
 export function isDesign(obj: any): obj is Design {
@@ -222,6 +222,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     <Grid container justifyContent="center" alignItems="center">
                     <Canvas
                         dimensions={design.canvas.dim}
+                        border={design.canvas.border}
                         designs={designs}
                         setDesigns={setDesigns}
                         selectedDesign={selectedDesign}
@@ -232,9 +233,8 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                 <Grid item xs={12} sm={6} md={4} lg={4} >
                     <Grid container justifyContent="center" alignItems="center">
                         <Label
-                            dimensions={design.canvas.dim}
+                            design={design}
                             designs={designs}
-                            canvasDim={design.canvas.dim}
                             label={label} />
             </Grid>
                 </Grid>

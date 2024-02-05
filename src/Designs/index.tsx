@@ -90,7 +90,8 @@ const Designs: React.FC = () => {
             name: newDesignName,
             owner: 'LocalUser',
             canvas: {
-                dim: {width:200,height:300}
+                dim: { width: 200, height: 300 },
+                border: 1
             },
             designs: [],
             // Set other properties for the new design

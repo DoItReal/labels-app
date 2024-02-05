@@ -8,6 +8,7 @@ const StyledCanvas = styled('canvas')`
 `;
 interface CanvasProps {
     dimensions: Dimensions;
+    border: number;
     designs: UnifiedDesign[];
     selectedDesign: UnifiedDesign | null;
     setSelectedDesign: React.Dispatch<React.SetStateAction<UnifiedDesign | null>>;
@@ -16,7 +17,7 @@ interface CanvasProps {
     
 }
 
-const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, setSelectedDesign, setDesigns }) => {
+const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDesign, setSelectedDesign, setDesigns }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const [dragStart, setDragStart] = useState<Position | null>(null);
@@ -267,6 +268,11 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
         context.save();
         context.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Draw border
+        context.strokeStyle = 'black';
+        context.lineWidth = border;
+        context.strokeRect(0, 0, canvas.width, canvas.height);
+
         designs.forEach((design) => {
             drawDesign(design, context);
         });
@@ -283,6 +289,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions, designs, selectedDesign, se
         const height = design.dimensions.height * dimensions.height / 100;
 
         context.strokeStyle = design.color;
+        context.lineWidth = 1;
         context.strokeRect(x, y, width, height);
 
         // Draw the text
