@@ -203,11 +203,13 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
             alignItems: 'center', // Vertically center items
             justifyContent: 'center', // Horizontally center items
             border: '1px solid black', // Add a border for visual clarity
+            overflow:'auto'
         } } >
 
             <Grid container spacing={0} justifyContent="center" alignItems="center" >
-                <Grid item xs={12} sm={12} md={4} lg={4} spacing={0} >
-                    <Grid container justifyContent="center" alignItems="center">
+                <Grid item xs={12} sm={12} md={4} lg={4} spacing={0}>
+                    <Grid container justifyContent="center" alignItems="center" >
+                        <Container>
                         <DesignUI
                             design={design}
                             setDesign={setDesign }
@@ -215,7 +217,8 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                         setDesigns={setDesigns}
                         selectedDesign={selectedDesign}
                         setSelectedDesign={setSelectedDesign}
-                    />
+                            />
+                    </Container>
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4} lg={4} justifyContent="center">

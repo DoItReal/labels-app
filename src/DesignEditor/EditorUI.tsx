@@ -18,7 +18,7 @@ It is the UI of the editor
 
 import React from 'react';
 import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design, isDesignArray} from './Editor'; // Make sure to import your Design type
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import { createNewDesign, updateDesign } from './DesignDB';
@@ -296,7 +296,7 @@ setOpenDialog(prevOpenDialog => {
     const alignLeft = () => {
         if (selectedDesign && selectedDesign.id > 0) {
             const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
-            const canvasWidth = design.canvas.dim.width - 2 * canvasBorder; // Adjust for both left and right borders
+            const canvasWidth = design.canvas.dim.width; // Adjust for both left and right borders
             const newX = 0 + canvasBorder; // Set the new x value for left alignment
 
             // Calculate the percentage of newX based on canvas width
@@ -309,11 +309,11 @@ setOpenDialog(prevOpenDialog => {
     const alignCenter = () => {
         if (selectedDesign && selectedDesign.id > 0) {
             const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
-            const canvasWidth = design.canvas.dim.width - 2 * canvasBorder; // Adjust for both left and right borders
+            const canvasWidth = design.canvas.dim.width; // Adjust for both left and right borders
             const designWidthPercentage = selectedDesign.dimensions.width; // Assuming design width is a percentage
 
             // Calculate the new x value for center alignment in pixels
-            const newX = (canvasWidth - (canvasWidth * designWidthPercentage) / 100) / 2 + canvasBorder;
+            const newX = (canvasWidth - (canvasWidth * designWidthPercentage) / 100) / 2 ;
 
             // Calculate the percentage of newX based on canvas width
             const percentageX = (newX / canvasWidth) * 100;
@@ -325,11 +325,11 @@ setOpenDialog(prevOpenDialog => {
     const alignRight = () => {
         if (selectedDesign && selectedDesign.id > 0) {
             const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
-            const canvasWidth = design.canvas.dim.width - 2 * canvasBorder; // Adjust for both left and right borders
+            const canvasWidth = design.canvas.dim.width; // Adjust for both left and right borders
             const designWidthPercentage = selectedDesign.dimensions.width; // Assuming design width is a percentage
 
             // Calculate the new x value for right alignment in pixels
-            const newX = canvasWidth - (canvasWidth * designWidthPercentage) / 100 + canvasBorder;
+            const newX = canvasWidth - (canvasWidth * designWidthPercentage) / 100 - canvasBorder;
 
             // Calculate the percentage of newX based on canvas width
             const percentageX = (newX / canvasWidth) * 100;
@@ -339,8 +339,8 @@ setOpenDialog(prevOpenDialog => {
         }
     };
     return (
-        <>
-         <Container>
+        <Paper style={{height:'80vh', overflow:'auto'} }>
+            <Container>
             <IconButton
                 size="large"
                 color="primary"
@@ -356,7 +356,7 @@ setOpenDialog(prevOpenDialog => {
                 </IconButton>
             </Container>
            
-        <StyledDiv> 
+            <StyledDiv> 
             <h2>Playground UI</h2>
             <br/>
             <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
@@ -379,10 +379,11 @@ setOpenDialog(prevOpenDialog => {
                 <Container>
                     <AlignContainer selectedDesign={selectedDesign} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
                 </Container>
+                <Container>
                 <BlockManipulator selectedDesign={selectedDesign} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
-
+                </Container>
             </StyledDiv>
-        </>
+        </Paper>
     );
 };
 
