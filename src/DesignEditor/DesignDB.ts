@@ -1,4 +1,4 @@
-import { NewDesign, Design } from "./Editor";
+import { NewDesign, Design } from "./Interfaces/CommonInterfaces";
 const address = "http://localhost:8080/";
 export const createNewDesign = (design: Design) => {
     return (new Promise<NewDesign>((resolve, reject) => {

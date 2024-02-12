@@ -4,9 +4,7 @@
     "\\public",
     "\\src",
     "\\src\\DesignEditor",
-    "\\src\\Designs",
-    "\\src\\nav",
-    "\\src\\UI"
+    "\\src\\DesignEditor\\Interfaces"
   ],
   "PreviewInSolutionExplorer": false
 }

@@ -13,7 +13,7 @@ import {
     IconButton,
 } from '@mui/material';
 import Editor from '../DesignEditor/Editor';
-import { Design } from '../DesignEditor/Editor';
+import { Design } from '../DesignEditor/Interfaces/CommonInterfaces';
 import { deleteDesign, fetchDesigns } from '../DesignEditor/DesignDB';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
@@ -53,7 +53,7 @@ const Designs: React.FC = () => {
         setDesigns(updatedDesigns);
     }
     useEffect(() => {
-        const storedDesigns = sessionStorage.getItem('designs');
+        const storedDesigns = sessionStorage.getItem('blocks');
         if (storedDesigns) {
             setDesigns(JSON.parse(storedDesigns));
             
@@ -63,10 +63,10 @@ const Designs: React.FC = () => {
                     const fetchedDesigns: string = await fetchDesigns();
                     const JSONfetchedDesigns: Design[] = JSON.parse(fetchedDesigns);
                     setDesigns(JSONfetchedDesigns);
-                    // Store designs in session storage
-                    sessionStorage.setItem('designs', fetchedDesigns);
+                    // Store blocks in session storage
+                    sessionStorage.setItem('blocks', fetchedDesigns);
                 } catch (error) {
-                    console.error('Error fetching designs:', error);
+                    console.error('Error fetching blocks:', error);
                 }
             };
 
@@ -76,9 +76,9 @@ const Designs: React.FC = () => {
     
     const handleEditDesign = (design: Design) => {
         setEditingDesignId(design._id);
-        setMenuCollapsed(true); // Move designs list to the left to make room for the editor UI
+        setMenuCollapsed(true); // Move blocks list to the left to make room for the editor UI
         // Logic to display the editor UI for the selected design
-        // Move designs list to the left to make room for the editor UI
+        // Move blocks list to the left to make room for the editor UI
     };
     const toggleMenu = () => {
         setMenuCollapsed(!menuCollapsed);
@@ -93,12 +93,12 @@ const Designs: React.FC = () => {
                 dim: { width: 200, height: 300 },
                 border: 1
             },
-            designs: [],
+            blocks: [],
             // Set other properties for the new design
         };
         const updatedDesigns = [...designs, newDesign];
         setDesigns(updatedDesigns);
-        sessionStorage.setItem('designs', JSON.stringify(updatedDesigns));
+        sessionStorage.setItem('blocks', JSON.stringify(updatedDesigns));
         handleClose();
     };
 
@@ -107,7 +107,7 @@ const Designs: React.FC = () => {
         deleteDesign(designId);
         const updatedDesigns = designs.filter((design) => design._id !== designId);
         setDesigns(updatedDesigns);
-        sessionStorage.setItem('designs', JSON.stringify(updatedDesigns));
+        sessionStorage.setItem('blocks', JSON.stringify(updatedDesigns));
     };
 
      const handleRenameDesign = (designId: string, newName: string) => {
@@ -115,7 +115,7 @@ const Designs: React.FC = () => {
             design._id === designId ? { ...design, name: newName } : design
         );
         setDesigns(updatedDesigns);
-        sessionStorage.setItem('designs', JSON.stringify(updatedDesigns));
+        sessionStorage.setItem('blocks', JSON.stringify(updatedDesigns));
         setRenamingDesignId(null);
     };
 

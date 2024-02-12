@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { UnifiedDesign,loadImages,images, textFieldDesign,allergenFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions, Design } from './Editor'; // Import the Design type
+import { loadImages,images, textParametersMap } from './Editor'; // Import the Design type
 import { styled } from '@mui/system';
 import { labelDataType } from '../db';
 import { png } from '../labels';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
+
 const StyledCanvas = styled('canvas')`
   border: 1px solid #000;
   margin-bottom: 10px;
 `;
 interface CanvasProps {
     design: Design;
-    designs: UnifiedDesign[];
+    designs: UnifiedBlock[];
     label: labelDataType;
 }
 
@@ -130,7 +132,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         context.strokeRect(0, 0, dimensions.width, dimensions.height);
         context.restore();
     }
-    const generateTextQueue = (design: UnifiedDesign, context: CanvasRenderingContext2D, txt: string) => {
+    const generateTextQueue = (design: UnifiedBlock, context: CanvasRenderingContext2D, txt: string) => {
         context.save();
         //get font size
         let textSize = parseInt(design.font);
@@ -220,7 +222,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
             });
     }
 
-    const generateAllergenQueue = (design: allergenFieldDesign, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
+    const generateAllergenQueue = (design: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
         const renderQueue: IallergenQueue[] = [];
         const border = 2; //to add it to design.border
         const generateAllergens = (arr: number[]) => {
@@ -290,7 +292,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         });
 
     }
-    const generateImageQueue = (design: imageFieldDesign, context: CanvasRenderingContext2D) => {
+    const generateImageQueue = (design: imageFieldBlock, context: CanvasRenderingContext2D) => {
         const renderQueue: IimageQueue[] = [];
         const imgDimensions = {
             width: design.dimensions.width * dimensions.width / 100,
@@ -319,7 +321,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
                 
         });
     }
-    const drawDesign = (design: UnifiedDesign, context: CanvasRenderingContext2D) => {
+    const drawDesign = (design: UnifiedBlock, context: CanvasRenderingContext2D) => {
         const { x, y } = design.position;        
      
         // Draw the text

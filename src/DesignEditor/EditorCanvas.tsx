@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { UnifiedDesign, textFieldDesign, imageFieldDesign, HandleType, Position, TtextParameter, textParametersMap, Dimensions } from './Editor'; // Import the Design type
+import { textParametersMap } from './Editor'; // Import the Design type
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
 import { styled } from '@mui/system';
 
 const StyledCanvas = styled('canvas')`
@@ -9,22 +10,22 @@ const StyledCanvas = styled('canvas')`
 interface CanvasProps {
     dimensions: Dimensions;
     border: number;
-    designs: UnifiedDesign[];
-    selectedDesign: UnifiedDesign | null;
-    setSelectedDesign: React.Dispatch<React.SetStateAction<UnifiedDesign | null>>;
-    setDesigns: React.Dispatch<React.SetStateAction<UnifiedDesign[]>>;
+    blocks: UnifiedBlock[];
+    selectedBlock: UnifiedBlock | null;
+    setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
+    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
   //  selectedTextParameter: TtextParameter; // Add selectedTextParameter
     
 }
 
-const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDesign, setSelectedDesign, setDesigns }) => {
+const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBlock, setSelectedBlock, setBlocks }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const [dragStart, setDragStart] = useState<Position | null>(null);
     const [resizeHandle, setResizeHandle] = useState<HandleType | null>(null);
     const animationRef = useRef<number>();
 
-    // Draw the designs on canvas load
+    // Draw the blocks on canvas load
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -35,18 +36,18 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
         window.addEventListener('keydown', handleDeleteKeyPress);
         // Clear the canvas
         context.clearRect(0, 0, canvas.width, canvas.height);
-        // Draw the designs
+        // Draw the blocks
         drawDesigns();
         return () => {
             window.removeEventListener('keydown', handleDeleteKeyPress);
         };
-    }, [canvasRef, designs,dimensions, selectedDesign, setDesigns, setSelectedDesign]);
+    }, [canvasRef, blocks,dimensions, selectedBlock, setBlocks, setSelectedBlock]);
 
     // Delete the selected design on delete key press
     const handleDeleteKeyPress = (event: KeyboardEvent) => {
-        if (event.key === 'Delete' && selectedDesign) {
-            setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
-            setSelectedDesign(null); // Clear the selected design after deletion
+        if (event.key === 'Delete' && selectedBlock) {
+            setBlocks(prevDesigns => prevDesigns.filter(design => design.id !== selectedBlock.id));
+            setSelectedBlock(null); // Clear the selected design after deletion
         }
     };
     // Handle mouse down event
@@ -65,7 +66,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
         const mouseX = clientX - (rect?.left || 0);
         const mouseY = clientY - (rect?.top || 0);
 
-        const clickedDesign = designs.find((design) => {
+        const clickedDesign = blocks.find((design) => {
             const clickedHandle = checkResizeHandle(mouseX, mouseY, design);
             if (clickedHandle) {
                 setResizeHandle(clickedHandle);
@@ -90,14 +91,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
         if (clickedDesign) {
             setIsDragging(true);
             setDragStart({ x: mouseX - clickedDesign.position.x*dimensions.width/100, y: mouseY - clickedDesign.position.y*dimensions.height/100 });
-            setSelectedDesign(clickedDesign);
+            setSelectedBlock(clickedDesign);
         } else {
             // If no object is clicked, deselect the selected object
-            setSelectedDesign(null);
+            setSelectedBlock(null);
         }
     };
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-        // Draw the designs on every mouse move
+        // Draw the blocks on every mouse move
         animationRef.current = requestAnimationFrame(() => {
              drawDesigns();
         });
@@ -113,17 +114,17 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
             clientY = event.clientY;
         }
         // Check if the mouse is on a resize handle
-        if ((isDragging || resizeHandle) && selectedDesign && dragStart !== null) {
+        if ((isDragging || resizeHandle) && selectedBlock && dragStart !== null) {
             // Get the mouse position relative to the canvas
             const rect = canvasRef.current?.getBoundingClientRect();
             const mouseX = clientX - (rect?.left || 0);
             const mouseY = clientY - (rect?.top || 0);
 
             // Update the design position
-            setDesigns((prevDesigns) =>
+            setBlocks((prevDesigns) =>
                 prevDesigns.map((prevDesign) => {
                     // Check if the design is the selected design
-                    if (prevDesign.id === selectedDesign.id) {
+                    if (prevDesign.id === selectedBlock.id) {
                         //const { x, y } = prevDesign.position;
                         //converting to PX from %
                         const x = prevDesign.position.x * dimensions.width / 100;
@@ -219,7 +220,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
     const checkResizeHandle = (
         mouseX: number,
         mouseY: number,
-        design: UnifiedDesign | undefined
+        design: UnifiedBlock | undefined
     ): HandleType | null => {
         if (!design) return null;
 
@@ -258,7 +259,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
         return null;
     };
 
-    // Draw all the designs on the canvas
+    // Draw all the blocks on the canvas
     const drawDesigns = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -273,14 +274,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
         context.lineWidth = border;
         context.strokeRect(0, 0, canvas.width, canvas.height);
 
-        designs.forEach((design) => {
+        blocks.forEach((design) => {
             drawDesign(design, context);
         });
 
         context.restore();
     };
     // Draw a single design on the canvas
-    const drawDesign = (design: UnifiedDesign, context: CanvasRenderingContext2D) => {
+    const drawDesign = (design: UnifiedBlock, context: CanvasRenderingContext2D) => {
         //const { x, y } = design.position;
         //converting to PX from %
         const x = design.position.x * dimensions.width / 100;
@@ -307,14 +308,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, designs, selectedDes
         context.fillText(text, x, y);
 
         // Draw a border around the selected design
-        if (selectedDesign && design.id === selectedDesign.id) {
+        if (selectedBlock && design.id === selectedBlock.id) {
             context.strokeStyle = 'black';
             context.lineWidth = 2;
             context.strokeRect(x, y, width, height);
         }
 
         // Draw the resize handles
-        if (design.id === selectedDesign?.id) {
+        if (design.id === selectedBlock?.id) {
             drawResizeHandle(context, x, y);
             drawResizeHandle(context, x + width, y);
             drawResizeHandle(context, x, y + height);

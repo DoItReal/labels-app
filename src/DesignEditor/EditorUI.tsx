@@ -4,11 +4,11 @@
        - Editor.tsx
             - App.tsx - renders $Editor on https://address/editor
                  
-      ***To be developed *** To make parent Design which will host all designs and feature to manipulate them
+      ***To be developed *** To make parent Design which will host all blocks and feature to manipulate them
       * It will have UI
       * Editor will become feauture for the parent Design
-      * This way we can have multiple designs on the same page
-      * We can have multiple pages with multiple designs
+      * This way we can have multiple blocks on the same page
+      * We can have multiple pages with multiple blocks
       * We can add features as we go along as:
       * $$$ Paid features (the most important ones) - more advanced functionality - as customaizable as possible
       *     Free features (the least important ones) - just basic functionality 
@@ -17,22 +17,24 @@ It is the UI of the editor
 */
 
 import React from 'react';
-import { UnifiedDesign,textFieldDesign,imageFieldDesign, Dimensions, Position, TtextParameter,TimageParameter, textParameters, textParametersMap, dummyDesign, Design, isDesignArray} from './Editor'; // Make sure to import your Design type
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
-import { createNewDesign, updateDesign } from './DesignDB';
 import SaveIcon from '@mui/icons-material/Save';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
+import { createNewDesign, updateDesign } from './DesignDB';
+import { textParametersMap, dummyDesign } from './Editor';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, allergenFieldBlock, TypeBlock, isUnifiedBlock, isUnifiedBlockArray } from './Interfaces/CommonInterfaces';
+
 interface DesignUIProps {
     design: Design;
     setDesign: (design: Design) => void;
-    designs: UnifiedDesign[];
-    selectedDesign: UnifiedDesign | null;
-    setDesigns: React.Dispatch<React.SetStateAction<UnifiedDesign[]>>;
-    setSelectedDesign: React.Dispatch<React.SetStateAction<UnifiedDesign | null>>;
+    blocks: UnifiedBlock[];
+    selectedBlock: UnifiedBlock | null;
+    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
+    setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
 }
 
 const StyledDiv = styled('div')`
@@ -55,24 +57,24 @@ const StyledInputLabel = styled(InputLabel)`
 const DesignUI: React.FC<DesignUIProps> = ({
     design,
     setDesign,
-    designs,
-    selectedDesign,
-    setDesigns,
-    setSelectedDesign
+    blocks,
+    selectedBlock,
+    setBlocks,
+    setSelectedBlock
 }) => {
-    
+    console.log(blocks);
     const handleDesignSelection = (designId: number) => {
-        const selected = designs.find((design) => design.id === designId) || null;
+        const selected = blocks.find((design) => design.id === designId) || null;
         if (selected !== null) {
-            setSelectedDesign(selected);
+            setSelectedBlock(selected);
         }
-        else setSelectedDesign(dummyDesign);
+        else setSelectedBlock(dummyDesign);
     };
     const handleSelectedImageParameter = (imageParameter: TimageParameter) => {
-            if (selectedDesign && 'type' in selectedDesign && 'id' in selectedDesign) {
-                const design = selectedDesign as imageFieldDesign;
+            if (selectedBlock && 'type' in selectedBlock && 'id' in selectedBlock) {
+                const design = selectedBlock as imageFieldBlock;
 
-                setSelectedDesign(prevSelectedDesign => {
+                setSelectedBlock(prevSelectedDesign => {
                     if (prevSelectedDesign && prevSelectedDesign.id === design.id) {
                         if (imageParameter === 'image') {
                             return {
@@ -89,7 +91,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                     }
                     return prevSelectedDesign;
                 });
-                setDesigns(prevDesigns =>
+                setBlocks(prevDesigns =>
                     prevDesigns.map(prevDesign => {
                         if (prevDesign.id === design.id) {
                             if (imageParameter === 'image') {
@@ -111,10 +113,10 @@ const DesignUI: React.FC<DesignUIProps> = ({
             }
     };
     const handleSelectedTextParameter = (textParameter: TtextParameter) => {
-        if (selectedDesign && 'textParameter' in selectedDesign && 'id' in selectedDesign) {
-            const design = selectedDesign as textFieldDesign;
+        if (selectedBlock && 'textParameter' in selectedBlock && 'id' in selectedBlock) {
+            const design = selectedBlock as textFieldBlock;
 
-            setSelectedDesign(prevSelectedDesign => {
+            setSelectedBlock(prevSelectedDesign => {
                 if (prevSelectedDesign && prevSelectedDesign.id === design.id) {
                     return {
                         ...prevSelectedDesign,
@@ -123,7 +125,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 }
                 return prevSelectedDesign;
             });
-            setDesigns(prevDesigns =>
+            setBlocks(prevDesigns =>
                 prevDesigns.map(prevDesign => {
                     if (prevDesign.id === design.id) {
                         return {
@@ -137,11 +139,11 @@ const DesignUI: React.FC<DesignUIProps> = ({
         }
     };
     const updateSliderValue = (property: string, value: number) => {
-        if (selectedDesign) {
+        if (selectedBlock) {
             const [field, attribute] = property.split('.');
             
-            setSelectedDesign(prevSelectedDesign => {
-                if (prevSelectedDesign && prevSelectedDesign.id === selectedDesign.id) {
+            setSelectedBlock(prevSelectedDesign => {
+                if (prevSelectedDesign && prevSelectedDesign.id === selectedBlock.id) {
                     if (field === 'position') {
                         return {
                             ...prevSelectedDesign,
@@ -163,9 +165,9 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 return prevSelectedDesign;
             });
 
-            setDesigns(prevDesigns =>
+            setBlocks(prevDesigns =>
                 prevDesigns.map(prevDesign => {
-                    if (prevDesign.id === selectedDesign.id) {
+                    if (prevDesign.id === selectedBlock.id) {
                         if (field === 'position') {
                             return {
                                 ...prevDesign,
@@ -191,7 +193,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
     };
 
     const addTextDesign = () => {
-        setDesigns((prevDesigns) => [
+        setBlocks((prevDesigns) => [
             ...prevDesigns,
             {
                 id: prevDesigns.length + 1,
@@ -231,12 +233,12 @@ setOpenDialog(prevOpenDialog => {
 
         try {
             //not sure if this line is needed
-            design.designs = designs;
-            //get designs from session storage
-            const storedDesignsString: string | null = sessionStorage.getItem('designs');
+            design.blocks = blocks;
+            //get blocks from session storage
+            const storedDesignsString: string | null = sessionStorage.getItem('blocks');
             //try to parse the string to Design[]
             const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
-            //check against null value in case the session storage is empty. In this case we have no designs stored
+            //check against null value in case the session storage is empty. In this case we have no blocks stored
             if (!storedDesigns) {
                 console.log('The fetched Design is null! Creating new Design!');
                 await createNewDesign(design);
@@ -255,7 +257,7 @@ setOpenDialog(prevOpenDialog => {
                     //update DB
                     storedDesigns[i] = await updateDesign(design);
                     //update sessionStorage
-                    sessionStorage.setItem('designs', JSON.stringify(storedDesigns));
+                    sessionStorage.setItem('blocks', JSON.stringify(storedDesigns));
                     //await updateDesign then return;
                     return;
                 }
@@ -265,14 +267,14 @@ setOpenDialog(prevOpenDialog => {
             await createNewDesign(design);
                 //update session storage
             storedDesigns.push(design);
-            sessionStorage.setItem('designs', JSON.stringify(storedDesigns));    
+            sessionStorage.setItem('blocks', JSON.stringify(storedDesigns));    
         }catch (error) {
             console.log(error)
         }
     };
 
     const addImageDesign = () => {
-        setDesigns((prevDesigns) => [
+        setBlocks((prevDesigns) => [
             ...prevDesigns,
             {
                 id: prevDesigns.length + 1,
@@ -287,14 +289,14 @@ setOpenDialog(prevOpenDialog => {
     };
     const deleteDesign = () => {
 
-        if (selectedDesign && selectedDesign.id > 0) {
-            setDesigns(prevDesigns => prevDesigns.filter(design => design.id !== selectedDesign.id));
-            setSelectedDesign(null); // Clear the selected design after deletion
+        if (selectedBlock && selectedBlock.id > 0) {
+            setBlocks(prevDesigns => prevDesigns.filter(design => design.id !== selectedBlock.id));
+            setSelectedBlock(null); // Clear the selected design after deletion
         }
     };
     const theme = useTheme();
     const alignLeft = () => {
-        if (selectedDesign && selectedDesign.id > 0) {
+        if (selectedBlock && selectedBlock.id > 0) {
             const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
             const canvasWidth = design.canvas.dim.width; // Adjust for both left and right borders
             const newX = 0 + canvasBorder; // Set the new x value for left alignment
@@ -307,10 +309,9 @@ setOpenDialog(prevOpenDialog => {
         }
     };
     const alignCenter = () => {
-        if (selectedDesign && selectedDesign.id > 0) {
-            const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
+        if (selectedBlock && selectedBlock.id > 0) {
             const canvasWidth = design.canvas.dim.width; // Adjust for both left and right borders
-            const designWidthPercentage = selectedDesign.dimensions.width; // Assuming design width is a percentage
+            const designWidthPercentage = selectedBlock.dimensions.width; // Assuming design width is a percentage
 
             // Calculate the new x value for center alignment in pixels
             const newX = (canvasWidth - (canvasWidth * designWidthPercentage) / 100) / 2 ;
@@ -323,10 +324,10 @@ setOpenDialog(prevOpenDialog => {
         }
     };
     const alignRight = () => {
-        if (selectedDesign && selectedDesign.id > 0) {
+        if (selectedBlock && selectedBlock.id > 0) {
             const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
             const canvasWidth = design.canvas.dim.width; // Adjust for both left and right borders
-            const designWidthPercentage = selectedDesign.dimensions.width; // Assuming design width is a percentage
+            const designWidthPercentage = selectedBlock.dimensions.width; // Assuming design width is a percentage
 
             // Calculate the new x value for right alignment in pixels
             const newX = canvasWidth - (canvasWidth * designWidthPercentage) / 100 - canvasBorder;
@@ -358,32 +359,141 @@ setOpenDialog(prevOpenDialog => {
            
             <StyledDiv> 
             <h2>Playground UI</h2>
-            <br/>
+                <br />
+                <FontSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock } />
             <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
             <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
             <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-                <div key={selectedDesign ? selectedDesign.id : -10} style={{ marginBottom: '20px' }}>
-                    {selectedDesign && selectedDesign.id > 0 ? <h3>Block {selectedDesign.id}</h3> :
+                <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
+                    {selectedBlock && selectedBlock.id > 0 ? <h3>Block {selectedBlock.id}</h3> :
                         <h3>Select Block to edit or add a new Block</h3>}
 
                     <Container>
-                        <ButtonsContainer addTextDesign={addTextDesign} addImageDesign={addImageDesign} deleteDesign={deleteDesign} selectedDesign={selectedDesign} />
+                        <ButtonsContainer addTextDesign={addTextDesign} addImageDesign={addImageDesign} deleteDesign={deleteDesign} selectedDesign={selectedBlock} />
 
                     </Container>
                 </div>
 
                 <Container>
-                <BlockSelector designs={designs} selectedDesign={selectedDesign} handleDesignSelection={handleDesignSelection} />
-                    <BlockParameterSelector selectedDesign={selectedDesign} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
+                <BlockSelector blocks={blocks} selectedBlock={selectedBlock} handleBlockSelection={handleDesignSelection} />
+                    <BlockParameterSelector selectedDesign={selectedBlock} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
                 </Container>
                 <Container>
-                    <AlignContainer selectedDesign={selectedDesign} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
+                    <AlignContainer selectedDesign={selectedBlock} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
                 </Container>
                 <Container>
-                <BlockManipulator selectedDesign={selectedDesign} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
+                <BlockManipulator selectedDesign={selectedBlock} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
                 </Container>
             </StyledDiv>
         </Paper>
+    );
+};
+
+interface FontSelectorProps {
+    selectedBlock: UnifiedBlock | null;
+    blocks: UnifiedBlock[];
+    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
+    setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
+}
+const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
+    // Ensure selectedBlock and its font property exist
+    if (!selectedBlock || !selectedBlock.font) return null;
+  
+    // Handle font style change
+    const handleFontStyleChange = (style: Partial<TypeBlock>) => {
+        if (!selectedBlock || selectedBlock.id <= 0) {
+            return;
+        }
+
+        const updateBlockStyle = (block: TypeBlock): UnifiedBlock | TypeBlock => {
+            if (block.id === selectedBlock.id) {
+                const updatedBlock = { ...block, ...style };
+                if(isUnifiedBlock(updatedBlock))
+                return updatedBlock;
+            }
+            if (isUnifiedBlock(block)) 
+                return block;
+            else return block;
+        };
+
+        const updatedDesigns = blocks.map(updateBlockStyle);
+        if (isUnifiedBlockArray(updatedDesigns)) {
+            setBlocks(updatedDesigns);
+        }
+
+            const updatedSelectedDesign = { ...selectedBlock, ...style };
+            setSelectedBlock(structuredClone(updatedSelectedDesign));
+    };
+
+    // Parse font string to get size and family
+    const parseFontString = (fontString: string) => {
+        const match = fontString.match(/(\d+)px\s*(.*)/);
+        if (match) {
+            const size = parseInt(match[1]);
+            const fontFamily = match[2];
+            return { size, fontFamily };
+        } else {
+            // Default values if parsing fails
+            return { size: 16, fontFamily: 'Arial' };
+        }
+    };
+
+    // Handle font family change
+    const handleFontFamilyChange = (fontFamily: string) => {
+        const { size } = parseFontString(selectedBlock?.font);
+        handleFontStyleChange({ font: `${size}px ${fontFamily}` });
+    };
+
+    // Handle font size change
+    const handleFontSizeChange = (fontSize: number) => {
+        handleFontStyleChange({ font: `${fontSize}px ${parseFontString(selectedBlock?.font).fontFamily}` });
+    };
+
+    // Handle font change
+    const handleFontChange = (fontSize: string) => {
+        handleFontStyleChange({ font: `${fontSize} ${parseFontString(selectedBlock?.font).fontFamily}` });
+    };
+    console.log(parseFontString(selectedBlock.font));
+    return (
+        <FormControl>
+            <InputLabel>Font Family:</InputLabel>
+            <Select
+                value={parseFontString(selectedBlock.font).fontFamily}
+                onChange={e => handleFontFamilyChange(e.target.value as string)}
+                size="small"
+            >
+                {['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'].map(
+                    fontFamily => (
+                        <MenuItem key={fontFamily} value={fontFamily}>
+                            {fontFamily}
+                        </MenuItem>
+                    )
+                )}
+            </Select>
+            <InputLabel>Font Size:</InputLabel>
+            <Slider
+                value={(parseFontString(selectedBlock.font).size)}
+                min={1}
+                max={100}
+                onChange={(_, value) => handleFontSizeChange(value as number)}
+                style={{ width: '40%' }}
+            />
+            <Typography variant="body2" gutterBottom>
+                Font Size: {parseFontString(selectedBlock.font).size}px
+            </Typography>
+            <InputLabel>Font:</InputLabel>
+            <Select
+                value={`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
+                onChange={e => handleFontChange(e.target.value as string)}
+                size="small"
+            >
+                {['10', '20', '30', '40', '50'].map(fontSize => ( // Remove 'px' suffix
+                    <MenuItem key={fontSize} value={`${fontSize}px`}> {/* Add 'px' suffix */}
+                        {`${fontSize}px`}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
     );
 };
 
@@ -490,16 +600,16 @@ const theme = useTheme();
         );
 };
 
-const BlockSelector: React.FC<{ designs: UnifiedDesign[], selectedDesign: UnifiedDesign | null, handleDesignSelection: (designId: number) => void }> = ({ designs, selectedDesign, handleDesignSelection }) => {
+const BlockSelector: React.FC<{ blocks: UnifiedBlock[], selectedBlock: UnifiedBlock | null, handleBlockSelection: (blockId: number) => void }> = ({ blocks, selectedBlock, handleBlockSelection }) => {
     return (
          <FormControl>
                     <InputLabel>Selected Block:</InputLabel>
                     <Select
-                        value={selectedDesign && selectedDesign.id>0 ? selectedDesign.id : 'None'}
-                        onChange={(e) => handleDesignSelection(Number(e.target.value))}
+                        value={selectedBlock && selectedBlock.id>0 ? selectedBlock.id : 'None'}
+                        onChange={(e) => handleBlockSelection(Number(e.target.value))}
                     >
                         <MenuItem key='Not selected Text Design' value='None'>None</MenuItem>
-                        {designs.map((design) => (
+                        {blocks.map((design) => (
                             <MenuItem key={design.id} value={design.id}>
                                 { 'type' in design ? 'ImageField ' + design.id : 'TextField ' + design.id }
                             </MenuItem>
@@ -510,7 +620,7 @@ const BlockSelector: React.FC<{ designs: UnifiedDesign[], selectedDesign: Unifie
     );
 };
 
-const BlockParameterSelector: React.FC<{ selectedDesign: UnifiedDesign | null, handleSelectedImageParameter: (imageParameter: TimageParameter) => void, handleSelectedTextParameter: (textParameter: TtextParameter) => void }> = ({ selectedDesign, handleSelectedImageParameter, handleSelectedTextParameter }) => {
+const BlockParameterSelector: React.FC<{ selectedDesign: UnifiedBlock | null, handleSelectedImageParameter: (imageParameter: TimageParameter) => void, handleSelectedTextParameter: (textParameter: TtextParameter) => void }> = ({ selectedDesign, handleSelectedImageParameter, handleSelectedTextParameter }) => {
     return (
         <FormControl style={{ marginLeft: '20px' }}>
             {selectedDesign && selectedDesign.id > 0 ? (
@@ -553,7 +663,7 @@ const BlockParameterSelector: React.FC<{ selectedDesign: UnifiedDesign | null, h
         </FormControl>
     );
 };
-const BlockManipulator: React.FC<{ selectedDesign: UnifiedDesign | null, updateSliderValue: (property: string, value: number) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ selectedDesign, updateSliderValue, openDialog, handleOpenDialog, handleCloseDialog }) => {
+const BlockManipulator: React.FC<{ selectedDesign: UnifiedBlock | null, updateSliderValue: (property: string, value: number) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ selectedDesign, updateSliderValue, openDialog, handleOpenDialog, handleCloseDialog }) => {
     if (!selectedDesign || selectedDesign === null || selectedDesign === dummyDesign) return null;
     return (
             <>
@@ -648,7 +758,7 @@ const BlockManipulator: React.FC<{ selectedDesign: UnifiedDesign | null, updateS
             </>
     );
 };
-const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedDesign: UnifiedDesign | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedDesign}) => {
+const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedDesign: UnifiedBlock | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedDesign}) => {
 return (
     <Container>
         <Button onClick={addTextDesign} variant="contained" color="primary" size="small" >Add Text Design</Button>
@@ -657,7 +767,7 @@ return (
         </Container>
     );
 };
-const AlignContainer: React.FC<{ selectedDesign: UnifiedDesign | null, alignLeft:()=>void, alignCenter:()=>void,alignRight:()=>void }> = ({ selectedDesign, alignLeft, alignCenter,alignRight }) => {
+const AlignContainer: React.FC<{ selectedDesign: UnifiedBlock | null, alignLeft:()=>void, alignCenter:()=>void,alignRight:()=>void }> = ({ selectedDesign, alignLeft, alignCenter,alignRight }) => {
     if (!selectedDesign || selectedDesign === null || selectedDesign === dummyDesign) return null;
     return (
         <Container>

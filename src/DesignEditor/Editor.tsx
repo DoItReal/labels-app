@@ -4,15 +4,7 @@ import DesignUI from './EditorUI';
 import Canvas  from './EditorCanvas';
 import Label from './LabelCanvas';
 import { labelDataType } from '../db';
-export interface Position {
-    x: number;
-    y: number;
-}
-
-export interface Dimensions {
-    width: number;
-    height: number;
-}
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
 
 //for developing purposes only its going to be replaced with fetch from db image or load from local storage or url
 const imageURLs = [{
@@ -44,10 +36,7 @@ const loadImgs = async () => {
     }
 }
 loadImgs();
-//TO DO get textParameters based on DB INPUT or from API
-export const textParameters = ['bg', 'en', 'de', 'rus'] as const ;
-export type TtextParameter = typeof textParameters[number] | '';
-export type TimageParameter = 'image' | 'allergens';
+
 //TO DO Get textParametersMap from API
 export const textParametersMap = new Map([
     ['bg', 'Bulgarian'],
@@ -55,97 +44,8 @@ export const textParametersMap = new Map([
     ['de', 'Deutsch'],
     ['rus', 'Russian'],
 ]);
-type TypeDesign  = {
-    id: number;
-    position: Position;
-    dimensions: Dimensions;
-    font: string;
-    color: string;
-    __v?: number;
-}
-export interface textFieldDesign extends TypeDesign {
-    textParameter: TtextParameter;
-}
-export interface allergenFieldDesign extends TypeDesign {
-    type: 'allergens';
-}
-export interface imageFieldDesign extends TypeDesign {
-    type: 'image';
-    imageID: number;
-}
-export type UnifiedDesign = textFieldDesign | imageFieldDesign | allergenFieldDesign;
-export function isUnifiedDesign(obj: any): obj is UnifiedDesign {
-    if (!obj || typeof obj !== 'object') {
-        return false;
-    }
-    if ('type' in obj) {
-        if (obj.type === 'allergens') {
-            return (
-                typeof obj.id === 'number' &&
-                typeof obj.position === 'object' && /* You may need a more specific check for Position */
-                typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
-                typeof obj.font === 'string' &&
-                typeof obj.color === 'string'
-            );
-        } else if (obj.type === 'image') {
-            return (
-                typeof obj.id === 'number' &&
-                typeof obj.position === 'object' && /* You may need a more specific check for Position */
-                typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
-                typeof obj.font === 'string' &&
-                typeof obj.color === 'string' &&
-                typeof obj.imageID === 'number'
-            );
-        }
-    } else if ('textParameter' in obj) {
-        return (
-            typeof obj.id === 'number' &&
-            typeof obj.position === 'object' && /* You may need a more specific check for Position */
-            typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
-            typeof obj.font === 'string' &&
-            typeof obj.color === 'string' &&
-            typeof obj.textParameter === 'string' /* You may need a more specific check for TtextParameter */
-        );
-    }
 
-    return false;
-}
-
-export interface Design {
-    _id: string; // Represents the ID in the database
-    name: string;
-    owner: string; //Represents the ID of the owner in the database
-    canvas: { dim: Dimensions, border: number };
-    designs: UnifiedDesign[];
-}
-export function isDesign(obj: any): obj is Design {
- 
-    return (
-        typeof obj._id === 'string' &&
-        typeof obj.name === 'string' &&
-        typeof obj.owner === 'string' &&
-        typeof obj.canvas === 'object' && obj.canvas.dim && obj.canvas.dim.width && obj.canvas.dim.height &&
-        Array.isArray(obj.designs) &&
-        obj.designs.every((d: any) => isUnifiedDesign(d) /* Check UnifiedDesign properties here */) // Add conditions for UnifiedDesign if needed
-    );
-}
-export function isDesignArray(arr: any): arr is Design[] {
-    return Array.isArray(arr) && arr.every((obj: any) =>  isDesign(obj));
-}
-export interface NewDesign {
-    name: string;
-    owner: string; //Represents the ID of the owner in the database
-    canvas: {dim: Dimensions };
-    designs: UnifiedDesign[];
-}
-
-
-
-
-
-export type HandleType = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top' | 'right' | 'bottom' | 'left' | null;
-
-export const dummyDesign: textFieldDesign = {
+export const dummyDesign: textFieldBlock = {
     id: -10,
     position: { x: 0, y: 0 },
     dimensions: { width: 0, height: 0 } ,
@@ -153,7 +53,7 @@ export const dummyDesign: textFieldDesign = {
     color: 'black',
     textParameter: '',
 }
-export const dummyImageDesign: allergenFieldDesign = {
+export const dummyImageDesign: allergenFieldBlock = {
     id: -10,
     position: { x: 0, y: 0 },
     dimensions: { width: 0, height: 0 },
@@ -168,7 +68,7 @@ const initDesign = {
     canvas: {
         dim: { width: 300, height: 200 }
 },
-    designs:
+    blocks:
         [
         //{ id: 1, position: { x: 10, y: 5 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', type: 'allergens' },
         { id: 2, position: { x: 10, y: 23 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', textParameter: 'bg' },
@@ -181,8 +81,8 @@ const initDesign = {
 const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design | undefined, setDesign:(design:Design)=>void }) => { 
     if (design === undefined) design = initDesign;
    // const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
-    const [designs, setDesigns] = useState<UnifiedDesign[]>(design.designs);
-    const [selectedDesign, setSelectedDesign] = useState<UnifiedDesign | null>(dummyDesign);
+    const [blocks, setBlocks] = useState<UnifiedBlock[]>(design.blocks);
+    const [selectedBlock, setSelectedBlock] = useState<UnifiedBlock | null>(dummyDesign);
 
     const label: labelDataType = {
         _id: '-1',
@@ -194,8 +94,8 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
         rus: 'Taratorrr RUS',
         owner: ''
     }
-
-    
+    console.log(design);
+    console.log(design.blocks);
     return (
         <Container component="main" maxWidth='xl' style={{
             height: '100%', // Ensure full viewport height
@@ -213,10 +113,10 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                         <DesignUI
                             design={design}
                             setDesign={setDesign }
-                        designs={designs}
-                        setDesigns={setDesigns}
-                        selectedDesign={selectedDesign}
-                        setSelectedDesign={setSelectedDesign}
+                        blocks={blocks}
+                        setBlocks={setBlocks}
+                        selectedBlock={selectedBlock}
+                        setSelectedBlock={setSelectedBlock}
                             />
                     </Container>
                     </Grid>
@@ -226,10 +126,10 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     <Canvas
                         dimensions={design.canvas.dim}
                         border={design.canvas.border}
-                        designs={designs}
-                        setDesigns={setDesigns}
-                        selectedDesign={selectedDesign}
-                        setSelectedDesign={setSelectedDesign}
+                        blocks={blocks}
+                        setBlocks={setBlocks}
+                        selectedBlock={selectedBlock}
+                        setSelectedBlock={setSelectedBlock}
                         />
                             </Grid>
                 </Grid>
@@ -237,7 +137,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     <Grid container justifyContent="center" alignItems="center">
                         <Label
                             design={design}
-                            designs={designs}
+                            designs={blocks}
                             label={label} />
             </Grid>
                 </Grid>
