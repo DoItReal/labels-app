@@ -94,8 +94,6 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
         rus: 'Taratorrr RUS',
         owner: ''
     }
-    console.log(design);
-    console.log(design.blocks);
     return (
         <Container component="main" maxWidth='xl' style={{
             height: '100%', // Ensure full viewport height
@@ -107,7 +105,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
         } } >
 
             <Grid container spacing={0} justifyContent="center" alignItems="center" >
-                <Grid item xs={12} sm={12} md={4} lg={4} spacing={0}>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Grid container justifyContent="center" alignItems="center" >
                         <Container>
                         <DesignUI

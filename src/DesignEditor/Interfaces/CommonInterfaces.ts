@@ -82,8 +82,8 @@ export function isDesign(obj: any): obj is Design {
         typeof obj.name === 'string' &&
         typeof obj.owner === 'string' &&
         typeof obj.canvas === 'object' && obj.canvas.dim && obj.canvas.dim.width && obj.canvas.dim.height &&
-        Array.isArray(obj.designs) &&
-        obj.designs.every((d: any) => isUnifiedBlock(d) /* Check UnifiedBlock properties here */) // Add conditions for UnifiedBlock if needed
+        Array.isArray(obj.blocks) &&
+        obj.blocks.every((d: any) => isUnifiedBlock(d) /* Check UnifiedBlock properties here */) // Add conditions for UnifiedBlock if needed
     );
 }
 export function isDesignArray(arr: any): arr is Design[] {

@@ -27,7 +27,6 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import { createNewDesign, updateDesign } from './DesignDB';
 import { textParametersMap, dummyDesign } from './Editor';
 import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, allergenFieldBlock, TypeBlock, isUnifiedBlock, isUnifiedBlockArray } from './Interfaces/CommonInterfaces';
-
 interface DesignUIProps {
     design: Design;
     setDesign: (design: Design) => void;
@@ -62,7 +61,6 @@ const DesignUI: React.FC<DesignUIProps> = ({
     setBlocks,
     setSelectedBlock
 }) => {
-    console.log(blocks);
     const handleDesignSelection = (designId: number) => {
         const selected = blocks.find((design) => design.id === designId) || null;
         if (selected !== null) {
@@ -360,8 +358,7 @@ setOpenDialog(prevOpenDialog => {
             <StyledDiv> 
             <h2>Playground UI</h2>
                 <br />
-                <FontSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock } />
-            <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
+                 <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
             <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
             <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
                 <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
@@ -379,6 +376,10 @@ setOpenDialog(prevOpenDialog => {
                     <BlockParameterSelector selectedDesign={selectedBlock} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
                 </Container>
                 <Container>
+                    <FontSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
+                    <ColorSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
+              </Container>
+                <Container>
                     <AlignContainer selectedDesign={selectedBlock} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
                 </Container>
                 <Container>
@@ -388,7 +389,59 @@ setOpenDialog(prevOpenDialog => {
         </Paper>
     );
 };
+interface ColorPickerProps {
+    id: string;
+    value: string;
+    onChange: (color: string) => void;
+}
 
+const ColorPicker: React.FC<ColorPickerProps> = ({ id, value, onChange }) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(event.target.value);
+    };
+
+    return (
+        <input type="color" id={id} value={value} onChange={handleChange} />
+    );
+};
+interface ColorSelectorProps {
+    selectedBlock: UnifiedBlock | null;
+    blocks: UnifiedBlock[];
+    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
+    setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
+}
+
+const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
+    if (!selectedBlock || !(selectedBlock.id > 0)) return null;
+    const handleColorChange = (color: string) => {
+        if (!selectedBlock || selectedBlock.id <= 0) return;
+
+        const updatedBlocks = blocks.map((block) => {
+            if (block.id === selectedBlock.id) {
+                return { ...block, color };
+            }
+            return block;
+        });
+        if (isUnifiedBlockArray(updatedBlocks)) {
+            setBlocks(updatedBlocks);
+        }
+        if (isUnifiedBlock(selectedBlock)) {
+            selectedBlock.color = color;
+            setSelectedBlock(selectedBlock);
+        }
+    };
+
+    return (
+        <div>
+            <label htmlFor="color-picker">Choose a color:</label>
+            <ColorPicker
+                id="color-picker"
+                value={selectedBlock ? selectedBlock.color : ''}
+                onChange={(color: string) => handleColorChange(color)}
+            />
+        </div>
+    );
+};
 interface FontSelectorProps {
     selectedBlock: UnifiedBlock | null;
     blocks: UnifiedBlock[];
@@ -397,8 +450,8 @@ interface FontSelectorProps {
 }
 const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
     // Ensure selectedBlock and its font property exist
-    if (!selectedBlock || !selectedBlock.font) return null;
-  
+    if (!selectedBlock || !(selectedBlock.id > 0) || !selectedBlock.font) return null;
+
     // Handle font style change
     const handleFontStyleChange = (style: Partial<TypeBlock>) => {
         if (!selectedBlock || selectedBlock.id <= 0) {
@@ -408,10 +461,10 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
         const updateBlockStyle = (block: TypeBlock): UnifiedBlock | TypeBlock => {
             if (block.id === selectedBlock.id) {
                 const updatedBlock = { ...block, ...style };
-                if(isUnifiedBlock(updatedBlock))
-                return updatedBlock;
+                if (isUnifiedBlock(updatedBlock))
+                    return updatedBlock;
             }
-            if (isUnifiedBlock(block)) 
+            if (isUnifiedBlock(block))
                 return block;
             else return block;
         };
@@ -421,8 +474,8 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
             setBlocks(updatedDesigns);
         }
 
-            const updatedSelectedDesign = { ...selectedBlock, ...style };
-            setSelectedBlock(structuredClone(updatedSelectedDesign));
+        const updatedSelectedDesign = { ...selectedBlock, ...style };
+        setSelectedBlock(structuredClone(updatedSelectedDesign));
     };
 
     // Parse font string to get size and family
@@ -453,47 +506,51 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
     const handleFontChange = (fontSize: string) => {
         handleFontStyleChange({ font: `${fontSize} ${parseFontString(selectedBlock?.font).fontFamily}` });
     };
-    console.log(parseFontString(selectedBlock.font));
     return (
-        <FormControl>
-            <InputLabel>Font Family:</InputLabel>
-            <Select
-                value={parseFontString(selectedBlock.font).fontFamily}
-                onChange={e => handleFontFamilyChange(e.target.value as string)}
-                size="small"
-            >
-                {['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'].map(
-                    fontFamily => (
-                        <MenuItem key={fontFamily} value={fontFamily}>
-                            {fontFamily}
-                        </MenuItem>
-                    )
-                )}
-            </Select>
-            <InputLabel>Font Size:</InputLabel>
-            <Slider
-                value={(parseFontString(selectedBlock.font).size)}
-                min={1}
-                max={100}
-                onChange={(_, value) => handleFontSizeChange(value as number)}
-                style={{ width: '40%' }}
-            />
+        <Container style={{ display: 'flex', alignItems: 'center' }}>
+            <FormControl>
+                <Select
+                    value={parseFontString(selectedBlock.font).fontFamily}
+                    onChange={e => handleFontFamilyChange(e.target.value as string)}
+                    size="small"
+                >
+                    {['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'].map(
+                        fontFamily => (
+                            <MenuItem key={fontFamily} value={fontFamily}>
+                                {fontFamily}
+                            </MenuItem>
+                        )
+                    )}
+                </Select>
+            </FormControl>
+            {/*
+                <FormControl>
+                < Slider
+                    value={(parseFontString(selectedBlock.font).size)}
+            min={1}
+            max={100}
+            onChange={(_, value) => handleFontSizeChange(value as number)}
+            style={{ width: '40%' }}
+                />
+        </FormControl>
+        */}
             <Typography variant="body2" gutterBottom>
                 Font Size: {parseFontString(selectedBlock.font).size}px
             </Typography>
-            <InputLabel>Font:</InputLabel>
-            <Select
-                value={`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
-                onChange={e => handleFontChange(e.target.value as string)}
-                size="small"
-            >
-                {['10', '20', '30', '40', '50'].map(fontSize => ( // Remove 'px' suffix
-                    <MenuItem key={fontSize} value={`${fontSize}px`}> {/* Add 'px' suffix */}
-                        {`${fontSize}px`}
-                    </MenuItem>
-                ))}
-            </Select>
-        </FormControl>
+            <FormControl>
+                <Select
+                    value={`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
+                    onChange={e => handleFontChange(e.target.value as string)}
+                    size="small"
+                >
+                    {['10', '20', '30', '40', '50'].map(fontSize => ( // Remove 'px' suffix
+                        <MenuItem key={fontSize} value={`${fontSize}px`}> {/* Add 'px' suffix */}
+                            {`${fontSize}px`}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+            </Container>
     );
 };
 

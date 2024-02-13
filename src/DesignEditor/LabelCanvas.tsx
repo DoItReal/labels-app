@@ -108,6 +108,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         x: number;
         y: number;
         font: string;
+        color: string;
         position: Position;
     }
     interface IallergenQueue {
@@ -117,6 +118,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         y: number;
         fontSize: number;
         position: Position;
+        color: string;
     }
     interface IimageQueue {
         context: CanvasRenderingContext2D;
@@ -191,7 +193,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
                 const x = (width - context.measureText(text).width) / 2;
                 const y = (height - textSize) / 2;
                 const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-                renderQueue.push({ context,text: text, x: x, y: y,font, position: realPosition });
+                renderQueue.push({ context,text: text, x: x, y: y,font, position: realPosition, color:design.color });
             } else { //multiline case
                 text.forEach((txt, index) => {
                     const totalTextHeight = text.length * textSize * margin;
@@ -199,7 +201,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
                     const x = (width - context.measureText(txt).width) / 2;
                     const y = startY + index * textSize;
                     const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: realPosition });
+                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: realPosition, color:design.color });
                 });
             }
             context.restore();
@@ -214,6 +216,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
 
         renderQueue.forEach(item => {
             item.context.save();
+            item.context.fillStyle = item.color;
             item.context.font = item.font;
             item.context.textBaseline = 'top';
             item.context.translate(item.position.x, item.position.y);
@@ -269,7 +272,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         context.font = textSize + "px " + design.font.split(' ')[1];
         context.fillStyle = "blue";
         const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-        renderQueue.push({context, image: arr[i], x: dx + textSize / 2, y:dy, fontSize:textSize, position: realPosition });
+        renderQueue.push({ context, image: arr[i], x: dx + textSize / 2, y: dy, fontSize: textSize, position: realPosition, color: design.color });
         dx += textSize * 2;
 
              }
@@ -284,6 +287,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
             item.context.textBaseline = 'top';
             const textSize = item.fontSize;
             item.context.save();
+            item.context.fillStyle = item.color;
             item.context.translate(item.position.x, item.position.y);
                 item.context.fillText(String(item.image), item.x, item.y);
                 typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  item.context.drawImage(png.images[Number(item.image - 1)], item.x + textSize / 2, item.y, textSize, textSize);

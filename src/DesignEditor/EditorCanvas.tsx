@@ -289,11 +289,13 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         const width = design.dimensions.width * dimensions.width / 100;
         const height = design.dimensions.height * dimensions.height / 100;
 
-        context.strokeStyle = design.color;
+        context.save();
+        context.strokeStyle = 'black';
         context.lineWidth = 1;
         context.strokeRect(x, y, width, height);
 
         // Draw the text
+        
         var text: string;
         if ('textParameter' in design) {
             text = textParametersMap.get(design.textParameter) || '';
@@ -302,7 +304,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         } else {
             text = 'None';
         }
-        context.fillStyle = 'black'; // Text color
+        context.fillStyle = design.color; // Text color
         context.textBaseline = 'top';
         context.font = design.font;
         context.fillText(text, x, y);
@@ -328,6 +330,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
             drawResizeHandle(context, x + width / 2, y + height);
 
         }
+        context.save();
     };
     // Draw a single resize handle
     const drawResizeHandle = (context: CanvasRenderingContext2D, x: number, y: number) => {
