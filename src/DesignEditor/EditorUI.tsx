@@ -16,8 +16,8 @@ It is the UI of the editor
 
 */
 
-import React from 'react';
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import SaveIcon from '@mui/icons-material/Save';
@@ -449,6 +449,7 @@ interface FontSelectorProps {
     setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
 }
 const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
+    const [isInputMode, setIsInputMode] = useState(false);
     // Ensure selectedBlock and its font property exist
     if (!selectedBlock || !(selectedBlock.id > 0) || !selectedBlock.font) return null;
 
@@ -506,15 +507,53 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
     const handleFontChange = (fontSize: string) => {
         handleFontStyleChange({ font: `${fontSize} ${parseFontString(selectedBlock?.font).fontFamily}` });
     };
+    const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement|HTMLTextAreaElement>) => {
+if (event.key === 'Enter') {
+    setIsInputMode(false);
+
+} else if (event.key === 'Delete') {
+    // Prevent deleting the component if backspace is pressed at the beginning of the input
+    event.stopPropagation();
+    return false;
+        } console.log(event.key);
+    }
+
+    // Assuming parseFontString returns an object with 'size' property
+
+    const fontSizes = ['10', '20', '30', '40', '50']; // List of available font sizes
+    const currentFontSize = parseFontString(selectedBlock.font).size; // Get current font size
+
+    // Sort font sizes based on current font size
+    const sortedFontSizes = [...fontSizes, currentFontSize].sort((a, b) => {
+        if (typeof a === 'string') {
+            a = parseInt(a);
+        }
+        if (typeof b === 'string') {
+            b = parseInt(b);
+        }
+        return a - b;
+    });
     return (
         <Container style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" gutterBottom>
+                Font Family:
+            </Typography>
             <FormControl>
                 <Select
                     value={parseFontString(selectedBlock.font).fontFamily}
                     onChange={e => handleFontFamilyChange(e.target.value as string)}
                     size="small"
                 >
-                    {['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'].map(
+                    {["Arial",
+                        "Helvetica",
+                        "Times New Roman",
+                        "Georgia",
+                        "Courier New",
+                        "Verdana",
+                        "Tahoma",
+                        "Trebuchet MS",
+                        "Calibri",
+                        "Cambria"].map(
                         fontFamily => (
                             <MenuItem key={fontFamily} value={fontFamily}>
                                 {fontFamily}
@@ -523,33 +562,36 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
                     )}
                 </Select>
             </FormControl>
-            {/*
-                <FormControl>
-                < Slider
-                    value={(parseFontString(selectedBlock.font).size)}
-            min={1}
-            max={100}
-            onChange={(_, value) => handleFontSizeChange(value as number)}
-            style={{ width: '40%' }}
-                />
-        </FormControl>
-        */}
             <Typography variant="body2" gutterBottom>
                 Font Size: {parseFontString(selectedBlock.font).size}px
             </Typography>
-            <FormControl>
+            {isInputMode ? (
+                <FormControl>
+                    <Input
+                        value={parseFontString(selectedBlock.font).size} // Update the value to include 'px'
+                        onChange={e => { handleFontChange(e.target.value + 'px' as string) }}
+                        onBlur={(e) => setIsInputMode(false)}
+                        onKeyDown={(event) => handleInputKeyDown(event)}
+                        autoFocus
+                   />
+                </FormControl >
+                ): (
+                <FormControl>
                 <Select
-                    value={`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
-                    onChange={e => handleFontChange(e.target.value as string)}
-                    size="small"
+                    value = {`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
+            onChange={e => handleFontChange(e.target.value as string)}
+                            size="small"
+                            onDoubleClick={() => setIsInputMode(true)}
+            
                 >
-                    {['10', '20', '30', '40', '50'].map(fontSize => ( // Remove 'px' suffix
-                        <MenuItem key={fontSize} value={`${fontSize}px`}> {/* Add 'px' suffix */}
-                            {`${fontSize}px`}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            {sortedFontSizes.map(fontSize => ( // Remove 'px' suffix
+                <MenuItem key={fontSize} value={`${fontSize}px`}> {/* Add 'px' suffix */}
+                    {`${fontSize}px`}
+                </MenuItem>
+            ))}
+        </Select>
+            </FormControl >)}
+            
             </Container>
     );
 };
