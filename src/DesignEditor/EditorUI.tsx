@@ -575,7 +575,7 @@ if (event.key === 'Enter') {
                         autoFocus
                    />
                 </FormControl >
-                ): (
+            ) : (
                 <FormControl>
                 <Select
                     value = {`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'

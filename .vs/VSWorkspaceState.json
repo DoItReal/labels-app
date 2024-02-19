@@ -6,6 +6,6 @@
     "\\src\\DesignEditor",
     "\\src\\DesignEditor\\Interfaces"
   ],
-  "SelectedNode": "\\src\\DesignEditor\\LabelCanvas.tsx",
+  "SelectedNode": "\\src\\DesignEditor\\Interfaces\\CommonInterfaces.ts",
   "PreviewInSolutionExplorer": false
 }
