@@ -1,7 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HandleType } from './Interfaces/CommonInterfaces';
-
+import { saveNewImage } from './ImageDB';
+import { Button, Container, TextField } from '@mui/material';
+export interface Image {
+    name: string;
+    DataUrl: string;
+    size: number;
+    uploadedAt: string;
+    owner: string;
+}
 const ImageUpload: React.FC = () => {
+    const [imageName, setImageName] = useState('NewName');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [editingImage, setEditingImage] = useState<HTMLImageElement | null>(null);
     const [canvasWidth, setCanvasWidth] = useState(600);
@@ -96,18 +105,7 @@ const ImageUpload: React.FC = () => {
             setImgHeight(newHeight);
         }
     };
-    /*
-    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (resizing && editingImage && resizeHandle) {
-            const offsetX = e.nativeEvent.offsetX;
-            const offsetY = e.nativeEvent.offsetY;
-            const newWidth = offsetX;
-            const newHeight = offsetY;
-            setCanvasWidth(newWidth);
-            setCanvasHeight(newHeight);
-        }
-    };
-    */
+   
     const handleMouseUp = () => {
         setResizing(false);
         setResizeHandle('');
@@ -119,8 +117,8 @@ const ImageUpload: React.FC = () => {
         setCanvasWidth(600);
         setCanvasHeight(600);
     };
-
-    const handleSave = () => {
+   
+    const handleSave = async () => {
         if (canvasRef.current) {
             setCanvasHeight(imgHeight);
             setCanvasWidth(imgWidth);
@@ -132,7 +130,37 @@ const ImageUpload: React.FC = () => {
             const sizeInBytes = (dataURL.length * (3 / 4)) - 2;
             const sizeInMB = sizeInBytes / (1024 * 1024);
             console.log('Size of image:', sizeInMB.toFixed(2), 'MB');
-            
+            const image: Image = {
+                name: imageName,
+                DataUrl: dataURL,
+                size: sizeInBytes,
+                uploadedAt: new Date().toISOString(),
+                owner: 'localUser'
+            }
+
+            //it gets storedImages from session storage
+            //it checks if the image is already in the storedImages
+
+
+            try {
+
+                //get blocks from session storage
+                const storedImagesString: string | null = sessionStorage.getItem('images');
+                //try to parse the string to Image[]
+                const storedImages: Image[] | null = storedImagesString ? JSON.parse(storedImagesString) : null;
+                //create new design in DB
+                await saveNewImage(image);
+
+                //update session storage
+                if (storedImages === null) {
+                    sessionStorage.setItem('images', JSON.stringify([image]));
+                } else {
+                    storedImages.push(image);
+                    sessionStorage.setItem('images', JSON.stringify(storedImages));
+                }
+            } catch (error) {
+                console.log(error)
+            }
         }
     };
     const checkResizeHandle = (
@@ -227,6 +255,7 @@ const ImageUpload: React.FC = () => {
                 accept="image/*"
                 onChange={handleImageChange}
             />) : null}
+           
             {imagePreview && (
                 <div>
                     {/* Load image and set the image element's onLoad handler */}
@@ -239,6 +268,16 @@ const ImageUpload: React.FC = () => {
                     />
                     {/* Render canvas when image is loaded */}
                     {editingImage && (
+                        <>
+                        <Container style={{float:'left'} }>
+            <TextField
+                type="text"
+                value={imageName}
+                onChange={(e) => setImageName(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleCancel}>Cancel</Button>
+                <Button variant="contained" onClick={handleSave}>Save</Button>
+            </Container>
                         <canvas
                             ref={canvasRef}
                             width={canvasWidth}
@@ -249,10 +288,10 @@ const ImageUpload: React.FC = () => {
                             onMouseUp={handleMouseUp}
                         >
                             Your browser does not support the HTML canvas element.
-                        </canvas>
+                            </canvas>
+                        </>
                     )}
-                    <button onClick={handleCancel}>Cancel</button>
-                    <button onClick={handleSave}>Save</button>
+                   
                 </div>
             )}
         </div>
