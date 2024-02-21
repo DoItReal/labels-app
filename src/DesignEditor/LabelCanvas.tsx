@@ -3,7 +3,7 @@ import { loadImages,images, textParametersMap } from './Editor'; // Import the D
 import { styled } from '@mui/system';
 import { labelDataType } from '../db';
 import { png } from '../labels';
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
+import { Iimage,Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
 
 const StyledCanvas = styled('canvas')`
   border: 1px solid #000;
@@ -122,7 +122,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
     }
     interface IimageQueue {
         context: CanvasRenderingContext2D;
-        imageID: number;
+        image: Iimage;
         dimensions: Dimensions;
         transperancy: number;
         position: Position;
@@ -304,17 +304,16 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         }
         const transperancy = 0.2;
         const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-        renderQueue.push({ context,imageID: design.imageID,transperancy,dimensions:imgDimensions, position: realPosition })
+        renderQueue.push({ context,image: design.image,transperancy,dimensions:imgDimensions, position: realPosition })
         return renderQueue;
     }
    
     const drawImageQueue = async(renderQueue: IimageQueue[]) => {
         if (!images) return;
-        
 
         renderQueue.forEach(item => {
-            typeof (item.imageID) === 'number' && images.forEach(image => {
-                if (image.id === item.imageID) {
+            typeof (item.image._id) === 'string' && images.forEach(image => {
+                if (image._id === item.image._id) {
                     item.context.save();
                     //set transperancy for the image 
                     item.context.globalAlpha = item.transperancy;

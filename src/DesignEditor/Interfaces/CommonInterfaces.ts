@@ -16,18 +16,61 @@ export type TypeBlock = {
     dimensions: Dimensions;
     font: string;
     color: string;
+    type?: string;
     __v?: number;
 }
 export interface textFieldBlock extends TypeBlock {
     textParameter: TtextParameter;
+    
 }
 export interface allergenFieldBlock extends TypeBlock {
     type: 'allergens';
 }
+export interface ImageURL {
+    _id: string;
+    name: string;
+    DataUrl: string;
+    size: number;
+}
+export function isImageURL(obj: any): obj is ImageURL {
+    return (
+        typeof obj._id === 'string' &&
+        typeof obj.name === 'string' &&
+        typeof obj.DataUrl === 'string' &&
+        typeof obj.size === 'number'
+    );
+}
+export interface ImagePointer {
+    _id: string;
+    name: string;
+    size: number;
+}
+export function isImagePointer(obj: any): obj is ImagePointer {
+    return (
+        typeof obj._id === 'string' &&
+        typeof obj.name === 'string' &&
+        typeof obj.size === 'number'
+    );
+}
+export interface Iimage {
+    _id: string;
+    name: string;
+    image: HTMLImageElement;
+    size: number;
+}
+export function isIimage(obj: any): obj is Iimage {
+    return (
+        typeof obj._id === 'string' &&
+        typeof obj.name === 'string' &&
+        obj.image instanceof HTMLImageElement &&
+        typeof obj.size === 'number'
+    );
+}
 export interface imageFieldBlock extends TypeBlock {
     type: 'image';
-    imageID: number;
+    image: Iimage;
 }
+
 export type UnifiedBlock = textFieldBlock | imageFieldBlock | allergenFieldBlock;
 export function isUnifiedBlock(obj: any): obj is UnifiedBlock {
     if (!obj || typeof obj !== 'object') {
@@ -49,7 +92,7 @@ export function isUnifiedBlock(obj: any): obj is UnifiedBlock {
                 typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
                 typeof obj.font === 'string' &&
                 typeof obj.color === 'string' &&
-                typeof obj.imageID === 'number'
+                isImagePointer(obj.image)
             );
         }
     } else if ('textParameter' in obj) {

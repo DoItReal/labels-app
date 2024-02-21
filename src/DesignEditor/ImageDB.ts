@@ -21,3 +21,25 @@ export const saveNewImage = (image: Image) => {
         xhr.send(JSON.stringify(image));
     }));
 }
+export function fetchImages() {
+    //get data from db
+    return (new Promise<string>((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", address + 'images', true);
+        xhr.withCredentials = true;
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // return JSON.parse(xhr.responseText);
+                //  sessionStorage.setItem('designs', JSON.stringify(fetchedDesigns));
+                //  setDbData(this.data);
+                resolve(xhr.response);
+            } else if (xhr.status !== 200) {
+                reject(new Error('Error in fetching Designs'));
+            }
+        };
+        xhr.onerror = () => reject(new Error('Error in fetching Designs'));
+
+        xhr.send();
+    }));
+
+}

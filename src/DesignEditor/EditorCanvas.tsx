@@ -14,11 +14,12 @@ interface CanvasProps {
     selectedBlock: UnifiedBlock | null;
     setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
     setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
+    deleteSelectedBlock: () => void;
   //  selectedTextParameter: TtextParameter; // Add selectedTextParameter
     
 }
 
-const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBlock, setSelectedBlock, setBlocks }) => {
+const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBlock, setSelectedBlock, setBlocks, deleteSelectedBlock }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const [dragStart, setDragStart] = useState<Position | null>(null);
@@ -46,8 +47,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
     // Delete the selected design on delete key press
     const handleDeleteKeyPress = (event: KeyboardEvent) => {
         if (event.key === 'Delete' && selectedBlock) {
-            setBlocks(prevDesigns => prevDesigns.filter(design => design.id !== selectedBlock.id));
-            setSelectedBlock(null); // Clear the selected design after deletion
+            deleteSelectedBlock();
         }
     };
     // Handle mouse down event
