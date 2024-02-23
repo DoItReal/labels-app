@@ -17,7 +17,6 @@ import { Design } from '../DesignEditor/Interfaces/CommonInterfaces';
 import { deleteDesign, fetchDesigns } from '../DesignEditor/DesignDB';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
-import ImageUI from '../DesignEditor/ImageUpload';
 
 const useStyles = makeStyles((theme) => ({
     buttonStyle: {
@@ -130,7 +129,7 @@ const Designs: React.FC = () => {
     };
 
     return (
-        <><ImageUI/>
+        <>
         <Grid container>
             <Grid item xs={menuCollapsed ? 1 : 3}>
                 {/* Button to toggle menu */}

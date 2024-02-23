@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { loadImages,images, textParametersMap } from './Editor'; // Import the Design type
+import { loadImages,images, textParametersMap, getImageById } from './Editor'; // Import the Design type
 import { styled } from '@mui/system';
 import { labelDataType } from '../db';
 import { png } from '../labels';
@@ -17,7 +17,7 @@ interface CanvasProps {
 
 /*
    Generates HTML Canvas 5
-   Visualizes the Label using the selected design
+   Visualizes the Label using the selected block
      const canvasRef  - keeps refference to the Canvas this function returns and use it for further Manipulations
      const drawDesigns() -  1. Checks the canvas if is defined! (In case we try to manipulate the canvas before the first render)
                             2. Gets the context for Canvas and checks if everything is ok!
@@ -28,26 +28,26 @@ interface CanvasProps {
                                 * In future probably there will be single Queue and many categories Queue and each one will have a callback function
                                 * which will draw its content on request
                             4. Draws the Queues Using draw_functions(queue);
-     const drawDesign(design, context) -  1. Checks each design for its type
-                                          2. Generates queue element for the type of design (at the moment types:text | allergen | image) 
+     const drawDesign(block, context) -  1. Checks each block for its type
+                                          2. Generates queue element for the type of block (at the moment types:text | allergen | image) 
                                             each type have its own specific way of drawing and elements to draw!
                                           3. Return the queue element when generated!
-    const generateTextQueue(design, context, txt) - Generates textQueue and returns it! 
-                        design:         Selected design,
+    const generateTextQueue(block, context, txt) - Generates textQueue and returns it! 
+                        block:         Selected block,
                         context:        The context where will be drawing, 
                         txt:            The text to draw
 
                                         1. Splits the string to words[] 
                                         2. Fits the text using fitText() - it can fit the text in multilines or on single lines!
                     return const fitText() - Its returned from the main function! Generates the queue and returns it!
-                                            1. Measures the text using the selected design and reduces it if it doesnt fit!
-                   ***  TO DO!!             2. centerText() - It centers the text and return ! To rework it later to can selected direction of the text in design
+                                            1. Measures the text using the selected block and reduces it if it doesnt fit!
+                   ***  TO DO!!             2. centerText() - It centers the text and return ! To rework it later to can selected direction of the text in block
                                             3. returns $textQueue;
-                   const generateAllergenQueue(design, context, imageURLs) - it generates allergen Queue and returns it!
-                   *** TO DO!! arr:string[] 1. imgCalibrate(arr:number[]) - Calibrates the design font to fit all the content! {AllergenNumber, AllergenImage}[];
+                   const generateAllergenQueue(block, context, imageURLs) - it generates allergen Queue and returns it!
+                   *** TO DO!! arr:string[] 1. imgCalibrate(arr:number[]) - Calibrates the block font to fit all the content! {AllergenNumber, AllergenImage}[];
                    *** TO DO!!              2. imgCenter(arr.length, textSize) - Returns dimensions for drawing centering the content in the box 
                                             3. returns $allergenQueue;
-    const generateImageQueue(design, context) - generates queue and returns it with the desired props from the selected design 
+    const generateImageQueue(block, context) - generates queue and returns it with the desired props from the selected block 
             return $imageQueue;
     const drawTextQueue(textQueue) - draws $textQueue
 
@@ -101,7 +101,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         drawTextQueue(textQueue);
         context.restore();
     };
-    //TO ADD design.multiline that can be true or false and to render the text on multiple lines or on single one!
+    //TO ADD block.multiline that can be true or false and to render the text on multiple lines or on single one!
     interface ItextQueue {
         context: CanvasRenderingContext2D;
         text: string;
@@ -122,7 +122,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
     }
     interface IimageQueue {
         context: CanvasRenderingContext2D;
-        image: Iimage;
+        imageId: string;
         dimensions: Dimensions;
         transperancy: number;
         position: Position;
@@ -173,7 +173,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
                 return maxWidth;
             };
             
-            if (totalTextHeight <= height && maximumTextWidth() <= width) { //calculated height <= maximum design height
+            if (totalTextHeight <= height && maximumTextWidth() <= width) { //calculated height <= maximum block height
                 return centerText(lines); // everything is OK we can draw that!
             } else {
                 if (textSize <= 1) {
@@ -227,7 +227,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
 
     const generateAllergenQueue = (design: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
         const renderQueue: IallergenQueue[] = [];
-        const border = 2; //to add it to design.border
+        const border = 2; //to add it to block.border
         const generateAllergens = (arr: number[]) => {
     if (arr.length === 1 && arr[0] === 0) return; // ???
             //calibrate and set this.fontSize
@@ -235,7 +235,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         //convert to PX from %
         const width = design.dimensions.width * dimensions.width / 100;
         const height = design.dimensions.height * dimensions.height / 100;
-    const imgCalibrate = (arr: Array<number>) => { // return the required fontSize to fit the image in the design
+    const imgCalibrate = (arr: Array<number>) => { // return the required fontSize to fit the image in the block
         //get font size
         let textSize = parseInt(design.font);
         //get full size of the content
@@ -296,33 +296,28 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         });
 
     }
-    const generateImageQueue = (design: imageFieldBlock, context: CanvasRenderingContext2D) => {
+    const generateImageQueue = (block: imageFieldBlock, context: CanvasRenderingContext2D) => {
         const renderQueue: IimageQueue[] = [];
         const imgDimensions = {
-            width: design.dimensions.width * dimensions.width / 100,
-            height: design.dimensions.height * dimensions.height / 100
+            width: block.dimensions.width * dimensions.width / 100,
+            height: block.dimensions.height * dimensions.height / 100
         }
         const transperancy = 0.2;
-        const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-        renderQueue.push({ context,image: design.image,transperancy,dimensions:imgDimensions, position: realPosition })
+        const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
+        renderQueue.push({ context,imageId: block.image._id,transperancy,dimensions:imgDimensions, position: realPosition })
         return renderQueue;
     }
    
     const drawImageQueue = async(renderQueue: IimageQueue[]) => {
-        if (!images) return;
 
         renderQueue.forEach(item => {
-            typeof (item.image._id) === 'string' && images.forEach(image => {
-                if (image._id === item.image._id) {
+            const img: HTMLImageElement = getImageById(item.imageId);
                     item.context.save();
                     //set transperancy for the image 
                     item.context.globalAlpha = item.transperancy;
-                        item.context.drawImage(image.image, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
-                    item.context.restore();
-                }
+                        item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
+                    item.context.restore();   
             });
-                
-        });
     }
     const drawDesign = (design: UnifiedBlock, context: CanvasRenderingContext2D) => {
         const { x, y } = design.position;        

@@ -19,13 +19,45 @@ export type TypeBlock = {
     type?: string;
     __v?: number;
 }
+function isTypeBlock(obj: any): obj is TypeBlock {
+return (
+        typeof obj.id === 'number' &&
+        typeof obj.position === 'object' && /* You may need a more specific check for Position */
+        typeof obj.dimensions === 'object' && /* You may need a more specific check for Dimensions */
+        typeof obj.font === 'string' &&
+        typeof obj.color === 'string'
+    );
+}
 export interface textFieldBlock extends TypeBlock {
     textParameter: TtextParameter;
     
 }
+
+export function istextFieldBlock(obj: any): obj is textFieldBlock {
+    return typeof obj.textParameter === 'string' && isTypeBlock(obj);
+}
+
 export interface allergenFieldBlock extends TypeBlock {
     type: 'allergens';
 }
+export function isAllergenFieldBlock(obj: any): obj is allergenFieldBlock {
+    return obj.type === 'allergens' && isTypeBlock(obj);
+}
+export interface ImagePointer {
+    _id: string;
+    name: string;
+    size: number;
+}
+export function isImagePointer(obj: any): obj is ImagePointer { //return true if obj is an ImagePointer
+    return (
+        obj &&                                              // Check if obj is not null or undefined
+        typeof obj === 'object' &&                          // Check if obj is an object
+        '_id' in obj && typeof obj._id === 'string' &&      // Check for _id attribute
+        'name' in obj && typeof obj.name === 'string' &&    // Check for name attribute
+        'size' in obj && typeof obj.size === 'number'       // Check for size attribute
+    );
+}
+
 export interface ImageURL {
     _id: string;
     name: string;
@@ -40,18 +72,7 @@ export function isImageURL(obj: any): obj is ImageURL {
         typeof obj.size === 'number'
     );
 }
-export interface ImagePointer {
-    _id: string;
-    name: string;
-    size: number;
-}
-export function isImagePointer(obj: any): obj is ImagePointer {
-    return (
-        typeof obj._id === 'string' &&
-        typeof obj.name === 'string' &&
-        typeof obj.size === 'number'
-    );
-}
+
 export interface Iimage {
     _id: string;
     name: string;
@@ -66,11 +87,26 @@ export function isIimage(obj: any): obj is Iimage {
         typeof obj.size === 'number'
     );
 }
+
 export interface imageFieldBlock extends TypeBlock {
     type: 'image';
-    image: Iimage;
+    image: ImagePointer;
 }
 
+export function isImageFieldBlock(obj: any): obj is imageFieldBlock {
+return (
+        isImagePointer(obj.image) && isTypeBlock(obj) && obj.type === 'image'
+    );
+}
+export interface imagePointerBlock extends TypeBlock {
+    type: 'image';
+    image: ImagePointer;
+}
+export function isImagePointerBlock(obj: any): obj is imagePointerBlock {
+    return (
+        isImagePointer(obj.image) && isTypeBlock(obj) && obj.type === 'image'
+    );
+}
 export type UnifiedBlock = textFieldBlock | imageFieldBlock | allergenFieldBlock;
 export function isUnifiedBlock(obj: any): obj is UnifiedBlock {
     if (!obj || typeof obj !== 'object') {

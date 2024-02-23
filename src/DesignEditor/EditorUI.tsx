@@ -17,7 +17,7 @@ It is the UI of the editor
 */
 
 import React, { useState } from 'react';
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, PopoverPaper, Grid } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import SaveIcon from '@mui/icons-material/Save';
@@ -25,8 +25,9 @@ import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import { createNewDesign, updateDesign } from './DesignDB';
-import { textParametersMap, dummyDesign, images } from './Editor';
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, allergenFieldBlock, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage } from './Interfaces/CommonInterfaces';
+import { textParametersMap, dummyTextBlock, images, dummyImageBlock } from './Editor';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, allergenFieldBlock, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isImagePointer, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, imagePointerBlock } from './Interfaces/CommonInterfaces';
+import ImageUpload from './ImageUpload';
 interface DesignUIProps {
     design: Design;
     setDesign: (design: Design) => void;
@@ -68,19 +69,18 @@ const DesignUI: React.FC<DesignUIProps> = ({
         if (selected !== null) {
             setSelectedBlock(selected);
         }
-        else setSelectedBlock(dummyDesign);
+        else setSelectedBlock(null);
     };
     const handleSelectedImageParameter = (imageParameter: TimageParameter) => {
-            if (selectedBlock && 'type' in selectedBlock && 'id' in selectedBlock) {
-                const block = selectedBlock as imageFieldBlock;
-
+        if (selectedBlock && 'type' in selectedBlock && 'id' in selectedBlock && !istextFieldBlock(selectedBlock) && (isImageFieldBlock(selectedBlock) || isAllergenFieldBlock(selectedBlock))) {
+                const block = selectedBlock;
                 setSelectedBlock(prevSelectedDesign => {
                     if (prevSelectedDesign && prevSelectedDesign.id === block.id) {
                         if (imageParameter === 'image') {
                             return {
                                 ...prevSelectedDesign,
                                 type: imageParameter,
-                                image: images[0],
+                                image: dummyImageBlock.image,
                             }
                         } else {
                             return {
@@ -98,7 +98,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                                 return {
                                     ...prevDesign,
                                     type: imageParameter,
-                                    image: images[0]
+                                    image: dummyImageBlock.image
                                 }
                             } else {
                                 return {
@@ -113,7 +113,6 @@ const DesignUI: React.FC<DesignUIProps> = ({
         }
     };
     const handleSelectedImage = async (selectedImage: Iimage) => {
-        console.log(selectedImage);
         if (selectedBlock && 'type' in selectedBlock && selectedBlock.type === 'image' && 'id' in selectedBlock) {
             const block = selectedBlock as imageFieldBlock;
 
@@ -125,7 +124,6 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             ...prevSelectedBlock.image,
                              // Type assertion for prevSelectedBlock.image
                             _id: selectedImage._id,
-                            DataUrl: selectedImage.image.src
                         }
                     };
                 }
@@ -148,7 +146,6 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 })
             );
         }
-        console.log(selectedBlock);
         const storedDesignsString: string | null = sessionStorage.getItem('blocks');
         const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
         if (!storedDesigns) {
@@ -331,9 +328,9 @@ setOpenDialog(prevOpenDialog => {
         setBlocks((prevDesigns) => [
             ...prevDesigns,
             {
-                id: prevDesigns.length + 1,
-                position: { x: 50, y: 250 },
-                dimensions: { width: 120, height: 120 },
+                id: prevDesigns[prevDesigns.length-1].id + 1,
+                position: { x: 50, y: 50 },
+                dimensions: { width: 30, height: 30 },
                 font: '20px Helvetica',
                 color: 'red',
                 type: 'allergens', // Initialize with an empty string or default value
@@ -388,8 +385,9 @@ setOpenDialog(prevOpenDialog => {
         }
     };
     return (
-        <Paper style={{height:'80vh', overflow:'auto'} }>
-            <Container>
+        <Container> <Grid container>
+        <Paper style={{ height: '80vh', overflow: 'auto' }}>
+                <Grid item width={'100%' }>
             <IconButton
                 size="large"
                 color="primary"
@@ -403,40 +401,56 @@ setOpenDialog(prevOpenDialog => {
             >
                 <SaveIcon />
                 </IconButton>
-            </Container>
+            </Grid>
            
             <StyledDiv> 
             <h2>Playground UI</h2>
-                <br />
+                    <br />
+                    <Grid item width={'100%' }>
                  <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-            <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-            <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-                <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
+                 <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
+                 <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
+                    </Grid>
+                    <Grid item width={'100%' }>   <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
                     {selectedBlock && selectedBlock.id > 0 ? <h3>Block {selectedBlock.id}</h3> :
                         <h3>Select Block to edit or add a new Block</h3>}
-
-                    <Container>
+                        
+                        <Grid container width={'100%'}>
                         <ButtonsContainer addTextDesign={addTextDesign} addImageDesign={addImageDesign} deleteDesign={deleteSelectedBlock} selectedBlock={selectedBlock} />
 
-                    </Container>
+                    </Grid>
                 </div>
-
-                <Container>
-                <BlockSelector blocks={blocks} selectedBlock={selectedBlock} handleBlockSelection={handleBlockSelection} />
-                    <BlockParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
-                </Container>
-                <Container>
-                    <FontSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
-                    <ColorSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
-              </Container>
-                <Container>
-                    <AlignContainer selectedBlock={selectedBlock} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
-                </Container>
-                <Container>
-                <BlockManipulator selectedBlock={selectedBlock} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
-                </Container>
+                    </Grid>
+                    <Grid item width={'100%'}>
+                        <Grid container>
+                        <Grid item width={1/2 }>
+                            <BlockSelector blocks={blocks} selectedBlock={selectedBlock} handleBlockSelection={handleBlockSelection} />
+                        </Grid>
+                        <Grid item width={1/2 }>
+                            <BlockParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item width={'100%'}>
+                    <ImageParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} />
+                    </Grid>
+                    <Grid container>
+                        <Grid item width={1}>
+                            <FontSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
+                        </Grid>
+                        <Grid item width={1} alignItems='right' alignContent='right'>
+                            <ColorSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
+                        </Grid>
+                    </Grid>
+                    <Grid item width={1 }>
+                        <AlignContainer selectedBlock={selectedBlock} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
+                    </Grid>
+                    <Grid item width={1 }>
+                        <BlockManipulator selectedBlock={selectedBlock} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
+                    </Grid>
             </StyledDiv>
-        </Paper>
+            </Paper>
+        </Grid></Container>
     );
 };
 interface ColorPickerProps {
@@ -462,7 +476,7 @@ interface ColorSelectorProps {
 }
 
 const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
-    if (!selectedBlock || !(selectedBlock.id > 0)) return null;
+    if (!selectedBlock || !(selectedBlock.id > 0) || selectedBlock === null) return null;
     const handleColorChange = (color: string) => {
         if (!selectedBlock || selectedBlock.id <= 0) return;
 
@@ -501,7 +515,7 @@ interface FontSelectorProps {
 const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
     const [isInputMode, setIsInputMode] = useState(false);
     // Ensure selectedBlock and its font property exist
-    if (!selectedBlock || !(selectedBlock.id > 0) || !selectedBlock.font) return null;
+    if (!selectedBlock || !(selectedBlock.id > 0 || selectedBlock === null) || !selectedBlock.font) return null;
 
     // Handle font style change
     const handleFontStyleChange = (style: Partial<TypeBlock>) => {
@@ -525,7 +539,8 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
             setBlocks(updatedDesigns);
         }
 
-        const updatedSelectedDesign = { ...selectedBlock, ...style };
+        const updatedSelectedDesign = { ...selectedBlock, ...style } as UnifiedBlock;
+        //
         setSelectedBlock(structuredClone(updatedSelectedDesign));
     };
 
@@ -750,6 +765,7 @@ const theme = useTheme();
 };
 
 const BlockSelector: React.FC<{ blocks: UnifiedBlock[], selectedBlock: UnifiedBlock | null, handleBlockSelection: (blockId: number) => void }> = ({ blocks, selectedBlock, handleBlockSelection }) => {
+    if (!selectedBlock || selectedBlock === null) return null;
     return (
          <FormControl>
                     <InputLabel>Selected Block:</InputLabel>
@@ -770,13 +786,14 @@ const BlockSelector: React.FC<{ blocks: UnifiedBlock[], selectedBlock: UnifiedBl
 };
 
 const BlockParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null,handleSelectedImage:(image:Iimage)=>void, handleSelectedImageParameter: (imageParameter: TimageParameter) => void, handleSelectedTextParameter: (textParameter: TtextParameter) => void }> = ({ selectedBlock,handleSelectedImage, handleSelectedImageParameter, handleSelectedTextParameter }) => {
+    if(!selectedBlock || selectedBlock === null) return null;
     return (
         <FormControl style={{ marginLeft: '20px' }}>
             {selectedBlock && selectedBlock.id > 0 ? (
                 <>
                     {selectedBlock && 'type' in selectedBlock ? (
                         <>
-                            {selectedBlock.type === 'allergens' ? (
+                            {isAllergenFieldBlock(selectedBlock) || isImageFieldBlock(selectedBlock) || isImagePointerBlock(selectedBlock) ? (
                                 <>  <InputLabel>Selected Image Type:</InputLabel>
                                     <Select
                                         value={selectedBlock && selectedBlock.id > 0 && 'type' in selectedBlock ? selectedBlock.type : 'None'}
@@ -788,23 +805,7 @@ const BlockParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null,hand
                                     
                                 </>
                                
-                            ) : selectedBlock.type === 'image' ? 
-                                    <>
-                                        <FormControl>
-                                        <InputLabel>Selected Image Type:</InputLabel>
-                                        <Select
-                                            value={selectedBlock && selectedBlock.id > 0 && 'type' in selectedBlock ? selectedBlock.type : 'None'}
-                                            onChange={(e) => handleSelectedImageParameter(e.target.value as TimageParameter)}
-                                        >
-                                            <MenuItem key={'allergens'} value={'allergens'}> Allergens </MenuItem>
-                                            <MenuItem key={'image'} value={'image'}> Image </MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                        <FormControl>
-                                            <ImageParameterSelector imageFieldBlock={selectedBlock as imageFieldBlock} handleSelectedImage={handleSelectedImage} />
-                                        </FormControl>
-                                    </>
-                                : null}
+                            ) : null}
                         </>
                     ) : (
                         <>
@@ -831,16 +832,30 @@ const BlockParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null,hand
         </FormControl>
     );
 };
-const ImageParameterSelector: React.FC<{ imageFieldBlock: imageFieldBlock, handleSelectedImage:(image:Iimage)=>void }> = ({ imageFieldBlock, handleSelectedImage }) => {
+const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, handleSelectedImage:(image:Iimage)=>void }> = ({ selectedBlock, handleSelectedImage }) => {
+    //Critical to check if selectedBlock is null or undefined
+    if (!selectedBlock) {
+        return null;
+    }
+    //Critical to check if selectedBlock is imagePointerBlock
+    if (!isImagePointerBlock(selectedBlock)) return null;
     if (!images || images.length === 0) {
         console.log('no images');
         return null;
-    }
+    }     
+ 
     return (
-                <>
+        <Grid container spacing={0} width={'100%'} alignItems={'center'} alignContent={'center' }>
+                <Grid item width={2 / 3} height={'100%' }>
+          
+                <ImageUpload />
+                  
+                </Grid>
+                <Grid item width={1/3 }>
                     <InputLabel>Image:</InputLabel>
-                    <Select
-                        value={imageFieldBlock.id > 0 && imageFieldBlock.image ? imageFieldBlock.image._id : images[0]._id}
+            
+            <Select
+                        value={selectedBlock.id > 0 && selectedBlock.image ? selectedBlock.image._id : images[0]._id}
                         onChange={(e) => {
                             const img = images.find(image => image._id === e.target.value);
                             if (isIimage(img))
@@ -854,12 +869,12 @@ const ImageParameterSelector: React.FC<{ imageFieldBlock: imageFieldBlock, handl
                         ))                   
                     }
                     </Select>
-                </>
-
+                </Grid>
+            </Grid>
     );
 }
 const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSliderValue: (property: string, value: number) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ selectedBlock, updateSliderValue, openDialog, handleOpenDialog, handleCloseDialog }) => {
-    if (!selectedBlock || selectedBlock === null || selectedBlock === dummyDesign) return null;
+    if (!selectedBlock || selectedBlock === null) return null;
     return (
             <>
                 <StyledInputLabel>Position X: {selectedBlock.position.x}  <Button onClick={() => handleOpenDialog('positionX')}>Edit</Button></StyledInputLabel>
@@ -955,15 +970,21 @@ const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSli
 };
 const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedBlock: UnifiedBlock | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedBlock}) => {
 return (
-    <Container>
-        <Button onClick={addTextDesign} variant="contained" color="primary" size="small" >Add Text Design</Button>
-            <Button onClick={addImageDesign} variant="contained" color="primary" size="small">Add Image Design</Button>
+    <>
+        <Grid item width={1/3 }>
+            <Button onClick={addTextDesign} variant="contained" color="primary" size="small" >Add Text Design</Button>
+        </Grid>
+        <Grid item width={1/3 }>
+        <Button onClick={addImageDesign} variant="contained" color="primary" size="small">Add Image Design</Button>
+        </Grid >
+        <Grid item width={1/3 }>
             <Button onClick={deleteDesign} variant="contained" color="secondary" size="small" disabled={!selectedBlock || selectedBlock.id < 1}>Delete Design</Button>
-        </Container>
+        </Grid>
+        </>
     );
 };
 const AlignContainer: React.FC<{ selectedBlock: UnifiedBlock | null, alignLeft:()=>void, alignCenter:()=>void,alignRight:()=>void }> = ({ selectedBlock, alignLeft, alignCenter,alignRight }) => {
-    if (!selectedBlock || selectedBlock === null || selectedBlock === dummyDesign) return null;
+    if (!selectedBlock || selectedBlock === null) return null;
     return (
         <Container>
             <Button variant="contained" title="Align Left" color="primary" size="small" onClick={alignLeft} startIcon={<FormatAlignLeftIcon />}>Left</Button>
@@ -975,6 +996,3 @@ const AlignContainer: React.FC<{ selectedBlock: UnifiedBlock | null, alignLeft:(
 
 export default DesignUI;
 
-function forEach(iDesign: any, of: any, storedDesigns: Design[]) {
-        throw new Error('Function not implemented.');
-    }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HandleType } from './Interfaces/CommonInterfaces';
 import { saveNewImage } from './ImageDB';
-import { Button, Container, TextField } from '@mui/material';
+import { Button, Container, Dialog, DialogContent, Grid, Paper, TextField } from '@mui/material';
 export interface Image {
     name: string;
     DataUrl: string;
@@ -10,6 +10,7 @@ export interface Image {
     owner: string;
 }
 const ImageUpload: React.FC = () => {
+
     const [imageName, setImageName] = useState('NewName');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [editingImage, setEditingImage] = useState<HTMLImageElement | null>(null);
@@ -19,10 +20,18 @@ const ImageUpload: React.FC = () => {
     const [imgHeight, setImgHeight] = useState(0);
     const [resizing, setResizing] = useState(false);
     const [resizeHandle, setResizeHandle] = useState('');
-
+    const [showPopup, setShowPopup] = useState(false);
+    const [showHandles, setShowHandles] = useState(true);
     const imageRef = useRef<HTMLImageElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    const handleButtonClick = () => {
+        setShowPopup(true);
+    };
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
+    };
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
@@ -39,28 +48,28 @@ const ImageUpload: React.FC = () => {
         }
     };
 
-        const handleImageLoad = () => {
-            if (imageRef.current) {
-                const imageWidth = imageRef.current.width;
-                const imageHeight = imageRef.current.height;
-                const aspectRatio = imageWidth / imageHeight;
-                let newWidth = 0;
-                let newHeight = 0;
+    const handleImageLoad = () => {
+        if (imageRef.current) {
+            const imageWidth = imageRef.current.width;
+            const imageHeight = imageRef.current.height;
+            const aspectRatio = imageWidth / imageHeight;
+            let newWidth = 0;
+            let newHeight = 0;
 
-                if (aspectRatio > 1) {
-                    // Image is wider than tall
-                    newWidth = canvasWidth;
-                    newHeight = newWidth / aspectRatio;
-                } else {
-                    // Image is taller than wide or square
-                    newHeight = canvasHeight;
-                    newWidth = newHeight * aspectRatio;
-                }
-                setImgWidth(newWidth);
-                setImgHeight(newHeight);
-                setEditingImage(imageRef.current);
+            if (aspectRatio > 1) {
+                // Image is wider than tall
+                newWidth = canvasWidth;
+                newHeight = newWidth / aspectRatio;
+            } else {
+                // Image is taller than wide or square
+                newHeight = canvasHeight;
+                newWidth = newHeight * aspectRatio;
             }
-        };
+            setImgWidth(newWidth);
+            setImgHeight(newHeight);
+            setEditingImage(imageRef.current);
+        }
+    };
 
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (canvasRef.current && editingImage) {
@@ -105,7 +114,7 @@ const ImageUpload: React.FC = () => {
             setImgHeight(newHeight);
         }
     };
-   
+
     const handleMouseUp = () => {
         setResizing(false);
         setResizeHandle('');
@@ -117,11 +126,17 @@ const ImageUpload: React.FC = () => {
         setCanvasWidth(600);
         setCanvasHeight(600);
     };
-   
+
     const handleSave = async () => {
         if (canvasRef.current) {
+            setShowHandles(false);
             setCanvasHeight(imgHeight);
             setCanvasWidth(imgWidth);
+            
+            const ctx = canvasRef.current.getContext('2d');
+            if (ctx === null || editingImage === null) return null;
+            ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            ctx.drawImage(editingImage, 0, 0, imgWidth, imgHeight);
             const canvas = canvasRef.current;
             const dataURL = canvas.toDataURL(); // Get base64 encoded image data
             console.log(dataURL); // Log the base64 encoded image data
@@ -158,48 +173,50 @@ const ImageUpload: React.FC = () => {
                     storedImages.push(image);
                     sessionStorage.setItem('images', JSON.stringify(storedImages));
                 }
+               // setShowHandles(true);
             } catch (error) {
+                setShowHandles(true);
                 console.log(error)
             }
         }
     };
     const checkResizeHandle = (
-    mouseX: number,
-    mouseY: number,
-    imgWidth: number,
-    imgHeight: number
-): HandleType | null => {
-    // Define the positions of resize handles relative to the canvas
-    const handles = {
-        'top-left': [0, 0],
-        'top-right': [imgWidth, 0],
-        'bottom-right': [imgWidth, imgHeight],
-        'bottom-left': [0, imgHeight],
-        'top': [imgWidth / 2, 0],
-        'right': [imgWidth, imgHeight / 2],
-        'bottom': [imgWidth / 2, imgHeight],
-        'left': [0, imgHeight / 2],
-        'null': [0, 0], // Default for no handle
-    } as const;
-    // Iterate through the handles and check if the mouse position is within the handle area
-    for (const handle of Object.keys(handles) as HandleType[]) {
-        if (handle === null) continue; // Skip the null handle in iteration
-        const [handleX, handleY] = handles[handle];
-        if (
-            mouseX >= handleX - 4 &&
-            mouseX <= handleX + 4 &&
-            mouseY >= handleY - 4 &&
-            mouseY <= handleY + 4
-        ) {
-            return handle;
+        mouseX: number,
+        mouseY: number,
+        imgWidth: number,
+        imgHeight: number
+    ): HandleType | null => {
+        // Define the positions of resize handles relative to the canvas
+        const handles = {
+            'top-left': [0, 0],
+            'top-right': [imgWidth, 0],
+            'bottom-right': [imgWidth, imgHeight],
+            'bottom-left': [0, imgHeight],
+            'top': [imgWidth / 2, 0],
+            'right': [imgWidth, imgHeight / 2],
+            'bottom': [imgWidth / 2, imgHeight],
+            'left': [0, imgHeight / 2],
+            'null': [0, 0], // Default for no handle
+        } as const;
+        // Iterate through the handles and check if the mouse position is within the handle area
+        for (const handle of Object.keys(handles) as HandleType[]) {
+            if (handle === null) continue; // Skip the null handle in iteration
+            const [handleX, handleY] = handles[handle];
+            if (
+                mouseX >= handleX - 4 &&
+                mouseX <= handleX + 4 &&
+                mouseY >= handleY - 4 &&
+                mouseY <= handleY + 4
+            ) {
+                return handle;
+            }
         }
-    }
 
-    return null;
-};
+        return null;
+    };
     useEffect(() => {
         if (editingImage) {
-            
+
             let newWidth = imgWidth;
             let newHeight = imgHeight;
 
@@ -216,7 +233,7 @@ const ImageUpload: React.FC = () => {
             }
             setImgWidth(newWidth);
             setImgHeight(newHeight);
-      
+
         }
     }, [editingImage]);
     useEffect(() => {
@@ -241,60 +258,71 @@ const ImageUpload: React.FC = () => {
                 ];
 
                 ctx.fillStyle = 'red';
-                handles.forEach(handle => {
+                if (showHandles) handles.forEach(handle => {
                     ctx.fillRect(handle.x, handle.y, handleSize, handleSize);
                 });
             }
         }
-    }, [editingImage, imgWidth, imgHeight, canvasWidth, canvasHeight]);
+    }, [editingImage, imgWidth, imgHeight, canvasWidth, canvasHeight, showHandles]);
 
     return (
-         <div>
-            {!editingImage ? (<input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-            />) : null}
-           
-            {imagePreview && (
-                <div>
-                    {/* Load image and set the image element's onLoad handler */}
-                    <img
-                        ref={imageRef}
-                        src={imagePreview}
-                        alt="Uploaded"
-                        onLoad={handleImageLoad}
-                        style={{ display: 'none' }} // Hide the image element
-                    />
-                    {/* Render canvas when image is loaded */}
-                    {editingImage && (
-                        <>
-                        <Container style={{float:'left'} }>
-            <TextField
-                type="text"
-                value={imageName}
-                onChange={(e) => setImageName(e.target.value)}
-            />
-            <Button variant="contained" onClick={handleCancel}>Cancel</Button>
-                <Button variant="contained" onClick={handleSave}>Save</Button>
-            </Container>
-                        <canvas
-                            ref={canvasRef}
-                            width={canvasWidth}
-                            height={canvasHeight}
-                            style={{ border: '1px solid black', cursor: resizing ? 'grabbing' : 'auto' }}
-                            onMouseDown={handleMouseDown}
-                            onMouseMove={handleMouseMove}
-                            onMouseUp={handleMouseUp}
-                        >
-                            Your browser does not support the HTML canvas element.
-                            </canvas>
-                        </>
+        <Container>
+                <Dialog open={showPopup} onClose={handleClosePopup}>
+                    <DialogContent>
+                        <Grid container alignContent='center' alignItems='center' justifyContent='center'>
+                    {!editingImage ? (<input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                    />) : null}
+
+                    {imagePreview && (
+                        <div>
+                            {/* Load image and set the image element's onLoad handler */}
+                            <img
+                                ref={imageRef}
+                                src={imagePreview}
+                                alt="Uploaded"
+                                onLoad={handleImageLoad}
+                                style={{ display: 'none' }} // Hide the image element
+                            />
+                            {/* Render canvas when image is loaded */}
+                            {editingImage && (
+                                    <Grid container spacing={1} width='100%' alignContent='center' alignItems='center' alignSelf='center'>
+                                            <Grid container alignContent='center' alignItems='center' width={'100%' } alignSelf='center'>
+                                            <TextField
+                                            type="text"
+                                            value={imageName}
+                                            onChange={(e) => setImageName(e.target.value)}
+                                                />                           
+                                                <Button variant="contained" onClick={handleCancel}>Cancel</Button>     
+                                                <Button variant="contained" onClick={handleSave}>Save</Button>
+                                            </Grid>
+                                    <Grid item>
+                                    <canvas
+                                        ref={canvasRef}
+                                        width={canvasWidth}
+                                        height={canvasHeight}
+                                        style={{ border: '1px solid black', cursor: resizing ? 'grabbing' : 'auto' }}
+                                        onMouseDown={handleMouseDown}
+                                        onMouseMove={handleMouseMove}
+                                        onMouseUp={handleMouseUp}
+                                    >
+                                        Your browser does not support the HTML canvas element.
+                                                </canvas>
+                                            </Grid>
+                                </Grid>
+                            )}
+
+                        </div>
                     )}
-                   
-                </div>
-            )}
-        </div>
+                            </Grid>
+                    </DialogContent>
+                </Dialog>
+
+            <Button variant="contained" onClick={handleButtonClick}>Upload Image</Button>
+
+        </Container>
     );
 };
 
