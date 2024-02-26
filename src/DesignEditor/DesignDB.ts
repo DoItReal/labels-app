@@ -1,4 +1,4 @@
-import { NewDesign, Design } from "./Interfaces/CommonInterfaces";
+import { NewDesign, Design, isDesign, isDesignArray } from "./Interfaces/CommonInterfaces";
 const address = "http://localhost:8080/";
 export const createNewDesign = (design: Design) => {
     return (new Promise<NewDesign>((resolve, reject) => {
@@ -46,9 +46,6 @@ export function fetchDesigns() {
         xhr.withCredentials = true;
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                // return JSON.parse(xhr.responseText);
-                //  sessionStorage.setItem('designs', JSON.stringify(fetchedDesigns));
-                //  setDbData(this.data);
                 resolve(xhr.response);
             } else if (xhr.status !== 200) {
                 reject(new Error('Error in fetching Designs'));
@@ -78,4 +75,29 @@ const address = "http://localhost:8080/";
         };
         xhr.send();
     }));
+}
+//return the blocks from session storage as Design[] or null
+export const getLocalDesigns = (): Design[] | null => {
+    const storedDesignsString = sessionStorage.getItem('designs');
+
+        try {
+            if (!storedDesignsString) {
+                const fetchDesignsString = async () => {
+                    await fetchDesigns().then(response => { response && setLocalDesigns(JSON.parse(response)); getLocalDesigns(); } );
+                }
+                //Its going in infinity loop if no designs saved!
+                fetchDesignsString();
+            }
+            const storedDesigns = storedDesignsString && JSON.parse(storedDesignsString);
+            if (isDesignArray(storedDesigns))
+                return(storedDesigns);
+            else return(null);
+        } catch (error) {
+            console.log(error);
+            return(null);
+        }
+}
+
+export const setLocalDesigns = (designs: Design[]) => {
+    sessionStorage.setItem('designs', JSON.stringify(designs));
 }

@@ -11,7 +11,7 @@ const StyledCanvas = styled('canvas')`
 `;
 interface CanvasProps {
     design: Design;
-    designs: UnifiedBlock[];
+    blocks: UnifiedBlock[];
     label: labelDataType;
 }
 
@@ -19,7 +19,7 @@ interface CanvasProps {
    Generates HTML Canvas 5
    Visualizes the Label using the selected block
      const canvasRef  - keeps refference to the Canvas this function returns and use it for further Manipulations
-     const drawDesigns() -  1. Checks the canvas if is defined! (In case we try to manipulate the canvas before the first render)
+     const drawBlocks() -  1. Checks the canvas if is defined! (In case we try to manipulate the canvas before the first render)
                             2. Gets the context for Canvas and checks if everything is ok!
                             3. Creates queues for all the elements we are going to draw before drawing it!
                                 *   It goes throught all elements from $designs because we want to draw only this elements!
@@ -56,12 +56,12 @@ interface CanvasProps {
     const drawImageQueue(imageQueue) - draws the $imageQueue
 */
 
-const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
+const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
 
-    const drawDesigns = () => {
+    const drawBlocks = () => {
         //check if canvas exists
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -75,7 +75,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         const textQueue: ItextQueue[] = [];
         const allergenQueue: IallergenQueue[] = [];
         const imageQueue: IimageQueue[] = [];
-        designs.forEach((design) => {
+        blocks.forEach((design) => {
             const queue = drawDesign(design, context);
            // console.log(queue);
             if ('textQueue' in queue && queue.textQueue) {
@@ -134,18 +134,18 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
         context.strokeRect(0, 0, dimensions.width, dimensions.height);
         context.restore();
     }
-    const generateTextQueue = (design: UnifiedBlock, context: CanvasRenderingContext2D, txt: string) => {
+    const generateTextQueue = (block: UnifiedBlock, context: CanvasRenderingContext2D, txt: string) => {
         context.save();
         //get font size
-        let textSize = parseInt(design.font);
-        context.font = design.font;
+        let textSize = parseInt(block.font);
+        context.font = block.font;
         const margin = 1.1;
         const renderQueue: ItextQueue[] = [];
         const words = txt.split(' ');
 
         //converting to PX from %
-        const width = design.dimensions.width * dimensions.width / 100;
-        const height = design.dimensions.height * dimensions.height / 100;
+        const width = block.dimensions.width * dimensions.width / 100;
+        const height = block.dimensions.height * dimensions.height / 100;
         const fitText = (): ItextQueue[] => {
             let lines: string[] = [];
             let line = '';
@@ -180,28 +180,28 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
                     return centerText(lines); // the minimum textSize achieved Drawing the text! it has to not be hit at all but in case of infinity loop!
                 }
                 textSize -= 1;
-                context.font = textSize + "px " + design.font.split(' ')[1];  //we have to reduce the fontSize till the content fits!
+                context.font = textSize + "px " + block.font.split(' ')[1];  //we have to reduce the fontSize till the content fits!
                 return fitText(); //reccursion till the text fit
             }
         }
         
         const centerText = (text: string | string[]) => {
-            const font = textSize + "px " + design.font.split(' ')[1];
+            const font = textSize + "px " + block.font.split(' ')[1];
             if (text.length === 1) text = text[0];
             //not sure if this is neccesary but in ANY CASE
             if (typeof (text) === 'string') {  //single line case
                 const x = (width - context.measureText(text).width) / 2;
                 const y = (height - textSize) / 2;
-                const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-                renderQueue.push({ context,text: text, x: x, y: y,font, position: realPosition, color:design.color });
+                const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
+                renderQueue.push({ context,text: text, x: x, y: y,font, position: realPosition, color:block.color });
             } else { //multiline case
                 text.forEach((txt, index) => {
                     const totalTextHeight = text.length * textSize * margin;
                     const startY = (height - totalTextHeight) / 2;
                     const x = (width - context.measureText(txt).width) / 2;
                     const y = startY + index * textSize;
-                    const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: realPosition, color:design.color });
+                    const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
+                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: realPosition, color:block.color });
                 });
             }
             context.restore();
@@ -225,7 +225,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
             });
     }
 
-    const generateAllergenQueue = (design: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
+    const generateAllergenQueue = (block: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
         const renderQueue: IallergenQueue[] = [];
         const border = 2; //to add it to block.border
         const generateAllergens = (arr: number[]) => {
@@ -233,11 +233,11 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
             //calibrate and set this.fontSize
 
         //convert to PX from %
-        const width = design.dimensions.width * dimensions.width / 100;
-        const height = design.dimensions.height * dimensions.height / 100;
+        const width = block.dimensions.width * dimensions.width / 100;
+        const height = block.dimensions.height * dimensions.height / 100;
     const imgCalibrate = (arr: Array<number>) => { // return the required fontSize to fit the image in the block
         //get font size
-        let textSize = parseInt(design.font);
+        let textSize = parseInt(block.font);
         //get full size of the content
         let wholeSize = arr.length * textSize * 4;
         while (wholeSize > width - (20) ) {
@@ -269,14 +269,14 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
     let { x: dx, y: dy } = dim;
 
     for (let i = 0; i < arr.length; i++) {
-        context.font = textSize + "px " + design.font.split(' ')[1];
+        context.font = textSize + "px " + block.font.split(' ')[1];
         context.fillStyle = "blue";
-        const realPosition = { x: design.position.x * dimensions.width / 100, y: design.position.y * dimensions.height / 100 };
-        renderQueue.push({ context, image: arr[i], x: dx + textSize / 2, y: dy, fontSize: textSize, position: realPosition, color: design.color });
+        const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
+        renderQueue.push({ context, image: arr[i], x: dx + textSize / 2, y: dy, fontSize: textSize, position: realPosition, color: block.color });
         dx += textSize * 2;
 
              }
-        textSize = parseInt(design.font);
+        textSize = parseInt(block.font);
 }
 
         generateAllergens(imageURLs as number[]);
@@ -289,8 +289,10 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
             item.context.save();
             item.context.fillStyle = item.color;
             item.context.translate(item.position.x, item.position.y);
-                item.context.fillText(String(item.image), item.x, item.y);
-                typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  item.context.drawImage(png.images[Number(item.image - 1)], item.x + textSize / 2, item.y, textSize, textSize);
+            item.context.fillText(String(item.image), item.x, item.y);
+            //Calculate size of the Number string and draw the image with offset
+            const metrics = item.context.measureText(String(item.image));
+                typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  item.context.drawImage(png.images[Number(item.image - 1)], item.x + metrics.width, item.y, textSize, textSize);
             
             item.context.restore();
         });
@@ -357,8 +359,8 @@ const Canvas: React.FC<CanvasProps> = ({ design,designs, label }) => {
    
     };
     useEffect(() => {
-        drawDesigns();
-    }, [design, designs]);
+        drawBlocks();
+    }, [design, blocks]);
     return (
         <canvas
             ref={canvasRef}

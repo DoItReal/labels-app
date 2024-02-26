@@ -24,7 +24,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import { createNewDesign, updateDesign } from './DesignDB';
+import { createNewDesign, getLocalDesigns, setLocalDesigns, updateDesign } from './DesignDB';
 import { textParametersMap, dummyTextBlock, images, dummyImageBlock } from './Editor';
 import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, allergenFieldBlock, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isImagePointer, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, imagePointerBlock } from './Interfaces/CommonInterfaces';
 import ImageUpload from './ImageUpload';
@@ -146,8 +146,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 })
             );
         }
-        const storedDesignsString: string | null = sessionStorage.getItem('blocks');
-        const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
+        const storedDesigns: Design[] | null = getLocalDesigns();
         if (!storedDesigns) {
             console.log('The fetched Design is null! Failed to update Local Designs!');
             return;
@@ -155,7 +154,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
         for (let i = 0; i < storedDesigns.length;i++) {
             if (storedDesigns[i]._id === design._id) {
                 storedDesigns[i].blocks = blocks;
-                sessionStorage.setItem('blocks', JSON.stringify(storedDesigns));
+                setLocalDesigns(storedDesigns);
                 return;
             }
         }
@@ -284,18 +283,13 @@ setOpenDialog(prevOpenDialog => {
         try {
             //not sure if this line is needed
             design.blocks = blocks;
-            //get blocks from session storage
-            const storedDesignsString: string | null = sessionStorage.getItem('blocks');
-            //try to parse the string to Design[]
-            const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
+            const storedDesigns: Design[] | null = getLocalDesigns();
             //check against null value in case the session storage is empty. In this case we have no blocks stored
             if (!storedDesigns) {
                 console.log('The fetched Design is null! Creating new Design!');
                 await createNewDesign(design);
                 return;
             }
-            //check if storedDesigns is from Design[] type
-            console.log(storedDesigns);
             if (!isDesignArray(storedDesigns)) {
                 console.log('The fetched Design is not from Design[] type! Cant proceed further, please reload the window!');
                 return;
@@ -308,7 +302,7 @@ setOpenDialog(prevOpenDialog => {
                     //update DB
                     storedDesigns[i] = await updateDesign(design);
                     //update sessionStorage
-                    sessionStorage.setItem('blocks', JSON.stringify(storedDesigns));
+                    setLocalDesigns(storedDesigns);
                     //await updateDesign then return;
                     return;
                 }
@@ -318,8 +312,8 @@ setOpenDialog(prevOpenDialog => {
             await createNewDesign(design);
                 //update session storage
             storedDesigns.push(design);
-            sessionStorage.setItem('blocks', JSON.stringify(storedDesigns));    
-        }catch (error) {
+            setLocalDesigns(storedDesigns);    
+        } catch (error) {
             console.log(error)
         }
     };

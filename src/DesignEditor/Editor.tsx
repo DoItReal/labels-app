@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Container, Grid } from '@mui/material';
+import { Container, Grid } from '@mui/material';
 import DesignUI from './EditorUI';
 import Canvas from './EditorCanvas';
 import Label from './LabelCanvas';
@@ -14,23 +14,14 @@ import { labelDataType } from '../db';
 import {
   Iimage,
   ImageURL,
-  Position,
-  Dimensions,
-  TtextParameter,
-  TimageParameter,
-  textParameters,
   textFieldBlock,
   imageFieldBlock,
   allergenFieldBlock,
   UnifiedBlock,
-  isUnifiedBlock,
-  isDesign,
-  isDesignArray,
-  Design,
-  NewDesign,
-  HandleType,
+  Design
 } from './Interfaces/CommonInterfaces';
 import { fetchImages } from './ImageDB';
+import { getLocalDesigns, setLocalDesigns } from './DesignDB';
 
 /* dummyImageURLs is a list of dummy image URLs that are used to populate the image gallery if the image database is empty */
 const dummyImageURLs: ImageURL[] = [{
@@ -159,32 +150,32 @@ export const dummyImageBlock: imageFieldBlock = {
 //It also receives the design and setDesign props from the App component.
 
 const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design | undefined, setDesign:(design:Design)=>void }) => { 
+    //if design is undefined, use initDesign
     if (design === undefined) design = initDesign;
-   // const [canvasDim, setCanvasDim] = useState<Dimensions>({ width: 300, height: 200 }); 
 
+ 
     const [blocks, setBlocks] = useState<UnifiedBlock[]>(design.blocks);
     const [selectedBlock, setSelectedBlock] = useState<UnifiedBlock | null>(dummyTextBlock);
     const deleteSelectedBlock = async () => {
         if (selectedBlock && selectedBlock.id > 0) {
             setBlocks(prevDesigns => prevDesigns.filter(design => design.id !== selectedBlock.id));
             setSelectedBlock(null); // Clear the selected block after deletion
-            const storedDesignsString = sessionStorage.getItem('blocks');
-            const storedDesigns: Design[] | null = storedDesignsString ? JSON.parse(storedDesignsString) : null;
+            const storedDesigns: Design[] | null = getLocalDesigns();
+         
             if (storedDesigns) {
-
                 for (let i = 0; i < storedDesigns.length; i++) {
                     if (storedDesigns[i]._id === design._id) {
                         //update DB
                         storedDesigns[i].blocks = storedDesigns[i].blocks.filter(design => design.id !== selectedBlock.id);
                         //update sessionStorage
                         console.log('del');
-                        sessionStorage.setItem('blocks', JSON.stringify(storedDesigns));
+                        setLocalDesigns(storedDesigns);
                         //await updateDesign then return;
                         return;
                     }
                 }
             }
-            sessionStorage.setItem('blocks', JSON.stringify(blocks)); // Update the session storage)
+          //  sessionStorage.setItem('blocks', JSON.stringify(blocks)); // Update the session storage)
         }
     };
     const label: labelDataType = {
@@ -242,7 +233,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     <Grid container justifyContent="center" alignItems="center">
                         <Label
                             design={design}
-                            designs={blocks}
+                            blocks={blocks}
                             label={label} />
             </Grid>
                 </Grid>

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import Editor from '../DesignEditor/Editor';
 import { Design } from '../DesignEditor/Interfaces/CommonInterfaces';
-import { deleteDesign, fetchDesigns } from '../DesignEditor/DesignDB';
+import { deleteDesign, fetchDesigns, getLocalDesigns, setLocalDesigns } from '../DesignEditor/DesignDB';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
@@ -53,9 +53,9 @@ const Designs: React.FC = () => {
         setDesigns(updatedDesigns);
     }
     useEffect(() => {
-        const storedDesigns = sessionStorage.getItem('blocks');
+        const storedDesigns = getLocalDesigns();
         if (storedDesigns) {
-            setDesigns(JSON.parse(storedDesigns));
+            setDesigns(storedDesigns);
             
         } else {
             const fetchDesignsFromDB = async () => {
@@ -64,7 +64,7 @@ const Designs: React.FC = () => {
                     const JSONfetchedDesigns: Design[] = JSON.parse(fetchedDesigns);
                     setDesigns(JSONfetchedDesigns);
                     // Store blocks in session storage
-                    sessionStorage.setItem('blocks', fetchedDesigns);
+                    setLocalDesigns(JSON.parse(fetchedDesigns));
                 } catch (error) {
                     console.error('Error fetching blocks:', error);
                 }
@@ -98,7 +98,7 @@ const Designs: React.FC = () => {
         };
         const updatedDesigns = [...designs, newDesign];
         setDesigns(updatedDesigns);
-        sessionStorage.setItem('blocks', JSON.stringify(updatedDesigns));
+        setLocalDesigns(updatedDesigns);
         handleClose();
     };
 
@@ -107,7 +107,7 @@ const Designs: React.FC = () => {
         deleteDesign(designId);
         const updatedDesigns = designs.filter((design) => design._id !== designId);
         setDesigns(updatedDesigns);
-        sessionStorage.setItem('blocks', JSON.stringify(updatedDesigns));
+        setLocalDesigns(updatedDesigns);
     };
 
      const handleRenameDesign = (designId: string, newName: string) => {
@@ -115,7 +115,7 @@ const Designs: React.FC = () => {
             design._id === designId ? { ...design, name: newName } : design
         );
         setDesigns(updatedDesigns);
-        sessionStorage.setItem('blocks', JSON.stringify(updatedDesigns));
+        setLocalDesigns(updatedDesigns);
         setRenamingDesignId(null);
     };
 
