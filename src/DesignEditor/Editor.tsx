@@ -141,7 +141,7 @@ export const dummyImageBlock: imageFieldBlock = {
     font: '20px Arial',
     color: 'black',
     type: 'image',
-    image: { _id: '0', name: 'dummyImage', size: 1 }
+    image: { _id: '0', name: 'dummyImage', size: 1, transperancy:1 }
 }
 //DesignPlayground is a component that contains the main UI components of the Design Editor.
 //It contains the DesignUI, Canvas and Label components.

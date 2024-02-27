@@ -112,6 +112,56 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 );
         }
     };
+    const handleTransperancyChange = (transperancy: number) => {
+        if (selectedBlock && 'type' in selectedBlock && selectedBlock.type === 'image' && 'id' in selectedBlock) {
+            const block = selectedBlock as imageFieldBlock;
+
+            setSelectedBlock(prevSelectedBlock => {
+                if (prevSelectedBlock && prevSelectedBlock.id === block.id && 'image' in prevSelectedBlock) {
+                    return {
+                        ...(prevSelectedBlock as imageFieldBlock), // Type assertion for prevSelectedBlock
+                        image: {
+                            ...prevSelectedBlock.image,
+                            // Type assertion for prevSelectedBlock.image
+                            transperancy,
+                        }
+                    };
+                }
+                return prevSelectedBlock;
+            });
+            setBlocks(prevBlocks =>
+                prevBlocks.map(prevBlock => {
+                    if (prevBlock.id === block.id && prevBlock.type === 'image' && 'image' in prevBlock) {
+                        const imageBlock = prevBlock as imageFieldBlock; // Type assertion for prevBlock
+                        const updatedImage = {
+                            ...(imageBlock.image || {}), // Type assertion for imageBlock.image
+                            transperancy,
+                        };
+                        return {
+                            ...imageBlock,
+                            image: updatedImage
+                        };
+                    }
+                    return prevBlock;
+                })
+            );
+        }
+        const storedDesigns: Design[] | null = getLocalDesigns();
+        if (!storedDesigns) {
+            console.log('The fetched Design is null! Failed to update Local Designs!');
+            return;
+        }
+        for (let i = 0; i < storedDesigns.length; i++) {
+            if (storedDesigns[i]._id === design._id) {
+                storedDesigns[i].blocks = blocks;
+                setLocalDesigns(storedDesigns);
+                return;
+            }
+        }
+
+    };
+
+
     const handleSelectedImage = async (selectedImage: Iimage) => {
         if (selectedBlock && 'type' in selectedBlock && selectedBlock.type === 'image' && 'id' in selectedBlock) {
             const block = selectedBlock as imageFieldBlock;
@@ -124,6 +174,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             ...prevSelectedBlock.image,
                              // Type assertion for prevSelectedBlock.image
                             _id: selectedImage._id,
+                            transperancy: 1,
                         }
                     };
                 }
@@ -136,6 +187,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                         const updatedImage = {
                             ...(imageBlock.image || {}), // Type assertion for imageBlock.image
                             _id: selectedImage._id,
+                            transperancy: 1,
                         };
                         return {
                             ...imageBlock,
@@ -426,7 +478,7 @@ setOpenDialog(prevOpenDialog => {
                         </Grid>
                     </Grid>
                     <Grid item width={'100%'}>
-                    <ImageParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} />
+                        <ImageParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} handleTransperancyChange={handleTransperancyChange } />
                     </Grid>
                     <Grid container>
                         <Grid item width={1}>
@@ -470,7 +522,7 @@ interface ColorSelectorProps {
 }
 
 const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
-    if (!selectedBlock || !(selectedBlock.id > 0) || selectedBlock === null) return null;
+    if (!selectedBlock || !(selectedBlock.id > 0) || selectedBlock === null || isImageFieldBlock(selectedBlock)) return null;
     const handleColorChange = (color: string) => {
         if (!selectedBlock || selectedBlock.id <= 0) return;
 
@@ -509,7 +561,7 @@ interface FontSelectorProps {
 const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
     const [isInputMode, setIsInputMode] = useState(false);
     // Ensure selectedBlock and its font property exist
-    if (!selectedBlock || !(selectedBlock.id > 0 || selectedBlock === null) || !selectedBlock.font) return null;
+    if (!selectedBlock || !(selectedBlock.id > 0 || selectedBlock === null) || !selectedBlock.font || isImageFieldBlock(selectedBlock)) return null;
 
     // Handle font style change
     const handleFontStyleChange = (style: Partial<TypeBlock>) => {
@@ -826,7 +878,7 @@ const BlockParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null,hand
         </FormControl>
     );
 };
-const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, handleSelectedImage:(image:Iimage)=>void }> = ({ selectedBlock, handleSelectedImage }) => {
+const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, handleSelectedImage: (image: Iimage) => void, handleTransperancyChange: (transperancy: number) => void }> = ({ selectedBlock, handleSelectedImage, handleTransperancyChange }) => {
     //Critical to check if selectedBlock is null or undefined
     if (!selectedBlock) {
         return null;
@@ -863,6 +915,17 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
                         ))                   
                     }
                     </Select>
+            </Grid>
+            <Grid item width={3 / 3}>
+                <InputLabel>Transperancy: { selectedBlock.image.transperancy }% </InputLabel>
+                <Slider
+                    value={selectedBlock && selectedBlock.id > 0 && 'transperancy' in selectedBlock.image ? selectedBlock.image.transperancy : 0}
+                    min={0}
+                    max={100}
+                    onChange={(e, value) => handleTransperancyChange(value as number)}
+                    style={{ width: '80%' }}
+                />
+              
                 </Grid>
             </Grid>
     );

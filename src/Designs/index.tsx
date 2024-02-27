@@ -91,7 +91,8 @@ const Designs: React.FC = () => {
             owner: 'LocalUser',
             canvas: {
                 dim: { width: 200, height: 300 },
-                border: 1
+                border: 1,
+                background: 'whitesmoke'
             },
             blocks: [],
             // Set other properties for the new design

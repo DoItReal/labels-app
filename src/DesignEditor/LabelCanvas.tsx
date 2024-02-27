@@ -1,20 +1,3 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { loadImages,images, textParametersMap, getImageById } from './Editor'; // Import the Design type
-import { styled } from '@mui/system';
-import { labelDataType } from '../db';
-import { png } from '../labels';
-import { Iimage,Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
-
-const StyledCanvas = styled('canvas')`
-  border: 1px solid #000;
-  margin-bottom: 10px;
-`;
-interface CanvasProps {
-    design: Design;
-    blocks: UnifiedBlock[];
-    label: labelDataType;
-}
-
 /*
    Generates HTML Canvas 5
    Visualizes the Label using the selected block
@@ -28,7 +11,7 @@ interface CanvasProps {
                                 * In future probably there will be single Queue and many categories Queue and each one will have a callback function
                                 * which will draw its content on request
                             4. Draws the Queues Using draw_functions(queue);
-     const drawDesign(block, context) -  1. Checks each block for its type
+     const generateQueueElement(block, context) -  1. Checks each block for its type
                                           2. Generates queue element for the type of block (at the moment types:text | allergen | image) 
                                             each type have its own specific way of drawing and elements to draw!
                                           3. Return the queue element when generated!
@@ -56,77 +39,43 @@ interface CanvasProps {
     const drawImageQueue(imageQueue) - draws the $imageQueue
 */
 
+import React, { useEffect, useRef } from 'react';
+import { textParametersMap, getImageById } from './Editor'; // Import the Design type
+import { png } from '../labels';
+import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from './Interfaces/CommonInterfaces';
+import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue, isTextQueueArray } from './Interfaces/LabelCanvasInterfaces';
+
+
 const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
 
+    
     const drawBlocks = () => {
-        //check if canvas exists
+        //check if canvas and context exists
         const canvas = canvasRef.current;
         if (!canvas) return;
-
-        //check context
         const context = canvas.getContext('2d');
         if (!context) return;
 
-        context.save();
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        const textQueue: ItextQueue[] = [];
-        const allergenQueue: IallergenQueue[] = [];
-        const imageQueue: IimageQueue[] = [];
-        blocks.forEach((design) => {
-            const queue = drawDesign(design, context);
-           // console.log(queue);
-            if ('textQueue' in queue && queue.textQueue) {
-                queue.textQueue.forEach(item => {
-                    textQueue.push(item);
-                });
-                
-            } else if ('allergenQueue' in queue && queue.allergenQueue) {
-                queue.allergenQueue.forEach(item => {
-                    allergenQueue.push(item);
-                });
-            } else if ('imageQueue' in queue && queue.imageQueue) {
-                queue.imageQueue.forEach(item => {
-                    imageQueue.push(item);
-                })
-            } else {
+        // declare the queue for the elements we are going to draw
+        const queue: any = [];
 
-            }
+        context.save();
+        //clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        //for each block in the design we are going to generate the queue element and push it to the queue
+        blocks.forEach((block) => {
+            return queue.push(generateQueueElement(block, context));
         });
         drawBorder(context);
-        drawImageQueue(imageQueue);
-        drawAllergenQueue(allergenQueue);
-        drawTextQueue(textQueue);
+        drawBackground(context);
+        drawQueue(queue);
         context.restore();
     };
     //TO ADD block.multiline that can be true or false and to render the text on multiple lines or on single one!
-    interface ItextQueue {
-        context: CanvasRenderingContext2D;
-        text: string;
-        x: number;
-        y: number;
-        font: string;
-        color: string;
-        position: Position;
-    }
-    interface IallergenQueue {
-        context: CanvasRenderingContext2D;
-        image: number;
-        x: number;
-        y: number;
-        fontSize: number;
-        position: Position;
-        color: string;
-    }
-    interface IimageQueue {
-        context: CanvasRenderingContext2D;
-        imageId: string;
-        dimensions: Dimensions;
-        transperancy: number;
-        position: Position;
-    }
+    
     const drawBorder = (context:CanvasRenderingContext2D) => {
         context.save();
         context.strokeStyle = 'black';
@@ -134,6 +83,45 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
         context.strokeRect(0, 0, dimensions.width, dimensions.height);
         context.restore();
     }
+    //TO DO:// Add the possibility to set the background color of the block or to set the background image
+
+    const drawBackground = (context: CanvasRenderingContext2D) => {
+        if (1 || design.canvas.background && isImagePointer(design.canvas.background)) {
+            //const img = getImageById(design.canvas.background._id);
+            const img = getImageById('65d8fc0c58bce209a91972ae');
+            drawBackgroundImage(context, img);
+        }
+        else if (design.canvas.background && typeof (design.canvas.background) === 'string' && design.canvas.background !== '') {
+            drawBackgroundColor(context, design.canvas.background);
+        }
+    }
+    const drawBackgroundImage = (context: CanvasRenderingContext2D, image: HTMLImageElement) => {
+        if(!design.canvas.background || !isImagePointer(design.canvas.background)) return;
+        context.save();
+        //set transperancy for the image
+        context.globalAlpha = design.canvas.background.transperancy;
+        context.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+        context.restore();
+    }
+    const drawBackgroundColor = (context: CanvasRenderingContext2D, color: string) => {
+        context.save();
+        context.fillStyle = color;
+        context.fillRect(border/2, border/2, dimensions.width - border , dimensions.height - border);
+        context.restore();
+    }
+    const drawQueue = (queue: TqueueArray) => {
+
+        queue.forEach((item) => {
+            if (isTextQueueArray(item) || isTextQueue(item)) {
+                drawTextQueue(item);
+            } else if (isImageQueue(item)) {
+                drawImageQueue(item);
+            } else if (isAllergenQueue(item)) {
+                drawAllergenQueue(item);
+            }
+        });
+    }
+
     const generateTextQueue = (block: UnifiedBlock, context: CanvasRenderingContext2D, txt: string) => {
         context.save();
         //get font size
@@ -210,11 +198,11 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
 
         return fitText();
     }
-    const drawTextQueue = (renderQueue: ItextQueue[]) => {
+    const drawTextQueue = (renderQueue: ItextQueue[] | ItextQueue) => {
         const margin = 1.1;
-        
-
-        renderQueue.forEach(item => {
+        //if it is single queue
+        if (!Array.isArray(renderQueue) && isTextQueue(renderQueue)) {
+            const item = renderQueue;
             item.context.save();
             item.context.fillStyle = item.color;
             item.context.font = item.font;
@@ -222,68 +210,94 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
             item.context.translate(item.position.x, item.position.y);
             item.context.fillText(item.text, item.x, item.y * margin);
             item.context.restore();
+        }//if it is array of queues
+        else if (Array.isArray(renderQueue)) {
+            renderQueue.forEach(item => {
+                item.context.save();
+                item.context.fillStyle = item.color;
+                item.context.font = item.font;
+                item.context.textBaseline = 'top';
+                item.context.translate(item.position.x, item.position.y);
+                item.context.fillText(item.text, item.x, item.y * margin);
+                item.context.restore();
             });
+        }
     }
 
-    const generateAllergenQueue = (block: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: string[] | number[]) => {
+    const generateAllergenQueue = (block: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: number[]) => {
         const renderQueue: IallergenQueue[] = [];
-        const border = 2; //to add it to block.border
-        const generateAllergens = (arr: number[]) => {
-    if (arr.length === 1 && arr[0] === 0) return; // ???
+        const generateQueue = (arr: number[]) => {
+            const padding = 5; // padding from the border
+            if (arr.length === 1 && arr[0] === 0) return; // ??? 
             //calibrate and set this.fontSize
+            const measureTotalLength = (arr: number[], imageWidth: number, whitespaceWidth: number, fontSize: number) => {
+                let totalWidth = 0;
 
-        //convert to PX from %
-        const width = block.dimensions.width * dimensions.width / 100;
-        const height = block.dimensions.height * dimensions.height / 100;
-    const imgCalibrate = (arr: Array<number>) => { // return the required fontSize to fit the image in the block
-        //get font size
-        let textSize = parseInt(block.font);
-        //get full size of the content
-        let wholeSize = arr.length * textSize * 4;
-        while (wholeSize > width - (20) ) {
-            textSize--;
-            wholeSize = arr.length * textSize * 4;
-        }
-        while (textSize > height/2) {
-            textSize--;
-            
-        }
-        return textSize;
+                // Calculate the total width of numbers
+                arr.forEach((num, index) => {
+                    const text = num.toString(); // Convert number to string
+                    const textMetrics = context.measureText(text);
+                    totalWidth += textMetrics.width + fontSize;
+
+                    // Add whitespace width for all elements except the last one
+                    if (index < arr.length - 1) {
+                        // Assuming whitespace width is 0.5 times the font size
+                        totalWidth += 0.5 * fontSize; // Adjust this value as needed
+                    }
+                });
+
+                return totalWidth;
+            };
+            const imgCalibrate = (arr: number[]) => {
+                const width = block.dimensions.width * dimensions.width / 100;
+                const height = block.dimensions.height * dimensions.height / 100;
+                let textSize = parseInt(block.font);
+
+                while (textSize > 0) {
+                    context.font = textSize + "px " + block.font.split(' ')[1];
+                    //const textWidth1 = context.measureText(arr.join(' ')).width + arr.length * textSize;
+                    const textWidth = measureTotalLength(arr, textSize, textSize / 2, textSize);
+                    if (textWidth <= width - border*2 && textSize <= (height - (padding + border * 2))) {
+                        break;
+                    }
+                    textSize--;
+                }
+
+                return textSize;
+            };
+            const imgCenter = (length: number, textSize: number) => {
+                const width = block.dimensions.width * dimensions.width / 100;
+                const height = block.dimensions.height * dimensions.height / 100;
+                const realWidth = width + padding;
+                const realHeight = height + padding;
+
+             //const totalTextWidth = context.measureText(arr.join('')).width + arr.length * textSize ;
+                const totalTextWidth = measureTotalLength(arr, textSize, textSize / 2, textSize);
+                const dx = (realWidth - totalTextWidth) / 2;
+                const dy = (realHeight - textSize) / 2; // Adjust dy to vertically center the text
+
+                return { x: dx, y: dy };
+            };
+            let textSize = imgCalibrate(imageURLs);
+           // console.log(textSize);
+           // textSize *= 1;
+            let pos = imgCenter(imageURLs.length, textSize);
+            let { x: dx, y: dy } = pos;
+
+            for (let i = 0; i < imageURLs.length; i++) {
+                context.font = textSize + "px " + block.font.split(' ')[1];
+                context.fillStyle = "blue";
+                const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
+                renderQueue.push({ context, image: imageURLs[i], x: dx, y: dy, fontSize: textSize, position: realPosition, color: block.color });
+                dx += textSize * 2;
             }
-    const imgCenter = (length: number, textSize: number) => {
-        const realWidth = width - border * 2;
-        const realHeight = height - border * 2;
-
-        let wholeSize = length * textSize * 2;
-        let dx = (realWidth - wholeSize) / 2;
-        if (realWidth > wholeSize) dx = (realWidth - wholeSize) / 2;
-        else dx = (wholeSize - realWidth) / 2;
-        let dy = textSize * 1.5 + realHeight * 0.25;
-        dy = (dy - border) / 2 - textSize;
-        return { x: dx, y: dy };
-            }
-
-    let textSize = imgCalibrate(arr);
-    textSize *= 2;
-    let dim = imgCenter(arr.length, textSize);
-    let { x: dx, y: dy } = dim;
-
-    for (let i = 0; i < arr.length; i++) {
-        context.font = textSize + "px " + block.font.split(' ')[1];
-        context.fillStyle = "blue";
-        const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
-        renderQueue.push({ context, image: arr[i], x: dx + textSize / 2, y: dy, fontSize: textSize, position: realPosition, color: block.color });
-        dx += textSize * 2;
-
-             }
-        textSize = parseInt(block.font);
-}
-
-        generateAllergens(imageURLs as number[]);
-        return renderQueue;
-    }
-    const drawAllergenQueue = (renderQueue: IallergenQueue[]) => {
-        renderQueue.forEach(item => {
+            return renderQueue;
+        }
+        return generateQueue(imageURLs);
+    };
+    const drawAllergenQueue = (renderQueue: IallergenQueue[] | IallergenQueue) => {
+        if (!Array.isArray(renderQueue) && isAllergenQueue(renderQueue)) {
+            const item = renderQueue;
             item.context.textBaseline = 'top';
             const textSize = item.fontSize;
             item.context.save();
@@ -292,72 +306,91 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
             item.context.fillText(String(item.image), item.x, item.y);
             //Calculate size of the Number string and draw the image with offset
             const metrics = item.context.measureText(String(item.image));
-                typeof(item.image) === 'number' && png.images[Number(item.image-1)] &&  item.context.drawImage(png.images[Number(item.image - 1)], item.x + metrics.width, item.y, textSize, textSize);
-            
+            typeof (item.image) === 'number' && png.images[Number(item.image - 1)] && item.context.drawImage(png.images[Number(item.image - 1)], item.x + metrics.width, item.y, textSize, textSize);
+
             item.context.restore();
-        });
+        }
+        else if (Array.isArray(renderQueue)) {
+            renderQueue.forEach(item => {
+                item.context.textBaseline = 'top';
+                const textSize = item.fontSize;
+                item.context.save();
+                item.context.fillStyle = item.color;
+                item.context.translate(item.position.x, item.position.y);
+                item.context.fillText(String(item.image), item.x, item.y);
+                //Calculate size of the Number string and draw the image with offset
+                const metrics = item.context.measureText(String(item.image));
+                typeof (item.image) === 'number' && png.images[Number(item.image - 1)] && item.context.drawImage(png.images[Number(item.image - 1)], item.x + metrics.width, item.y, textSize, textSize);
+
+                item.context.restore();
+            });
+        }
 
     }
+
     const generateImageQueue = (block: imageFieldBlock, context: CanvasRenderingContext2D) => {
         const renderQueue: IimageQueue[] = [];
         const imgDimensions = {
             width: block.dimensions.width * dimensions.width / 100,
             height: block.dimensions.height * dimensions.height / 100
         }
-        const transperancy = 0.2;
+        const transperancy = block.image.transperancy;
         const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
         renderQueue.push({ context,imageId: block.image._id,transperancy,dimensions:imgDimensions, position: realPosition })
         return renderQueue;
-    }
-   
-    const drawImageQueue = async(renderQueue: IimageQueue[]) => {
-
-        renderQueue.forEach(item => {
+    }  
+    const drawImageQueue = async(renderQueue: IimageQueue[] | IimageQueue) => {
+        //if it is single queue
+        if (!Array.isArray(renderQueue) && isImageQueue(renderQueue)) {
+            const item = renderQueue;
             const img: HTMLImageElement = getImageById(item.imageId);
-                    item.context.save();
-                    //set transperancy for the image 
-                    item.context.globalAlpha = item.transperancy;
-                        item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
-                    item.context.restore();   
+            item.context.save();
+            //set transperancy for the image 
+            
+            item.context.globalAlpha = item.transperancy/100;
+            item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
+            item.context.restore();
+        }//if it is array of queues
+        else if (Array.isArray(renderQueue)) {
+            renderQueue.forEach(item => {
+                const img: HTMLImageElement = getImageById(item.imageId);
+                item.context.save();
+                //set transperancy for the image 
+                item.context.globalAlpha = item.transperancy/100;
+                item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
+                item.context.restore();
             });
+        }
     }
-    const drawDesign = (design: UnifiedBlock, context: CanvasRenderingContext2D) => {
-        const { x, y } = design.position;        
-     
-        // Draw the text
+
+    const generateQueueElement = (block: UnifiedBlock, context: CanvasRenderingContext2D) => {
         var text: string;
-        var textQueue, allergenQueue, imageQueue;
         
-        if ('textParameter' in design) {
-            text = textParametersMap.get(design.textParameter) || '';
-            if (design.textParameter !== '' && label.hasOwnProperty(design.textParameter)) {
-                text = label[design.textParameter];
+        if ('textParameter' in block) {
+            text = textParametersMap.get(block.textParameter) || '';
+            if (block.textParameter !== '' && label.hasOwnProperty(block.textParameter)) {
+                text = label[block.textParameter];
               
             } else {
                 text = '';
             }
-            textQueue = generateTextQueue(design, context, text);
-            return { textQueue };
-        } else if ('type' in design) { // TO DO NEXT!! 
-            if (design.type === 'allergens') {
-                allergenQueue = generateAllergenQueue(design, context, label.allergens);
-                return { allergenQueue };
-            } else if (design.type === 'image') {
-                imageQueue = generateImageQueue(design, context);
-                return { imageQueue };
-
+            return generateTextQueue(block, context, text) ;
+        } else if ('type' in block) { // TO DO NEXT!! 
+            if (block.type === 'allergens') {
+                return generateAllergenQueue(block, context, label.allergens);
+            } else if (block.type === 'image') {
+                return generateImageQueue(block, context);
             } else {
                 text = 'undefined';
-                textQueue = generateTextQueue(design, context, text);
-                return { textQueue };
+                return generateTextQueue(block, context, text);
             }
         } else {
             text = 'Undefined';
-             textQueue = generateTextQueue(design, context, text);
-            return { textQueue };
+             return generateTextQueue(block, context, text);
         }
    
     };
+    
     useEffect(() => {
         drawBlocks();
     }, [design, blocks]);

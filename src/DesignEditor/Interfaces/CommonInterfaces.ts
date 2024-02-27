@@ -47,6 +47,7 @@ export interface ImagePointer {
     _id: string;
     name: string;
     size: number;
+    transperancy: number;
 }
 export function isImagePointer(obj: any): obj is ImagePointer { //return true if obj is an ImagePointer
     return (
@@ -54,7 +55,8 @@ export function isImagePointer(obj: any): obj is ImagePointer { //return true if
         typeof obj === 'object' &&                          // Check if obj is an object
         '_id' in obj && typeof obj._id === 'string' &&      // Check for _id attribute
         'name' in obj && typeof obj.name === 'string' &&    // Check for name attribute
-        'size' in obj && typeof obj.size === 'number'       // Check for size attribute
+        'size' in obj && typeof obj.size === 'number' &&       // Check for size attribute
+        'transperancy' && typeof obj.transperancy === 'number' // Check for transperancy attribute
     );
 }
 
@@ -151,7 +153,7 @@ export interface Design {
     _id: string; // Represents the ID in the database
     name: string;
     owner: string; //Represents the ID of the owner in the database
-    canvas: { dim: Dimensions, border: number };
+    canvas: { dim: Dimensions, border: number, background:string | ImagePointer };
     blocks: UnifiedBlock[];
 }
 export function isDesign(obj: any): obj is Design {
@@ -160,7 +162,7 @@ export function isDesign(obj: any): obj is Design {
         typeof obj._id === 'string' &&
         typeof obj.name === 'string' &&
         typeof obj.owner === 'string' &&
-        typeof obj.canvas === 'object' && obj.canvas.dim && obj.canvas.dim.width && obj.canvas.dim.height &&
+        typeof obj.canvas === 'object' && obj.canvas.dim && obj.canvas.dim.width && obj.canvas.dim.height && typeof obj.canvas.border === 'number' && (typeof obj.canvas.background === 'string' || isImagePointer(obj.canvas.background)) &&
         Array.isArray(obj.blocks) &&
         obj.blocks.every((d: any) => isUnifiedBlock(d) /* Check UnifiedBlock properties here */) // Add conditions for UnifiedBlock if needed
     );
