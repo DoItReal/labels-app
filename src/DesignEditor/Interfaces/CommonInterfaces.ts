@@ -2,9 +2,21 @@ export interface Position {
     x: number;
     y: number;
 }
+export const isPosition = (obj: any): obj is Position => {
+    return (
+        typeof obj.x === 'number' &&
+        typeof obj.y === 'number'
+    );
+}
 export interface Dimensions {
     width: number;
     height: number;
+}
+export const isDimensions = (obj: any): obj is Dimensions => {
+    return (
+        typeof obj.width === 'number' &&
+        typeof obj.height === 'number'
+    );
 }
 //TO DO get textParameters based on DB INPUT or from API
 export const textParameters = ['bg', 'en', 'de', 'rus'] as const;
@@ -149,11 +161,24 @@ export function isUnifiedBlock(obj: any): obj is UnifiedBlock {
 export function isUnifiedBlockArray(arr: any): arr is UnifiedBlock[] {
     return Array.isArray(arr) && arr.every((obj: any) => isUnifiedBlock(obj));
 }
+export interface DesignCanvas {
+    dim: Dimensions;
+    border: number;
+    background: string | ImagePointer;
+}
+export const isDesignCanvas = (obj: any): obj is DesignCanvas => {
+    return (
+        obj && // Check if obj is not null or undefined
+        isDimensions(obj.dim) &&
+        typeof obj.border === 'number' &&
+        (typeof obj.background === 'string' || isImagePointer(obj.background))
+    );
+}
 export interface Design {
     _id: string; // Represents the ID in the database
     name: string;
     owner: string; //Represents the ID of the owner in the database
-    canvas: { dim: Dimensions, border: number, background:string | ImagePointer };
+    canvas: DesignCanvas;
     blocks: UnifiedBlock[];
 }
 export function isDesign(obj: any): obj is Design {
@@ -162,7 +187,7 @@ export function isDesign(obj: any): obj is Design {
         typeof obj._id === 'string' &&
         typeof obj.name === 'string' &&
         typeof obj.owner === 'string' &&
-        typeof obj.canvas === 'object' && obj.canvas.dim && obj.canvas.dim.width && obj.canvas.dim.height && typeof obj.canvas.border === 'number' && (typeof obj.canvas.background === 'string' || isImagePointer(obj.canvas.background)) &&
+        'canvas' in obj && isDesignCanvas(obj.canvas) &&
         Array.isArray(obj.blocks) &&
         obj.blocks.every((d: any) => isUnifiedBlock(d) /* Check UnifiedBlock properties here */) // Add conditions for UnifiedBlock if needed
     );

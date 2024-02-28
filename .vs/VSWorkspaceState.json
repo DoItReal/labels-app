@@ -4,8 +4,7 @@
     "\\public",
     "\\src",
     "\\src\\content",
-    "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\DesignEditor",
     "\\src\\DesignEditor\\Interfaces",
     "\\src\\UI"
   ],

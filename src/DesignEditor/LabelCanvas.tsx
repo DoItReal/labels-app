@@ -51,7 +51,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
 
-    
+    // eslint-disable-next-line
     const drawBlocks = () => {
         //check if canvas and context exists
         const canvas = canvasRef.current;
@@ -86,10 +86,10 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
     //TO DO:// Add the possibility to set the background color of the block or to set the background image
 
     const drawBackground = (context: CanvasRenderingContext2D) => {
-        if (1 || design.canvas.background && isImagePointer(design.canvas.background)) {
+        if (design.canvas.background && isImagePointer(design.canvas.background)) {
             //const img = getImageById(design.canvas.background._id);
-            const img = getImageById('65d8fc0c58bce209a91972ae');
-            drawBackgroundImage(context, img);
+            const img = getImageById(design.canvas.background._id);
+            img && drawBackgroundImage(context, img);
         }
         else if (design.canvas.background && typeof (design.canvas.background) === 'string' && design.canvas.background !== '') {
             drawBackgroundColor(context, design.canvas.background);
@@ -393,7 +393,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
     
     useEffect(() => {
         drawBlocks();
-    }, [design, blocks]);
+    }, [design, blocks, drawBlocks]);
     return (
         <canvas
             ref={canvasRef}

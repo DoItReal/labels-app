@@ -17,7 +17,7 @@ It is the UI of the editor
 */
 
 import React, { useState } from 'react';
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, PopoverPaper, Grid } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, Grid } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import SaveIcon from '@mui/icons-material/Save';
@@ -25,8 +25,8 @@ import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import { createNewDesign, getLocalDesigns, setLocalDesigns, updateDesign } from './DesignDB';
-import { textParametersMap, dummyTextBlock, images, dummyImageBlock } from './Editor';
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, allergenFieldBlock, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isImagePointer, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, imagePointerBlock } from './Interfaces/CommonInterfaces';
+import { textParametersMap, images, dummyImageBlock, dummyImage } from './Editor';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from './Interfaces/CommonInterfaces';
 import ImageUpload from './ImageUpload';
 interface DesignUIProps {
     design: Design;
@@ -292,7 +292,26 @@ const DesignUI: React.FC<DesignUIProps> = ({
             );
         }
     };
-
+    const handleBackgroundChange = (newBackground: string | ImagePointer) => {
+        if (design && isDesign(design)) {
+            const updatedDesign = { ...design, canvas: { ...design.canvas, background: newBackground } };
+           setDesign(updatedDesign);
+            
+            // Update the design in the session storage
+            const storedDesigns: Design[] | null = getLocalDesigns();
+            if (!storedDesigns) {
+                console.log('The fetched Design is null! Failed to update Local Designs!');
+                return;
+            }
+            for (let i = 0; i < storedDesigns.length; i++) {
+                if (storedDesigns[i]._id === design._id) {
+                    storedDesigns[i].canvas = design.canvas;
+                    setLocalDesigns(storedDesigns);
+                    return;
+                }
+            }
+        }
+    }
     const addTextDesign = () => {
         setBlocks((prevDesigns) => [
             ...prevDesigns,
@@ -385,7 +404,6 @@ setOpenDialog(prevOpenDialog => {
         ]);
     };
     
-    const theme = useTheme();
     const alignLeft = () => {
         if (selectedBlock && selectedBlock.id > 0) {
             const canvasBorder = design.canvas.border || 0; // Assuming canvas.border is in pixels
@@ -457,7 +475,8 @@ setOpenDialog(prevOpenDialog => {
                  <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
                  <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
                  <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-                    </Grid>
+                  <BackgroundMenu design={design} handleBackgroundChange={handleBackgroundChange} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
+                        </Grid>
                     <Grid item width={'100%' }>   <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
                     {selectedBlock && selectedBlock.id > 0 ? <h3>Block {selectedBlock.id}</h3> :
                         <h3>Select Block to edit or add a new Block</h3>}
@@ -500,6 +519,80 @@ setOpenDialog(prevOpenDialog => {
         </Grid></Container>
     );
 };
+const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ design, handleBackgroundChange, openDialog, handleOpenDialog, handleCloseDialog }) => {
+    const fullScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
+    return (
+        <div>
+            <Button key={'buttonBackground'} onClick={() => handleOpenDialog('canvasBackground')}>Change Background</Button>
+            {design.canvas.background && typeof design.canvas.background === 'string' ? <input type='color' value={design.canvas.background} style={{ width: '4em', height: '2em'}} disabled /> : null}
+            <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvasBackground') || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
+                <DialogTitle>Edit Design Background</DialogTitle>
+                <DialogContent>
+                    {design.canvas.background ?
+                        <ColorPicker id="newBackground-picker" value={typeof design.canvas.background === 'string' ? design.canvas.background : '#000000'} onChange={(color: string) => handleBackgroundChange(color)} />
+                        : null}
+                    {images && (<Grid item width={1 / 3}>
+<FormControl fullWidth>
+                        <InputLabel>Image:</InputLabel>
+
+                        <Select
+                            value={design && design.canvas.background && typeof design.canvas.background !== 'string' ? design.canvas.background._id : dummyImage._id}
+                            onChange={(e) => {
+                                const img = images.find(image => image._id === e.target.value) || dummyImage;
+                                if (isIimage(img))
+                                    handleBackgroundChange({ _id: img._id, name: img.name, size: img.size, transperancy:1 } as ImagePointer);
+                            }
+                            }
+                        >
+                           
+                            <MenuItem key={dummyImage._id} value={dummyImage._id}>{dummyImage.name}</MenuItem>
+                            {images.map(image => (
+                                <MenuItem key={image._id} value={image._id}> {image.name} </MenuItem>
+                            ))
+                            }
+                        </Select>
+                       <FormControl fullWidth>
+<TransperancySlider design={design} handleBackgroundChange={handleBackgroundChange} />
+            </FormControl>
+                            {typeof design.canvas.background !== 'string' && <Typography>Transperancy: {design.canvas.background.transperancy} </Typography>}
+                        
+                    </FormControl></Grid>)}
+
+                    
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+};
+const TransperancySlider: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void }> = ({ design, handleBackgroundChange }) => {
+    const [transparency, setTransparency] = useState(
+        typeof design.canvas.background !== 'string'
+            ? design.canvas.background.transperancy
+            : 1
+    );
+
+    const handleTransparencyChange = (e:any,value: number | number[]) => {
+        if(typeof value !== 'number') return;
+        typeof design.canvas.background !== 'string' &&
+            handleBackgroundChange({
+                ...design.canvas.background,
+                transperancy: value,
+            });
+        setTransparency(value); // Update the transparency state
+    };
+
+    return (
+        <Slider
+            valueLabelDisplay="auto"
+            aria-label="transparency"
+            value={transparency}
+            min={0}
+            max={1}
+            step={0.05}
+            onChange={handleTransparencyChange}
+        />
+    );
+};
 interface ColorPickerProps {
     id: string;
     value: string;
@@ -508,6 +601,7 @@ interface ColorPickerProps {
 
 const ColorPicker: React.FC<ColorPickerProps> = ({ id, value, onChange }) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(event.target.value);
         onChange(event.target.value);
     };
 
@@ -544,9 +638,9 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, se
 
     return (
         <div>
-            <label htmlFor="color-picker">Choose a color:</label>
+            <label htmlFor="newBackground-picker">Choose a color:</label>
             <ColorPicker
-                id="color-picker"
+                id="newBackground-picker"
                 value={selectedBlock ? selectedBlock.color : ''}
                 onChange={(color: string) => handleColorChange(color)}
             />
@@ -611,9 +705,7 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
     };
 
     // Handle font size change
-    const handleFontSizeChange = (fontSize: number) => {
-        handleFontStyleChange({ font: `${fontSize}px ${parseFontString(selectedBlock?.font).fontFamily}` });
-    };
+    
 
     // Handle font change
     const handleFontChange = (fontSize: string) => {
