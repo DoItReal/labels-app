@@ -127,7 +127,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
         //get font size
         let textSize = parseInt(block.font);
         context.font = block.font;
-        const margin = 1.1;
+        const margin = 1;
         const renderQueue: ItextQueue[] = [];
         const words = txt.split(' ');
 

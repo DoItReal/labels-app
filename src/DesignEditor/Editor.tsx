@@ -200,7 +200,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
 
             <Grid container spacing={0} justifyContent="center" alignItems="center" >
                 {/* <DesignUI> */  }
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={8} lg={4} xl={4 }>
                     <Grid container justifyContent="center" alignItems="center" >
                         <Container>
                         <DesignUI
@@ -216,7 +216,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     </Grid>
                     {/* </DesignUI>  */ }
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={4} justifyContent="center">
+                <Grid item xs={12} sm={12} md={6} lg={4} xl={4} justifyContent="center">
                     <Grid container justifyContent="center" alignItems="center">
                     <Canvas
                             dimensions={design.canvas.dim}
@@ -229,7 +229,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                         />
                             </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={4} >
+                <Grid item xs={12} sm={12} md={6} lg={4} xl={4 } >
                     <Grid container justifyContent="center" alignItems="center">
                         <Label
                             design={design}

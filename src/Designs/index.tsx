@@ -188,7 +188,7 @@ const Designs: React.FC = () => {
                 </>
 )}
             </Grid>
-            <Grid item xs={menuCollapsed ? 11 : 9} >
+                <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} >
                 {editingDesignId !== null ? (
                     <Editor
                         key={'editor' + editingDesignId}

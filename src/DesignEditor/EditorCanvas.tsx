@@ -38,13 +38,13 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         // Clear the canvas
         context.clearRect(0, 0, canvas.width, canvas.height);
         // Draw the blocks
-        drawDesigns();
+        drawBlocks();
         return () => {
             window.removeEventListener('keydown', handleDeleteKeyPress);
         };
     }, [canvasRef, blocks,dimensions, selectedBlock, setBlocks, setSelectedBlock]);
 
-    // Delete the selected design on delete key press
+    // Delete the selected block on delete key press
     const handleDeleteKeyPress = (event: KeyboardEvent) => {
         if (event.key === 'Delete' && selectedBlock) {
             deleteSelectedBlock();
@@ -92,6 +92,8 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
             setIsDragging(true);
             setDragStart({ x: mouseX - clickedDesign.position.x*dimensions.width/100, y: mouseY - clickedDesign.position.y*dimensions.height/100 });
             setSelectedBlock(clickedDesign);
+            const updateBlocksOrder = blocks.filter((block) => block.id !== clickedDesign.id);
+            setBlocks([clickedDesign, ...updateBlocksOrder]);
         } else {
             // If no object is clicked, deselect the selected object
             setSelectedBlock(null);
@@ -100,7 +102,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         // Draw the blocks on every mouse move
         animationRef.current = requestAnimationFrame(() => {
-             drawDesigns();
+             drawBlocks();
         });
         let clientX, clientY;
         // Get the mouse position
@@ -120,10 +122,10 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
             const mouseX = clientX - (rect?.left || 0);
             const mouseY = clientY - (rect?.top || 0);
 
-            // Update the design position
+            // Update the block position
             setBlocks((prevDesigns) =>
                 prevDesigns.map((prevDesign) => {
-                    // Check if the design is the selected design
+                    // Check if the block is the selected block
                     if (prevDesign.id === selectedBlock.id) {
                         //const { x, y } = prevDesign.position;
                         //converting to PX from %
@@ -137,7 +139,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
                         let newX = x;
                         let newY = y;
 
-                        // Check if the design is being resized or dragged
+                        // Check if the block is being resized or dragged
                         if (resizeHandle) {
                             // Check for side handles
                             if (resizeHandle.includes('right')) {
@@ -177,14 +179,14 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
                             newX = mouseX - dragStart.x;
                             newY = mouseY - dragStart.y;
                         }
-                        //check if the design is not too small and adjust accordingly and dont move the design if it is not dragged
+                        //check if the block is not too small and adjust accordingly and dont move the block if it is not dragged
                         if (newWidth < 10) newWidth = 10;
                         if (newHeight < 10) newHeight = 10;
                         if (newWidth === 10 && resizeHandle) newX =  x;
                         if (newHeight === 10 && resizeHandle) newY = y;
 
  
-                        //check if the design is within the canvas boundaries and adjust accordingly and dont move the opposite border if its on minimum size
+                        //check if the block is within the canvas boundaries and adjust accordingly and dont move the opposite border if its on minimum size
                         if (newX < 0) newX = 0;         
                         if (newY < 0) newY = 0;
                         if (newX + newWidth > dimensions.width) newX = dimensions.width - newWidth;
@@ -224,7 +226,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
     ): HandleType | null => {
         if (!design) return null;
 
-        //const { x, y } = design.position;
+        //const { x, y } = block.position;
         const x = design.position.x * dimensions.width / 100;
         const y = design.position.y * dimensions.height / 100;
        //converting to PX from %
@@ -260,7 +262,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
     };
 
     // Draw all the blocks on the canvas
-    const drawDesigns = () => {
+    const drawBlocks = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -273,51 +275,55 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         context.strokeStyle = 'black';
         context.lineWidth = border;
         context.strokeRect(0, 0, canvas.width, canvas.height);
+        //iterates backward blocks and draw them
+        for (let i = blocks.length - 1; i >= 0; i--){
+            drawBlock(blocks[i], context);
+        }
 
-        blocks.forEach((design) => {
-            drawDesign(design, context);
-        });
 
         context.restore();
     };
-    // Draw a single design on the canvas
-    const drawDesign = (design: UnifiedBlock, context: CanvasRenderingContext2D) => {
-        //const { x, y } = design.position;
+    // Draw a single block on the canvas
+    const drawBlock = (block: UnifiedBlock, context: CanvasRenderingContext2D) => {
+        //const { x, y } = block.position;
         //converting to PX from %
-        const x = design.position.x * dimensions.width / 100;
-        const y = design.position.y * dimensions.height / 100;
-        const width = design.dimensions.width * dimensions.width / 100;
-        const height = design.dimensions.height * dimensions.height / 100;
+        const x = block.position.x * dimensions.width / 100;
+        const y = block.position.y * dimensions.height / 100;
+        const width = block.dimensions.width * dimensions.width / 100;
+        const height = block.dimensions.height * dimensions.height / 100;
 
         context.save();
         context.strokeStyle = 'black';
         context.lineWidth = 1;
         context.strokeRect(x, y, width, height);
 
+        //Draw background color
+        context.fillStyle = 'whitesmoke';
+        context.fillRect(x, y, width, height);
         // Draw the text
         
         var text: string;
-        if ('textParameter' in design) {
-            text = textParametersMap.get(design.textParameter) || '';
-        } else if ('type' in design) {
-            text = design.type;
+        if ('textParameter' in block) {
+            text = textParametersMap.get(block.textParameter) || '';
+        } else if ('type' in block) {
+            text = block.type;
         } else {
             text = 'None';
         }
-        context.fillStyle = design.color; // Text color
+        context.fillStyle = block.color; // Text color
         context.textBaseline = 'top';
-        context.font = design.font;
+        context.font = block.font;
         context.fillText(text, x, y);
 
-        // Draw a border around the selected design
-        if (selectedBlock && design.id === selectedBlock.id) {
+        // Draw a border around the selected block
+        if (selectedBlock && block.id === selectedBlock.id) {
             context.strokeStyle = 'black';
             context.lineWidth = 2;
             context.strokeRect(x, y, width, height);
         }
 
         // Draw the resize handles
-        if (design.id === selectedBlock?.id) {
+        if (block.id === selectedBlock?.id) {
             drawResizeHandle(context, x, y);
             drawResizeHandle(context, x + width, y);
             drawResizeHandle(context, x, y + height);

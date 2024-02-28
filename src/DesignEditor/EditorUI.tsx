@@ -431,7 +431,8 @@ setOpenDialog(prevOpenDialog => {
         }
     };
     return (
-        <Container> <Grid container>
+        <Container>
+            <Grid container>
         <Paper style={{ height: '80vh', overflow: 'auto' }}>
                 <Grid item width={'100%' }>
             <IconButton
