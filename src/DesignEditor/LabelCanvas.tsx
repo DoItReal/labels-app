@@ -39,7 +39,7 @@
     const drawImageQueue(imageQueue) - draws the $imageQueue
 */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { textParametersMap, getImageById } from './Editor'; // Import the Design type
 import { png } from '../labels';
 import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from './Interfaces/CommonInterfaces';
@@ -47,6 +47,7 @@ import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTe
 
 
 const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
+    const [dataUrl, setDataUrl] = useState<string|null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
@@ -390,16 +391,25 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
         }
    
     };
-    
+    const getDataURL = () => {
+        drawBlocks();
+        if (canvasRef.current)
+            return  canvasRef.current.toDataURL();
+        else
+            return null;
+    };
     useEffect(() => {
         drawBlocks();
+        setDataUrl(getDataURL());
     }, [design, blocks, drawBlocks]);
     return (
         <canvas
+            id={"canvas$"+label._id}
             ref={canvasRef}
             width={dimensions.width}
             height={dimensions.height}
             style={{ border: '1px solid #000', marginBottom: '10px' }}
+            data-url={dataUrl }
         ></canvas>
     );
 };

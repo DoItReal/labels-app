@@ -4,10 +4,12 @@
     "\\public",
     "\\src",
     "\\src\\content",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\RightSide",
     "\\src\\DesignEditor",
     "\\src\\DesignEditor\\Interfaces",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\UI\\Preview.tsx",
+  "SelectedNode": "\\src\\DesignEditor\\DesignDB.ts",
   "PreviewInSolutionExplorer": false
 }

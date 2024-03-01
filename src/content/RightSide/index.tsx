@@ -1,15 +1,18 @@
 import { Label } from '../../labels';
 import * as PDFLib from 'pdf-lib';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { IaddedLabel, IcontentProps } from '../Content';
 import { enableStatesContext } from '../../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 import Draggable from 'react-draggable';
-import { Box, Container, IconButton, Paper, Popover } from '@mui/material';
+import { Box, Container, Grid, IconButton, Paper, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 import CloseIcon from '@mui/icons-material/Close';
+import LabelCanvas from '../../DesignEditor/LabelCanvas';
+import { Design, isDesignArray } from '../../DesignEditor/Interfaces/CommonInterfaces';
+import { getLocalDesigns } from '../../DesignEditor/DesignDB';
 export default function RightSide({ addedLabels }: IcontentProps) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element | null>(null);
@@ -89,35 +92,132 @@ const useStyles = makeStyles((theme: Theme) => ({
         position:'absolute'
     },
 }));
-function CreatePDF({ labels }: { labels: IaddedLabel[] }) {
+const CreatePDF = ({ labels }: { labels: IaddedLabel[] }) => {
     const [pdf, setPdf] = useState('');
-    const canvasArr: Array<HTMLCanvasElement> = [];
-    for (const entry of labels) {
-        // const labelsImg = [];
-        const width = PDFLib.PageSizes.A4[0];
-        const height = PDFLib.PageSizes.A4[1];
-        let signsInPage = 8;
+    const [design, setDesign] = useState<Design|null>(null);
+   
+    const [canvasArr, setCanvasArr] = useState < Array<React.JSX.Element> | Array<HTMLCanvasElement>| []>([]);
+    const [ReactElementArr, setReactElementArr] = useState < Array<React.JSX.Element> | []>([]);
+    const elementRefs = useRef<Array<React.RefObject<any>>>([]);
+    const [dataURLs, setDataURLs] = useState<Array<string>>([]);
+    // Update the elementRefs whenever ReactElementArr changes
+    useEffect(() => {
+        elementRefs.current = ReactElementArr.map(() => React.createRef());
+    }, [ReactElementArr]);
 
-        let sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
-        sign.setContent(entry.allergens, { bg: decodeURI(entry.bg), en: entry.en, de: entry.de, rus: entry.rus });
-        sign.setId(entry._id);
 
-        if (entry.count && entry.count > 1) {
-            for (let i = 1; i <= entry.count; i++) {
-               canvasArr.push(sign.generate());
-            }
-           } else {
-           canvasArr.push(sign.generate());
-          }
+
+    const MockDesign = async () => {
+        const designs = await getLocalDesigns();
+        if (!designs || !isDesignArray(designs)) return null;
+        setDesign(designs[0]);
+        
+        }
+    if (!design) {
+        MockDesign();
+        return null;
     }
 
-   PDF(canvasArr, setPdf);
+    const generateArray = async () => {
+        if (!ReactElementArr || (ReactElementArr.length > 0)) {
+            generateDataUrl();
+            return;
+        }
+        const arr: Array<React.JSX.Element> = [];
+        
+        for (const label of labels) {
+            const width = PDFLib.PageSizes.A4[0];
+            const height = PDFLib.PageSizes.A4[1];
+            let signsInPage = 8;
+            const canvasLabel = <LabelCanvas key={label._id} label={label} design={design} blocks={design.blocks} />;
+           
+                arr.push(canvasLabel);
+
+        }
+        
+        if( arr ) setReactElementArr(arr);
+    }
+    const generateDataUrl = () => {
+        if (dataURLs.length > 1) return;
+        const arr = [];
+        for (const label of labels) {
+            const cnv = document.getElementById('canvas$' + label._id);
+            if (cnv && cnv.getAttribute('data-url')) {
+                arr.push(cnv.getAttribute('data-url'));
+            }
+        }
+        if(arr.length > 1 && isStringArray(arr))
+        setDataURLs(arr);
+    }
+    const isStringArray = (arr: any[] | null): arr is string[] => {
+        if (!arr) return false;
+        return arr.every(str => typeof str === 'string');
+    }
+    /* Old version
+            let sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
+            sign.setContent(label.allergens, { bg: decodeURI(label.bg), en: label.en, de: label.de, rus: label.rus });
+            sign.setId(label._id);
+    
+            if (label.count && label.count > 1) {
+                for (let i = 1; i <= label.count; i++) {
+                   canvasArr.push(sign.generate());
+                }
+               } else {
+               canvasArr.push(sign.generate());
+              }
+        }
+        */
+    const isHTMLCanvasElement = (canvas: any | null): canvas is HTMLCanvasElement => {
+        return canvas && canvas instanceof HTMLCanvasElement;
+    }
+    const isHTMLCanvasElementArray = (canvasArr: any[] | null): canvasArr is HTMLCanvasElement[] => {
+        if (!canvasArr) return false;
+        return canvasArr.every(canvas => isHTMLCanvasElement(canvas));
+    }
+    // Function to transform an array of ReactCanvas components to an array of DataURLs
+    //React.JSX.Element is not HTMLCanvasElement
+    //NOt working Work In Progess!!
+    const transformToDataUrl = (reactElements: Array<React.JSX.Element> | Array<HTMLCanvasElement>): Array<string> | [] => {
+       if(reactElements) console.log(reactElements);
+        if (!reactElements) return [];
+        const arr: Array<string> = [];
+        for (const canvas of canvasArr) {
+            if (canvas && canvas instanceof HTMLCanvasElement) {
+                arr.push(canvas.toDataURL());
+            }
+        }
+        return arr;
+    }
+    const generate = () => {
+        if (pdf) return;
+        if (!canvasArr) return;
+        if (dataURLs.length < 1) return;
+
+            PDF(design, dataURLs, setPdf);
+
+    }
+        generateArray();
+    generate();  
+  //  const cnv = document.getElementById('canvas$' + labels[0]._id);
+   // if (cnv && cnv.getAttribute('data-url')) console.log(cnv.getAttribute('data-url'));
+   // console.log(transformToDataUrl(ReactElementArr));
     return (
-            <iframe title='PDF Labels' src={pdf} style={{width:'100%', height:'100%'} }></iframe>
-    );
+        <Grid container>
+            <div style={{visibility:'hidden'} }>
+            {ReactElementArr && !isHTMLCanvasElementArray(ReactElementArr) ? 
+                    ReactElementArr.map(canvas =>
+            canvas): null
+                }
+            </div>
+            <iframe title='PDF Labels' src={pdf} style={{ width: '100%', height: '100%' }}></iframe>
+            </Grid>
+        );
+    
 }
 
-async function PDF(signs: Array<HTMLCanvasElement>, setPdf:(arg: string) => void) {
+// Function to transform an array of ReactCanvas components to an array of DataURLs
+
+async function PDF(design:Design,labels: Array<string>, setPdf:(arg: string) => void) {
 
     //creates new PDF Document
     const doc = await PDFLib.PDFDocument.create();
@@ -130,12 +230,13 @@ async function PDF(signs: Array<HTMLCanvasElement>, setPdf:(arg: string) => void
      * 
      */
     //  const page = doc.addPage(PDFLib.PageSizes.A4);
-
+   // console.log(labels);
+   // const labelsURLs = transformToDataUrl(labels);
     const chunks = [];
-    for (let i = 0; i < signs.length; i += 8) {
-        chunks.push(signs.slice(i, i + 8));
+    for (let i = 0; i < labels.length; i += 8) {
+        chunks.push(labels.slice(i, i + 8));
     }
-
+    
     // Generate pages for each chunk of entries
     for (const chunk of chunks) {
         const page = doc.addPage(PDFLib.PageSizes.A4);
@@ -147,23 +248,29 @@ async function PDF(signs: Array<HTMLCanvasElement>, setPdf:(arg: string) => void
         let y = height - 5;
         let x = 0;
 
-        // Print each entry on the page
-        for (const sign of chunk) {
-            var jpgImage = await doc.embedJpg(sign.toDataURL('image/jpeg'));
-
+        // Print each label on the page
+        for (const label of chunk) {
+           // label.width = width / 2;
+          //  label.height = height / 4;
+            //  console.log(label);
+          //  const cnv = document.getElementById('canvas$' + label._id);
+        //    if (cnv && cnv.getAttribute('data-url')) console.log(cnv.getAttribute('data-url'));
+            var jpgImage = await doc.embedPng(label);
+          //  const jpgImage = await doc.embedJpg(label);
+          
             //used for debugging
-
+           // console.log(jpgImage);
             //draws just created JPEG image to the page
             page.drawImage(jpgImage, {
-                x: x + 10,
-                y: y - sign.height,
-                width: sign.width,
-                height: sign.height
+                x: x + 5,
+                y: y - height/4,
+                width: width/2-5,
+                height: height/4 -10
             });
             if (x > 0) {
                 x = 0;
-                y -= sign.height + 5;
-            } else x = x + sign.width + 5;
+                y -= (height-10) /4;
+            } else x = x + width/2 + 5;
         }
 
     }
