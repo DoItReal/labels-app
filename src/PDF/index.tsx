@@ -1,22 +1,38 @@
-import { Label } from '../../labels';
 import * as PDFLib from 'pdf-lib';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { IaddedLabel, IcontentProps } from '../Content';
-import { enableStatesContext } from '../../App';
+import { IaddedLabel } from '../content/Content';
+import { enableStatesContext } from '../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 import Draggable from 'react-draggable';
-import { Box, Container, Grid, IconButton, Paper, Popover } from '@mui/material';
+import { Box, Container, IconButton, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 import CloseIcon from '@mui/icons-material/Close';
-import LabelCanvas from '../../DesignEditor/LabelCanvas';
-import { Design, isDesignArray } from '../../DesignEditor/Interfaces/CommonInterfaces';
-import { getLocalDesigns } from '../../DesignEditor/DesignDB';
-export default function RightSide({ addedLabels }: IcontentProps) {
+import LabelCanvas from '../DesignEditor/LabelCanvas';
+import { Design, isDesignArray } from '../DesignEditor/Interfaces/CommonInterfaces';
+import { getLocalDesigns } from '../DesignEditor/DesignDB';
+import { fetchSelectedLabels } from './selectedLabelsDB';
+
+const isStringArray = (arr: any[] | null): arr is string[] => {
+    if (!arr) return false;
+    return arr.every(str => typeof str === 'string');
+}
+const isHTMLCanvasElement = (canvas: any | null): canvas is HTMLCanvasElement => {
+    return canvas && canvas instanceof HTMLCanvasElement;
+}
+const isHTMLCanvasElementArray = (canvasArr: any[] | null): canvasArr is HTMLCanvasElement[] => {
+    if (!canvasArr) return false;
+    return canvasArr.every(canvas => isHTMLCanvasElement(canvas));
+}
+export default function RightSide() {
+    const [selectedLabels, setSelectedLabels] = useState<IaddedLabel[]>(fetchSelectedLabels());
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element | null>(null);
 
+    const [ReactElementArr, setReactElementArr] = useState<Array<React.JSX.Element> | []>([]);
+    const [dataURLs, setDataURLs] = useState<Array<string>>([]);
+    const [design, setDesign] = useState<Design | null>(null);
     const classes = useStyles();
     const id = enableStates.get('createPDF') ? 'PDFPopover' : undefined;
 
@@ -25,15 +41,63 @@ export default function RightSide({ addedLabels }: IcontentProps) {
         event.stopPropagation();
         updateStates('createPDF', false);
     }
+    const MockDesign = async () => {
+        const designs = await getLocalDesigns();
+        if (!designs || !isDesignArray(designs)) return null;
+        setDesign(designs[0]);
+        return (designs[0]);
+    }
+    if (!design) MockDesign().then((design) => {
+        if (design !== null)
+            generateReactElementArray(design).then()
+});
     const update = () => {
         updateStates('updatePDF', true);
     }
-    if (enableStates.get('updatePDF')) {
-        PDFrow.current = <CreatePDF labels={addedLabels} />;
-        updateStates('updatePDF', false);
+    if (enableStates.get('updatePDF') && dataURLs && dataURLs.length > 0) {
+        PDFrow.current = <CreatePDF imageURLs={dataURLs} />;
+        //updateStates('updatePDF', false);
+    }
+    const generateReactElementArray = async (selectedDesign:Design|null = design) => {
+        if (selectedDesign === null) return;
+        // If ReactElementArr is not empty generateDataUrl and return;
+        if (!ReactElementArr || (ReactElementArr.length > 0)) {
+            generateDataUrl();
+            return;
+        }
+        const arr: Array<React.JSX.Element> = [];
+
+        for (const label of selectedLabels) {
+            const canvasLabel = <LabelCanvas key={'ReactLabel$'+label._id} label={label} design={selectedDesign} blocks={selectedDesign.blocks} />;
+
+            arr.push(canvasLabel);
+
+        }
+        if (arr) setReactElementArr(arr);
+    }
+    const generateDataUrl = () => {
+        if (dataURLs.length > 1) return;
+        const arr = [];
+        for (const label of selectedLabels) {
+            const cnv = document.getElementById('canvas$' + label._id);
+            if (cnv && cnv.getAttribute('data-url')) {
+                arr.push(cnv.getAttribute('data-url'));
+            }
+        }
+        if (arr.length > 1 && isStringArray(arr))
+            setDataURLs(arr);
     }
 
+    generateReactElementArray();
+    
+    console.log(dataURLs);
     return (
+        <> {ReactElementArr ? <div style={{ display: 'none', visibility: 'hidden' }}>
+            {ReactElementArr && !isHTMLCanvasElementArray(ReactElementArr) ?
+                ReactElementArr.map(canvas =>
+                    canvas) : null
+            }
+        </div> : null}
         <Draggable handle='.handle' defaultPosition={{
             x: window.innerWidth/2, y: window.innerHeight/8
         }}>
@@ -81,7 +145,8 @@ export default function RightSide({ addedLabels }: IcontentProps) {
                     </Box>
                 </Container>
         </Paper>
-        </Draggable>
+            </Draggable>
+        </>
     );
 }
 const useStyles = makeStyles((theme: Theme) => ({
@@ -92,132 +157,27 @@ const useStyles = makeStyles((theme: Theme) => ({
         position:'absolute'
     },
 }));
-const CreatePDF = ({ labels }: { labels: IaddedLabel[] }) => {
+const CreatePDF = ({ imageURLs }: { imageURLs: string[] }) => {
     const [pdf, setPdf] = useState('');
-    const [design, setDesign] = useState<Design|null>(null);
    
-    const [canvasArr, setCanvasArr] = useState < Array<React.JSX.Element> | Array<HTMLCanvasElement>| []>([]);
-    const [ReactElementArr, setReactElementArr] = useState < Array<React.JSX.Element> | []>([]);
-    const elementRefs = useRef<Array<React.RefObject<any>>>([]);
-    const [dataURLs, setDataURLs] = useState<Array<string>>([]);
-    // Update the elementRefs whenever ReactElementArr changes
-    useEffect(() => {
-        elementRefs.current = ReactElementArr.map(() => React.createRef());
-    }, [ReactElementArr]);
-
-
-
-    const MockDesign = async () => {
-        const designs = await getLocalDesigns();
-        if (!designs || !isDesignArray(designs)) return null;
-        setDesign(designs[0]);
-        
-        }
-    if (!design) {
-        MockDesign();
-        return null;
-    }
-
-    const generateArray = async () => {
-        if (!ReactElementArr || (ReactElementArr.length > 0)) {
-            generateDataUrl();
-            return;
-        }
-        const arr: Array<React.JSX.Element> = [];
-        
-        for (const label of labels) {
-            const width = PDFLib.PageSizes.A4[0];
-            const height = PDFLib.PageSizes.A4[1];
-            let signsInPage = 8;
-            const canvasLabel = <LabelCanvas key={label._id} label={label} design={design} blocks={design.blocks} />;
-           
-                arr.push(canvasLabel);
-
-        }
-        
-        if( arr ) setReactElementArr(arr);
-    }
-    const generateDataUrl = () => {
-        if (dataURLs.length > 1) return;
-        const arr = [];
-        for (const label of labels) {
-            const cnv = document.getElementById('canvas$' + label._id);
-            if (cnv && cnv.getAttribute('data-url')) {
-                arr.push(cnv.getAttribute('data-url'));
-            }
-        }
-        if(arr.length > 1 && isStringArray(arr))
-        setDataURLs(arr);
-    }
-    const isStringArray = (arr: any[] | null): arr is string[] => {
-        if (!arr) return false;
-        return arr.every(str => typeof str === 'string');
-    }
-    /* Old version
-            let sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
-            sign.setContent(label.allergens, { bg: decodeURI(label.bg), en: label.en, de: label.de, rus: label.rus });
-            sign.setId(label._id);
-    
-            if (label.count && label.count > 1) {
-                for (let i = 1; i <= label.count; i++) {
-                   canvasArr.push(sign.generate());
-                }
-               } else {
-               canvasArr.push(sign.generate());
-              }
-        }
-        */
-    const isHTMLCanvasElement = (canvas: any | null): canvas is HTMLCanvasElement => {
-        return canvas && canvas instanceof HTMLCanvasElement;
-    }
-    const isHTMLCanvasElementArray = (canvasArr: any[] | null): canvasArr is HTMLCanvasElement[] => {
-        if (!canvasArr) return false;
-        return canvasArr.every(canvas => isHTMLCanvasElement(canvas));
-    }
-    // Function to transform an array of ReactCanvas components to an array of DataURLs
-    //React.JSX.Element is not HTMLCanvasElement
-    //NOt working Work In Progess!!
-    const transformToDataUrl = (reactElements: Array<React.JSX.Element> | Array<HTMLCanvasElement>): Array<string> | [] => {
-       if(reactElements) console.log(reactElements);
-        if (!reactElements) return [];
-        const arr: Array<string> = [];
-        for (const canvas of canvasArr) {
-            if (canvas && canvas instanceof HTMLCanvasElement) {
-                arr.push(canvas.toDataURL());
-            }
-        }
-        return arr;
-    }
     const generate = () => {
         if (pdf) return;
-        if (!canvasArr) return;
-        if (dataURLs.length < 1) return;
-
-            PDF(design, dataURLs, setPdf);
-
+        if (imageURLs.length < 1) return;
+        PDF(imageURLs, setPdf);
     }
-        generateArray();
-    generate();  
-  //  const cnv = document.getElementById('canvas$' + labels[0]._id);
-   // if (cnv && cnv.getAttribute('data-url')) console.log(cnv.getAttribute('data-url'));
-   // console.log(transformToDataUrl(ReactElementArr));
+    generate();
+
     return (
-        <Grid container>
-            <div style={{visibility:'hidden'} }>
-            {ReactElementArr && !isHTMLCanvasElementArray(ReactElementArr) ? 
-                    ReactElementArr.map(canvas =>
-            canvas): null
-                }
-            </div>
+
             <iframe title='PDF Labels' src={pdf} style={{ width: '100%', height: '100%' }}></iframe>
-            </Grid>
+ 
         );
     
 }
 
 // Function to transform an array of ReactCanvas components to an array of DataURLs
 
-async function PDF(design:Design,labels: Array<string>, setPdf:(arg: string) => void) {
+async function PDF(labels: Array<string>, setPdf:(arg: string) => void) {
 
     //creates new PDF Document
     const doc = await PDFLib.PDFDocument.create();

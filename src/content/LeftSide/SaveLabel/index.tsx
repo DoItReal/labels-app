@@ -4,7 +4,7 @@ import './index.css';
 import './saveLabel.css';
 import { labelDataType } from '../../../db';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
-import { IcontentProps } from '../../Content';
+import { IcontentProps } from '../../InterfacesContent';
 import React from 'react';
 import { Box, Container, IconButton, Paper, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles';

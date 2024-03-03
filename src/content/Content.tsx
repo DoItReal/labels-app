@@ -1,7 +1,6 @@
 import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
-import RightSide from './RightSide/index';
-//import './content.css';
+import RightSide from '../PDF/index';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState, useContext } from 'react';
 import { labelDataType } from '../db';
@@ -10,30 +9,19 @@ import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
 import AddedLabelsTable from './LeftSide/LabelsContainer/AddedLabels';
+import { addSelectedLabel, fetchSelectedLabels } from '../PDF/selectedLabelsDB';
+import { IcontentProps } from './InterfacesContent';
 export interface IaddedLabel extends labelDataType {
     count:number
 };
-export interface IcontentProps {
-    dbData: labelDataType[] | undefined,
-    setDbData: (arg: labelDataType[]) => void,
-    handleCreateLabel:(arg:any) => Promise<boolean>,
-    addedLabels: IaddedLabel[],
-    addLabel: (arg: IaddedLabel) => void,
-    addNewLabel: (arg: labelDataType) => void,
-    addLabels: (arg: labelDataType[]) => void,
-    deleteLabel: (arg: labelDataType) => void,
-    deleteLabels: (arg: labelDataType[]) => void,
-    handleSaveLabel: (arg: labelDataType) => void,
-    enableLabelForm: boolean,
-    handleLabelFormClose: () => void,
-    addLabelsById: ()=>void,
-    selectLabelsById: (arg: string[]) => void
+export const isIaddedLabel = (label: any): label is IaddedLabel => {
+    return label && label._id && label.count;
 }
 
 export default function ContentStates() {
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
-    const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>([]);
+    const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>(fetchSelectedLabels());
     const [enableStates, setEnableStates] = useContext(enableStatesContext);
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const enableLabelForm = enableStates.get('labelForm');
@@ -64,34 +52,12 @@ export default function ContentStates() {
     };
     //add 1 label to selected
     const addNewLabel = (label: labelDataType) => {
-        if (findId(label._id) !== -1) {
-            setAddedLabels(current => [...current].map(lbl => {
-                if (lbl._id === label._id) {
-                    return {
-                        ...lbl,
-                        count: lbl.count + 1
-                    }
-                }
-                else return lbl;
-            }));
-        } else {
-            let tmpList = [...addedLabels];
-            let tmp = structuredClone(label);
-            tmp.count = 1;
-            tmpList.push(tmp);
-            setAddedLabels(current => current.concat([tmp]));
-        }
+        addSelectedLabel(label);
+        setAddedLabels(fetchSelectedLabels());
     };
     //add Array<labelDataType> to selected
     const addLabels = (labels: labelDataType[]) => {
         labels.forEach(label => addNewLabel(label));
-    };
-    //find ID of label in selected
-    const findId = (id: string) => {
-        for (let i = 0; i < addedLabels.length; i++) {
-            if (addedLabels[i]._id === id) return i;
-        }
-        return -1;
     };
     //delete Label from DB and remove it from dbData
     const deleteDBLabel = (label: labelDataType) => {
@@ -165,7 +131,7 @@ export default function ContentStates() {
     const selectLabelsById = (labels: string[]) => {
         setSelectedLabels([...labels]);
     }
-    const props: IcontentProps = {dbData,enableLabelForm,addLabelsById,selectLabelsById, setDbData,handleCreateLabel,handleLabelFormClose, addNewLabel, addLabels, addLabel, addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
+    const props: IcontentProps = {dbData,enableLabelForm,addLabelsById,selectLabelsById, setDbData,handleCreateLabel,handleLabelFormClose, addNewLabel, addLabels, addLabel, selectedLabels:addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
     return (
         <>
         <Content props={props} />
@@ -192,7 +158,7 @@ function Content({ props }: { props: IcontentProps }) {
               <LeftSide {...props} />
             </Grid>
                     <Grid xs={12} md={6} m={0} p={0} height={1}>
-                        <AddedLabelsTable labels={props.addedLabels} updateLabel={props.addLabel }/>
+                        <AddedLabelsTable labels={props.selectedLabels} updateLabel={props.addLabel }/>
                     </Grid>
                   
            
@@ -200,7 +166,7 @@ function Content({ props }: { props: IcontentProps }) {
 
             </Grid>
             </Box>
-            <RightSide {...props} /> 
+            <RightSide /> 
          { props.enableLabelForm ? <CreateLabel {...props} /> : null }
          </>
     );

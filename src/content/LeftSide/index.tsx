@@ -1,8 +1,7 @@
 import { LabelsContainerStates } from './LabelsContainer/index';
 import './style.css';
 import  { labelDataType } from '../../db';
-import { IcontentProps } from '../Content';
-import { Box } from '@mui/material';
+import { IcontentProps } from '../InterfacesContent';
 
 export interface IlabelsContainerProps {
     dbData: labelDataType[] | undefined,
