@@ -13,6 +13,16 @@ export interface labelDataType {
     rus: string,
     owner: string
 }
+export const isLabelDataType = (arg: any): arg is labelDataType => {
+    return (arg._id &&
+        arg.allergens &&
+        arg.category &&
+        arg.bg &&
+        arg.en &&
+        arg.de &&
+        arg.rus &&
+        arg.owner) ? true : false;
+}
 
 export default class DB {
     address: string;
@@ -23,8 +33,6 @@ export default class DB {
         this.data = [];
     }
     fetchSigns(setDbData: (arg: labelDataType[]) => void) {
-        
-
         //get data from db
         return (new Promise<void>((resolve, reject)=> {
         let xhr = new XMLHttpRequest();
@@ -45,7 +53,23 @@ export default class DB {
         }));
        
     }  
-    getSignById(id: string) {
+    getLabelById(id: string) {
+        //get data from db
+        return (new Promise<labelDataType>((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", this.address + 'signs/' + id , true);
+            xhr.withCredentials = true;
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in fetching Label'));
+                }
+            };
+            xhr.onerror = () => reject(new Error('Error in fetching Label'));
+
+            xhr.send();
+        }));
         fetch(this.address + 'signs/' + id).then(response => response.json()).then(sign => { return sign });
     }
     createNewLabel(label:any, data = this.data) {

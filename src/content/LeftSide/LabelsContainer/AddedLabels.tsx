@@ -1,9 +1,11 @@
-import { Box, Stack, Tooltip } from '@mui/material';
+import { Box, Button, Grid, Input, InputLabel, Stack, Tooltip } from '@mui/material';
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { isNotNullOrUndefined } from '../../../tools/helpers';
-import { IaddedLabel } from '../../Content';
+import { IloadedLabel } from '../../Content';
+import { Icatalog, IloadedCatalog, isLoadedCatalog, saveCatalogDB } from '../../../PDF/CatalogsDB';
+import { useState } from 'react';
 
-// to save in db and fetch it
+// TODO: to save in db and fetch it
 const dataMap = new Map();
 dataMap.set('bg', 'Bulgarian');
 dataMap.set('en', 'English');
@@ -13,9 +15,11 @@ dataMap.set('allergens', 'Allergens');
 dataMap.set('count', 'Count');
 
 
-const getRows = (data: any[]) => data.map(el => {
-    el.id = structuredClone(el._id); el.actions = {}; return el;
-});
+const getRows = (data: any[]) => {
+   return data.map(el => {
+        el.id = structuredClone(el._id); el.actions = {}; return el;
+    })
+};
 const keys = (rows: any[]) => Object.keys(rows[0]);
 const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
     if (dataMap.get(key))
@@ -38,12 +42,38 @@ function NameEditInputCell(props: GridRenderEditCellParams) {
 function renderEditName(params: GridRenderEditCellParams) {
     return <NameEditInputCell {...params} />;
 }
-export default function DataTableStates({ labels, updateLabel }:
-    { labels: IaddedLabel[], updateLabel: (arg: IaddedLabel) => void }) {
+const newCatalog: (labels:IloadedLabel[])=>Icatalog = (labels) => {
+    return {
+        _id: '-1',
+        name: 'New Catalog',
+        owner: 'admin',
+        labels,
+        volume: labels.length,
+        size: labels.length > 0 ? labels.reduce((acc, curr) => acc + curr.count, 0) : 0,
+        date: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        updates: 0
+    }as Icatalog
+};
 
-    const getColsRows = (data: any): [rows: any, columns: any] => {
-        if (data === undefined || data.length === 0) return [[], []];
-        const row = getRows(data);
+export default function DataTableStates({ catalog,setCatalog, updateLabel }:
+    { catalog: IloadedCatalog,setCatalog:(arg:IloadedCatalog)=>void, updateLabel: (arg: IloadedLabel) => void }) {
+    const updateCatalog = (catalog: IloadedCatalog) => {
+        setCatalog({ ...catalog});
+    }
+    const saveCatalog = async () => {
+        const updatedCatalog = { ...catalog, lastUpdated: new Date().toISOString(), updates: catalog.updates + 1 };
+        setCatalog(updatedCatalog);
+        try {
+            await saveCatalogDB(updatedCatalog);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+ 
+    const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
+        if (!isLoadedCatalog(catalog) || catalog.labels.length === 0) return [[], []];
+        const row = getRows(catalog.labels);
         const colUnfilteredData = dataColUnfiltered(keys(row));
         const cols = col(colUnfilteredData);
         return [row, [...cols]];
@@ -78,19 +108,41 @@ export default function DataTableStates({ labels, updateLabel }:
         };
     }).filter(isNotNullOrUndefined);
 
-    const [rows, columns] = getColsRows(labels);
-
+    const [rows, columns] = getColsRows(catalog);
+   
     return (
-            <DataTable rows={rows} columns={columns} />
+        <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
     )
 }
 
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
-function DataTable({ rows, columns  }: { rows: any, columns: any}) {
+function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog  }: { rows: any, columns: any, catalog:IloadedCatalog, updateCatalog:(catalog:IloadedCatalog)=>void, saveCatalog:()=>void}) {
 
     return (
+        <>
+            <Grid container>
+                <Grid item>
+                    <InputLabel>Catalog Name</InputLabel>
+            <Input type='text' placeholder='Category Name' size='medium' value={catalog.name}
+                        onChange={(e) => updateCatalog({ ...catalog, name: e.target.value })} />
+                </Grid>
+                <Grid item>
+            <InputLabel>Created At</InputLabel>
+                    <Input value={catalog.date} disabled />
+                </Grid>
+                <Grid item>
+                    <InputLabel>Size</InputLabel>
+                    <Input value={catalog.size} disabled />
+                </Grid>
+                <Grid item>
+                    <Button variant='contained' color='primary'
+                        onClick={saveCatalog}>
+                        Save
+                    </Button>
+                </Grid>
+            </Grid>
         <Box height={1} sx={{
             position: 'relative',
             overflow: 'auto',
@@ -115,6 +167,7 @@ function DataTable({ rows, columns  }: { rows: any, columns: any}) {
                     toolbar: GridToolbar
                 }}
             />
-        </Box>
+            </Box>
+        </>
     );
 }

@@ -7,7 +7,7 @@ describe("DB", () => {
         expect(typeof db.fetchSigns).toBe("function");
         expect(typeof db.createNewLabel).toBe("function");
         expect(typeof db.deleteLabel).toBe("function");
-        expect(typeof db.getSignById).toBe("function");
+        expect(typeof db.getLabelById).toBe("function");
         expect(typeof db.saveLabel).toBe("function");
     });
 });

@@ -1,6 +1,5 @@
-import * as PDFLib from 'pdf-lib';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { IaddedLabel } from '../content/Content';
+import { IloadedLabel } from '../content/Content';
 import { enableStatesContext } from '../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
@@ -12,8 +11,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
 import { Design, isDesignArray } from '../DesignEditor/Interfaces/CommonInterfaces';
 import { getLocalDesigns } from '../DesignEditor/DesignDB';
-import { fetchSelectedLabels } from './selectedLabelsDB';
-
+import { IloadedCatalog, fetchLoadedCatalog, isLoadedCatalog, loadCatalog } from './CatalogsDB';
+import { PDF } from './PDF';
 const isStringArray = (arr: any[] | null): arr is string[] => {
     if (!arr) return false;
     return arr.every(str => typeof str === 'string');
@@ -25,37 +24,49 @@ const isHTMLCanvasElementArray = (canvasArr: any[] | null): canvasArr is HTMLCan
     if (!canvasArr) return false;
     return canvasArr.every(canvas => isHTMLCanvasElement(canvas));
 }
-export default function RightSide() {
-    const [selectedLabels, setSelectedLabels] = useState<IaddedLabel[]>(fetchSelectedLabels());
+export default function PdfViewer() {
+    const [selectedCatalog, setSelectedCatalog] = useState<IloadedCatalog | {}>(fetchLoadedCatalog());
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element | null>(null);
-
     const [ReactElementArr, setReactElementArr] = useState<Array<React.JSX.Element> | []>([]);
     const [dataURLs, setDataURLs] = useState<Array<string>>([]);
     const [design, setDesign] = useState<Design | null>(null);
     const classes = useStyles();
     const id = enableStates.get('createPDF') ? 'PDFPopover' : undefined;
 
+    // If enableStates does not have createPDF key or the value is false return null 
+    // no need to continue as the popover is not visible
     if (!enableStates.get('createPDF')) return null;
-    const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
-        event.stopPropagation();
-        updateStates('createPDF', false);
+    // If selectedCatalog is empty or its type is not IloadedCatalog return null
+    // no need to continue as there is no data to display
+    if (!isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0) {
+        console.log('selectedCatalog catalog array is empty or its type is not IloadedCatalog' + selectedCatalog);
+        console.log(selectedCatalog);
+        return null;
     }
+    
     const MockDesign = async () => {
         const designs = await getLocalDesigns();
         if (!designs || !isDesignArray(designs)) return null;
         setDesign(designs[0]);
         return (designs[0]);
     }
+    // If design is not set, call MockDesign and set the design
+    // TODO: get the design from designDB fetchLoadedDesign() 
     if (!design) MockDesign().then((design) => {
         if (design !== null)
             generateReactElementArray(design).then()
-});
+    });
+    
+    const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
+        event.stopPropagation();
+        updateStates('createPDF', false);
+    }
     const update = () => {
         updateStates('updatePDF', true);
     }
     if (enableStates.get('updatePDF') && dataURLs && dataURLs.length > 0) {
-        PDFrow.current = <CreatePDF imageURLs={dataURLs} />;
+        PDFrow.current = <PDF imageURLs={dataURLs} />;
         //updateStates('updatePDF', false);
     }
     const generateReactElementArray = async (selectedDesign:Design|null = design) => {
@@ -67,7 +78,7 @@ export default function RightSide() {
         }
         const arr: Array<React.JSX.Element> = [];
 
-        for (const label of selectedLabels) {
+        for (const label of selectedCatalog.labels) {
             const canvasLabel = <LabelCanvas key={'ReactLabel$'+label._id} label={label} design={selectedDesign} blocks={selectedDesign.blocks} />;
 
             arr.push(canvasLabel);
@@ -78,19 +89,22 @@ export default function RightSide() {
     const generateDataUrl = () => {
         if (dataURLs.length > 1) return;
         const arr = [];
-        for (const label of selectedLabels) {
+        for (const label of selectedCatalog.labels) {
             const cnv = document.getElementById('canvas$' + label._id);
             if (cnv && cnv.getAttribute('data-url')) {
-                arr.push(cnv.getAttribute('data-url'));
+                //TODO: for PERFORMANCE passing as OBJ{url:cnv.getAttribute('data-url'), count:label.count}
+                for (let i = 1; i <= label.count; i++) {
+                    arr.push(cnv.getAttribute('data-url'));
+                }
             }
         }
         if (arr.length > 1 && isStringArray(arr))
             setDataURLs(arr);
     }
-
+    
     generateReactElementArray();
     
-    console.log(dataURLs);
+    //console.log(dataURLs);
     return (
         <> {ReactElementArr ? <div style={{ display: 'none', visibility: 'hidden' }}>
             {ReactElementArr && !isHTMLCanvasElementArray(ReactElementArr) ?
@@ -157,101 +171,3 @@ const useStyles = makeStyles((theme: Theme) => ({
         position:'absolute'
     },
 }));
-const CreatePDF = ({ imageURLs }: { imageURLs: string[] }) => {
-    const [pdf, setPdf] = useState('');
-   
-    const generate = () => {
-        if (pdf) return;
-        if (imageURLs.length < 1) return;
-        PDF(imageURLs, setPdf);
-    }
-    generate();
-
-    return (
-
-            <iframe title='PDF Labels' src={pdf} style={{ width: '100%', height: '100%' }}></iframe>
- 
-        );
-    
-}
-
-// Function to transform an array of ReactCanvas components to an array of DataURLs
-
-async function PDF(labels: Array<string>, setPdf:(arg: string) => void) {
-
-    //creates new PDF Document
-    const doc = await PDFLib.PDFDocument.create();
-    //adds page to just created PDF Document
-
-    /*          Method doc.addPage(pageSize(w,h))
-     * 1 - (w,h) < <number>, <number> >  ... doc.addPage(700,800);
-     * 2 - (PageSizes.*) ... doc.addPage(PageSizes.A4);
-     * 3
-     * 
-     */
-    //  const page = doc.addPage(PDFLib.PageSizes.A4);
-   // console.log(labels);
-   // const labelsURLs = transformToDataUrl(labels);
-    const chunks = [];
-    for (let i = 0; i < labels.length; i += 8) {
-        chunks.push(labels.slice(i, i + 8));
-    }
-    
-    // Generate pages for each chunk of entries
-    for (const chunk of chunks) {
-        const page = doc.addPage(PDFLib.PageSizes.A4);
-
-        const tmpWidth = page.getSize().width;
-        const tmpHeight = page.getSize().height;
-        const width = tmpWidth - 10;
-        const height = tmpHeight - 10;
-        let y = height - 5;
-        let x = 0;
-
-        // Print each label on the page
-        for (const label of chunk) {
-           // label.width = width / 2;
-          //  label.height = height / 4;
-            //  console.log(label);
-          //  const cnv = document.getElementById('canvas$' + label._id);
-        //    if (cnv && cnv.getAttribute('data-url')) console.log(cnv.getAttribute('data-url'));
-            var jpgImage = await doc.embedPng(label);
-          //  const jpgImage = await doc.embedJpg(label);
-          
-            //used for debugging
-           // console.log(jpgImage);
-            //draws just created JPEG image to the page
-            page.drawImage(jpgImage, {
-                x: x + 5,
-                y: y - height/4,
-                width: width/2-5,
-                height: height/4 -10
-            });
-            if (x > 0) {
-                x = 0;
-                y -= (height-10) /4;
-            } else x = x + width/2 + 5;
-        }
-
-    }
-
-
-    //saving the PDF doc as dataUri
-    try {
-        const dataUri = await doc.saveAsBase64({ dataUri: true });
-        setPdf(dataUri);
-    } catch (e) {
-        console.log(e);
-        setPdf('');
-    }
-   /* 
-// Save the PDF document to a file
-const pdfBytes = await doc.save();
-
-// Use the pdfBytes to save the PDF document or perform further operations
-// Example: Save the PDF to a file
-    var file = new Blob([pdfBytes], { type: 'application/pdf' });
-    var fileURL = URL.createObjectURL(file);
-    window.open(fileURL);
-    */
-    }

@@ -4,7 +4,7 @@ import './index.css';
 import { labelDataType } from '../../../db';
 import { IlabelsContainerProps } from '../index';
 import LabelTable from './LabelTable';
-import { Box } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
 //@ts-ignore
 export const filterCategoryContext = createContext<[string[],(arg:string[])=>void]>();
@@ -78,13 +78,15 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
         deleteLabels: props.deleteLabels
     };
     return (
-        <Box height={1} sx={{ display: 'flex',p:0,m:0, flexDirection: 'column' }} >
-            <Box  sx={{ display: 'flex',p:0,m:0, width: '100%' }}>
+        <Box sx={{ display: 'flex', p: 0, m: 0, flexDirection: 'column', height:'85%' }}>
+            <Grid container width={1} height={1}  >
+                <Grid item xs={12} md={12} sx={{ display: 'flex',p:0,m:0, width: '100%' }}>
                 <FilterNavContainer setDbData={props.setDbData} generateList={generateList} selectedLabels={props.selectedLabels} setSelectedLabels={props.setSelectedLabels} deleteLabels={props.deleteLabels} handleAddLabels={props.addLabelsById } />
-            </Box>
-            <Box height={1} sx={{  overflow: 'auto' }}>
+            </Grid>
+                <Grid item xs={12} md={12} height={'100%'} sx={{ overflow: 'auto' }}>
                 <LabelTable {...labelsProps} />
-            </Box>
+                </Grid>
+            </Grid>
         </Box>
        
     );
@@ -92,7 +94,6 @@ export default function LabelsContainer({ props }: { props: Tprops }) {
 
 export function LabelsContainerStates({ dbData, setDbData,addNewLabel, addLabels, deleteLabel,deleteLabels, handleSaveLabel, selectLabelsById, addLabelsById }: IlabelsContainerProps) {
     const [filterCategory, setFilterCategory] = useState<string[]>(['all']);
-    const [filterText, setFilterText] = useState('');
     const [selectedLabels, setSelectedLabels] = useState<labelDataType[]>([]);
    // let initState: labelDataArrType = [{ _id: '0', category: [], allergens: [1], bg: "No Labels Loaded", en: '', de: '', rus: '' }];
     var props:Tprops = {dbData:dbData,selectLabelsById, setDbData:setDbData,addLabels:addLabels, selectedLabels:selectedLabels,setSelectedLabels:setSelectedLabels, addLabel:addNewLabel, deleteLabel,deleteLabels, handleSaveLabel, addLabelsById};

@@ -5,10 +5,12 @@
     "\\src",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\RightSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\DesignEditor",
     "\\src\\DesignEditor\\Interfaces",
+    "\\src\\PDF",
     "\\src\\UI"
   ],
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\AddedLabels.tsx",
   "PreviewInSolutionExplorer": false
 }

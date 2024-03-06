@@ -3,28 +3,37 @@ import LeftSide from './LeftSide/index';
 import RightSide from '../PDF/index';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState, useContext } from 'react';
-import { labelDataType } from '../db';
+import { isLabelDataType, labelDataType } from '../db';
 import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
-import AddedLabelsTable from './LeftSide/LabelsContainer/AddedLabels';
-import { addSelectedLabel, fetchSelectedLabels } from '../PDF/selectedLabelsDB';
+import LoadedCategoryTable from './LeftSide/LabelsContainer/AddedLabels';
+import { IloadedCatalog, addSelectedLabel, fetchLoadedCatalog, isLoadedCatalog, saveLoadedCatalog } from '../PDF/CatalogsDB';
 import { IcontentProps } from './InterfacesContent';
-export interface IaddedLabel extends labelDataType {
+export interface IloadedLabel extends labelDataType {
     count:number
 };
-export const isIaddedLabel = (label: any): label is IaddedLabel => {
-    return label && label._id && label.count;
+export const isIloadedLabel = (label: any): label is IloadedLabel => {
+    return label && label.count && isLabelDataType(label);
+}
+export const isIloadedLabelArray = (labels: any[]): labels is IloadedLabel[] => {
+    return labels.every(isIloadedLabel);
 }
 
 export default function ContentStates() {
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
-    const [addedLabels, setAddedLabels] = useState<IaddedLabel[]>(fetchSelectedLabels());
+    const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | {}>(fetchLoadedCatalog());
+   // const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog>({});
     const [enableStates, setEnableStates] = useContext(enableStatesContext);
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const enableLabelForm = enableStates.get('labelForm');
+
+    const setCatalog = (catalog: IloadedCatalog) => {
+        setLoadedCatalog(catalog);
+        saveLoadedCatalog(catalog);
+    }
     const handleLabelFormClose = () => {
         setEnableStates('labelForm',false);
     }
@@ -38,22 +47,17 @@ export default function ContentStates() {
         }
         
     }
-    //add label to selected
-    const addLabel = (label: IaddedLabel) => {
-        setAddedLabels(current => [...current].map(lbl => {
-            if (lbl._id === label._id) {
-                return {
-                    ...lbl,
-                    count: label.count
-                }
-            }
-            else return lbl;
-        }));
+    //add label to selected Catalog
+    const addLabel = (label: IloadedLabel) => {
+        //add label to selected catalog and update loadedCatalog
+        addSelectedLabel(label);
+        //fetch updated catalog and set it to loadedCatalog
+        setLoadedCatalog(fetchLoadedCatalog());
     };
     //add 1 label to selected
     const addNewLabel = (label: labelDataType) => {
         addSelectedLabel(label);
-        setAddedLabels(fetchSelectedLabels());
+        setLoadedCatalog(fetchLoadedCatalog());
     };
     //add Array<labelDataType> to selected
     const addLabels = (labels: labelDataType[]) => {
@@ -82,7 +86,7 @@ export default function ContentStates() {
             }
         }));
     }
-    //delete selected labels 
+    //delete selected catalog 
     const deleteDBLabels =  (labels: labelDataType[]) => {
         labels.forEach(async (label) => {
             try {
@@ -131,7 +135,8 @@ export default function ContentStates() {
     const selectLabelsById = (labels: string[]) => {
         setSelectedLabels([...labels]);
     }
-    const props: IcontentProps = {dbData,enableLabelForm,addLabelsById,selectLabelsById, setDbData,handleCreateLabel,handleLabelFormClose, addNewLabel, addLabels, addLabel, selectedLabels:addedLabels, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
+    const props: IcontentProps = {
+        dbData, enableLabelForm, addLabelsById, selectLabelsById, setDbData, handleCreateLabel, handleLabelFormClose, addNewLabel, addLabels, addLabel, loadedCatalog: loadedCatalog, setLoadedCatalog: setCatalog, deleteLabel:deleteDBLabel,deleteLabels:deleteDBLabels, handleSaveLabel };
     return (
         <>
         <Content props={props} />
@@ -154,12 +159,14 @@ function Content({ props }: { props: IcontentProps }) {
             alignItems: 'stretch',
         }}>
             <Grid container spacing={0} m={0} p={0} height={1} sx={{ p: 0, m: 0,overflow:'auto'}} >
-                    <Grid xs={12} md={6} m={0} p={0} height={1 } >
+                    <Grid xs={12} md={isLoadedCatalog(props.loadedCatalog)? 6 : 12} m={0} p={0} height={1 } >
               <LeftSide {...props} />
             </Grid>
-                    <Grid xs={12} md={6} m={0} p={0} height={1}>
-                        <AddedLabelsTable labels={props.selectedLabels} updateLabel={props.addLabel }/>
-                    </Grid>
+                    {isLoadedCatalog(props.loadedCatalog) ? (
+                        <Grid xs={12} md={6} m={0} p={0} height={1}>
+                            <LoadedCategoryTable catalog={props.loadedCatalog} setCatalog={props.setLoadedCatalog} updateLabel={props.addLabel} />
+                        </Grid>
+                    ) : null}
                   
            
          
