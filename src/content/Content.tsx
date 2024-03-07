@@ -9,7 +9,7 @@ import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
 import LoadedCategoryTable from './LeftSide/LabelsContainer/AddedLabels';
-import { IloadedCatalog, addSelectedLabel, fetchLoadedCatalog, isLoadedCatalog, saveLoadedCatalog } from '../PDF/CatalogsDB';
+import { IloadedCatalog, addSelectedLabel, fetchLoadedCatalog, isLoadedCatalog, saveLoadedCatalog, loadCatalog } from '../PDF/CatalogsDB';
 import { IcontentProps } from './InterfacesContent';
 export interface IloadedLabel extends labelDataType {
     count:number
@@ -30,6 +30,8 @@ export default function ContentStates() {
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const enableLabelForm = enableStates.get('labelForm');
 
+    //FOR TESTING PURPOSES ONLY!!!
+    loadCatalog('65e8cd5584f929813a398284');
     const setCatalog = (catalog: IloadedCatalog) => {
         setLoadedCatalog(catalog);
         saveLoadedCatalog(catalog);

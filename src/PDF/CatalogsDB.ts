@@ -1,6 +1,7 @@
 import { IloadedLabel, isIloadedLabel, isIloadedLabelArray } from "../content/Content";
 import { isLabelDataType, labelDataType } from "../db";
 import { db } from '../App';
+const address = 'http://localhost:8080/';
 interface IcatalogLabelPointer {
     _id: string;
     count: number;
@@ -34,6 +35,9 @@ export const isCatalog = (catalog: any): catalog is Icatalog => {
         catalog.lastUpdated &&
         catalog.updates;
 }
+export const isCatalogArray = (catalogs: any[]): catalogs is Icatalog[] => {
+    return catalogs.every(isCatalog);
+}
 export interface IloadedCatalog extends Icatalog {
     labels: IloadedLabel[]
 }
@@ -53,6 +57,47 @@ export const isLoadedCatalog = (catalog: any): catalog is IloadedCatalog => {
 interface Icatalogs {
     [key: string]: Icatalog;
 }
+export const isIcatalogs = (catalogs: any): catalogs is Icatalogs => {
+    return catalogs && Object.values(catalogs).every(isCatalog);
+}
+//fetches catalogs from server and returns a promise of type Icatalog[]
+
+
+export const fetchCatalogs = () => {
+    return (new Promise<Icatalog[]>((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", address + 'catalogs/');
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const catalogsStr = xhr.responseText;
+                const catalogs = catalogsStr ? JSON.parse(catalogsStr) as Icatalog[] : [];
+                //check if catalogs is not '{}' and is of type Icatalogs
+                if (isCatalogArray(catalogs)) {
+                    resolve(catalogs);
+                }
+            } else if (xhr.status !== 200) {
+                reject(new Error('Error in fetching Catalogs'));
+            }
+        };
+        xhr.send();
+    }
+    ));
+}
+//gets (catalogs:Icatalog[]) modifies it to Icatalogs and saves it to local storage
+export const loadCatalogsLocally = (catalogs: Icatalog[]) => {
+    // if catalogs is not of type Icatalogs, return and do not proceed further
+    if (!catalogs) return;
+    const catalogObj: Icatalogs = {};
+    for (const catalog of catalogs) {
+        catalogObj[catalog._id] = catalog;
+    }
+    if (!isIcatalogs(catalogObj)) return;
+    localStorage.setItem('catalogs', JSON.stringify(catalogObj));
+}
 const dummyCatalog: (labels: IloadedLabel[]) => IloadedCatalog = (labels) => {
     return {
         _id: '1',
@@ -71,11 +116,12 @@ const dummyCatalogs = {
     '1': dummyCatalog
 }
 export const loadCatalog = async (id: string) => {
-    // const catalogs = localStorage.getItem('catalogs');
-    const catalogs = JSON.stringify(dummyCatalogs);
+    const catalogsStr = localStorage.getItem('catalogs');
+
     const labelsArr: IloadedLabel[] = [];
-    if (catalogs) {
-        const parsedCatalogs = JSON.parse(catalogs) as Icatalogs;
+    if (catalogsStr) {
+        const parsedCatalogs = JSON.parse(catalogsStr) as Icatalogs;
+        //if id is not in parsedCatalogs, return empty array
         const selectedCatalog = parsedCatalogs[id];
        
         for (const labelPointer of selectedCatalog.labels) {
@@ -90,10 +136,11 @@ export const loadCatalog = async (id: string) => {
                 console.log(e);
             }
         }
-        localStorage.setItem('selectedCatalog', JSON.stringify({...selectedCatalog, labels:labelsArr }));
+        localStorage.setItem('selectedCatalog', JSON.stringify({ ...selectedCatalog, labels: labelsArr }));
+        return { ...selectedCatalog, labels: labelsArr };
         
     }
-    return labelsArr;
+    return null;
 
 } 
 
@@ -134,14 +181,13 @@ export const deleteSelectedLabels = (label: labelDataType[] | null = null) => {
 
 //adds label to selected Catalog
 export const addSelectedLabel =  (label: labelDataType) => {
+    // fetch locally loadedCatalog from local storage 
+    // if it does not exist it means no catalog is selected and we create a new catalog
     const catalog: IloadedCatalog | {} = fetchLoadedCatalog();
-   // console.log(catalog);
     console.log(Boolean(isLoadedCatalog(catalog)));
     if (catalog && isLoadedCatalog(catalog) && catalog.labels.length > 0) {
-        console.log('already exists catalog')
         //if label is already in selected catalog, increment count
         if (catalog.labels.some(lbl => lbl._id === label._id)) {
-            console.log('existing label');
             const newLabels = catalog.labels.map(lbl => {
                 if (lbl._id === label._id) {
                     return {
@@ -171,16 +217,38 @@ export const addSelectedLabel =  (label: labelDataType) => {
             saveLoadedCatalog(newCatalog);
         }
 }
-const address = 'http://localhost:8080/';
 
-export const saveCatalogDB = (catalog: IloadedCatalog) => {
-    const modifiedCatalog = { ...catalog, labels: catalog.labels.map(label => ({ _id: label._id, count: label.count })) };
+export const createCatalogDB  = (catalog: IloadedCatalog) => {
+//TODO 
+    const modifiedCatalog = { ...catalog,_id:'65e8cd9784f929813a398288', labels: catalog.labels.map(label => ({ _id: label._id, count: label.count })) };
     if (!isCatalog(modifiedCatalog)) {
         return;
     }
     return (new Promise<Icatalog>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", address + 'catalogs');
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                resolve(modifiedCatalog);
+            } else if (xhr.status !== 200) {
+                reject(new Error('Error in saving Catalog'));
+            }
+        };
+        xhr.send(JSON.stringify(modifiedCatalog));
+    }));
+}
+export const updateCatalogDB = (catalog: IloadedCatalog) => {
+    const modifiedCatalog = { ...catalog, labels: catalog.labels.map(label => ({ _id: label._id, count: label.count })) };
+    if (!isCatalog(modifiedCatalog)) {
+        return;
+    }
+    return (new Promise<Icatalog>((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("PUT", address + 'catalogs/' + catalog._id);
         xhr.withCredentials = true;
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");

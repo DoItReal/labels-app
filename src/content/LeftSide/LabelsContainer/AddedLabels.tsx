@@ -2,7 +2,7 @@ import { Box, Button, Grid, Input, InputLabel, Stack, Tooltip } from '@mui/mater
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { isNotNullOrUndefined } from '../../../tools/helpers';
 import { IloadedLabel } from '../../Content';
-import { Icatalog, IloadedCatalog, isLoadedCatalog, saveCatalogDB } from '../../../PDF/CatalogsDB';
+import { Icatalog, IloadedCatalog, isLoadedCatalog, createCatalogDB, updateCatalogDB } from '../../../PDF/CatalogsDB';
 import { useState } from 'react';
 
 // TODO: to save in db and fetch it
@@ -65,7 +65,10 @@ export default function DataTableStates({ catalog,setCatalog, updateLabel }:
         const updatedCatalog = { ...catalog, lastUpdated: new Date().toISOString(), updates: catalog.updates + 1 };
         setCatalog(updatedCatalog);
         try {
-            await saveCatalogDB(updatedCatalog);
+            if (updatedCatalog._id === '1')
+            await createCatalogDB(updatedCatalog);
+            else
+            await updateCatalogDB(updatedCatalog);
         } catch (e) {
             console.error(e);
         }

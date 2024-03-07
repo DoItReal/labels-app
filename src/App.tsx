@@ -18,10 +18,18 @@ import StickyFooter from './UI/Footer';
 //import Playground from './DesignEditor/Editor';
 
 import Playground from './Designs/index';
+import { fetchCatalogs, loadCatalogsLocally } from './PDF/CatalogsDB';
 
 export var db = new DB();
-
-
+const fetchAndLoadCatalogs = async () => {
+    try {
+        const catalogs = await fetchCatalogs();
+        loadCatalogsLocally(catalogs);
+    } catch (e) {
+        console.error(e);
+    }
+};
+    fetchAndLoadCatalogs();
 export interface IenableStates {
     enableStates: Map<string, boolean>,
     updateStates: (key: string, value: boolean) => void
