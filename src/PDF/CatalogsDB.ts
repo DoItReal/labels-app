@@ -96,9 +96,10 @@ export const loadCatalogsLocally = (catalogs: Icatalog[]) => {
         catalogObj[catalog._id] = catalog;
     }
     if (!isIcatalogs(catalogObj)) return;
-    localStorage.setItem('catalogs', JSON.stringify(catalogObj));
+    sessionStorage.setItem('catalogs', JSON.stringify(catalogObj));
 }
-const dummyCatalog: (labels: IloadedLabel[]) => IloadedCatalog = (labels) => {
+
+export const newCatalog: (labels: IloadedLabel[]) => IloadedCatalog = (labels = []) => {
     return {
         _id: '1',
         name: 'New Catalog',
@@ -111,20 +112,31 @@ const dummyCatalog: (labels: IloadedLabel[]) => IloadedCatalog = (labels) => {
         updates: 0
     } as IloadedCatalog
 };
-
-const dummyCatalogs = {
-    '1': dummyCatalog
-}
-export const loadCatalog = async (id: string) => {
-    const catalogsStr = localStorage.getItem('catalogs');
-
-    const labelsArr: IloadedLabel[] = [];
+export const fetchCatalogsLocally = () => {
+    const catalogsStr = sessionStorage.getItem('catalogs');
     if (catalogsStr) {
         const parsedCatalogs = JSON.parse(catalogsStr) as Icatalogs;
+        return parsedCatalogs;
+    }
+    return null;
+}
+const dummyCatalog = newCatalog([]);
+
+export const loadCatalog = async (id: string) => {
+    if (id === dummyCatalog._id) {
+        sessionStorage.setItem('selectedCatalog', JSON.stringify({ ...dummyCatalog, labels: [] }));
+        return { ...dummyCatalog, labels: [] };
+    }
+    const catalogs = fetchCatalogsLocally();
+    
+    const labelsArr: IloadedLabel[] = [];
+    if (catalogs) {
         //if id is not in parsedCatalogs, return empty array
-        const selectedCatalog = parsedCatalogs[id];
-       
+        const selectedCatalog = catalogs[id];
+        
+       if(!selectedCatalog) return null;
         for (const labelPointer of selectedCatalog.labels) {
+            
             try {
                 const label = await db.getLabelById(labelPointer._id);
                 if (!isLabelDataType(label)) throw new Error('Label is not of type IloadedLabel'); 
@@ -136,7 +148,7 @@ export const loadCatalog = async (id: string) => {
                 console.log(e);
             }
         }
-        localStorage.setItem('selectedCatalog', JSON.stringify({ ...selectedCatalog, labels: labelsArr }));
+        sessionStorage.setItem('selectedCatalog', JSON.stringify({ ...selectedCatalog, labels: labelsArr }));
         return { ...selectedCatalog, labels: labelsArr };
         
     }
@@ -146,7 +158,7 @@ export const loadCatalog = async (id: string) => {
 
 //loads selected catalog from local storage
 export const fetchLoadedCatalog = () => {
-    const catalog = localStorage.getItem('selectedCatalog');
+    const catalog = sessionStorage.getItem('selectedCatalog');
     if (catalog !== null) {
         return JSON.parse(catalog) as IloadedCatalog;
     }
@@ -154,11 +166,11 @@ export const fetchLoadedCatalog = () => {
 }
 //adds selected catalog to local storage
    export const saveLoadedCatalog = (catalog:IloadedCatalog) => {
-         localStorage.setItem('selectedCatalog', JSON.stringify(catalog));
+         sessionStorage.setItem('selectedCatalog', JSON.stringify(catalog));
 }
 //removes selected catalog from local storage
 export const deleteSelectedLabels = (label: labelDataType[] | null = null) => {
-    const catalogString = localStorage.getItem('selectedCatalog');
+    const catalogString = sessionStorage.getItem('selectedCatalog');
     const catalog = catalogString ? JSON.parse(catalogString) as IloadedCatalog : null;
     if (catalog === null) return;
     //if label is null, remove all catalog from selected catalog
@@ -213,8 +225,8 @@ export const addSelectedLabel =  (label: labelDataType) => {
     //else create newCatalog and add label to it
     else {
         console.log('new Catalog');
-            const newCatalog = dummyCatalog([ { ...label, count: 1 }]);
-            saveLoadedCatalog(newCatalog);
+            const catalog = newCatalog([ { ...label, count: 1 }]);
+            saveLoadedCatalog(catalog);
         }
 }
 

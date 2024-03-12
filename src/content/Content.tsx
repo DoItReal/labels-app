@@ -22,6 +22,7 @@ export const isIloadedLabelArray = (labels: any[]): labels is IloadedLabel[] => 
 }
 
 export default function ContentStates() {
+    
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
     const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | {}>(fetchLoadedCatalog());
@@ -32,6 +33,7 @@ export default function ContentStates() {
 
     //FOR TESTING PURPOSES ONLY!!!
     loadCatalog('65e8cd5584f929813a398284');
+
     const setCatalog = (catalog: IloadedCatalog) => {
         setLoadedCatalog(catalog);
         saveLoadedCatalog(catalog);
