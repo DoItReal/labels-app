@@ -11,6 +11,6 @@
     "\\src\\PDF",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\Catalogs\\index.tsx",
+  "SelectedNode": "\\src\\Catalogs\\Interfaces\\CatalogDB.ts",
   "PreviewInSolutionExplorer": false
 }

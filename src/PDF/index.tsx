@@ -25,7 +25,7 @@ const isHTMLCanvasElementArray = (canvasArr: any[] | null): canvasArr is HTMLCan
     return canvasArr.every(canvas => isHTMLCanvasElement(canvas));
 }
 export default function PdfViewer() {
-    const [selectedCatalog, setSelectedCatalog] = useState<IloadedCatalog | {}>(getSelectedCatalog());
+    const [selectedCatalog, setSelectedCatalog] = useState<IloadedCatalog | null>(getSelectedCatalog());
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element | null>(null);
     const [ReactElementArr, setReactElementArr] = useState<Array<React.JSX.Element> | []>([]);

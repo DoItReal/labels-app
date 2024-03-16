@@ -43,6 +43,14 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
             }
         },
         {
+            name: 'Catalogs',
+            key: 'CatalogsEditor',
+            handleClick: () => {
+                handleCloseNavMenu();
+                navigate('./catalogs');
+            }
+        },
+        {
             name: 'Design Editor',
             key: 'DesignEditor',
             handleClick: () => {

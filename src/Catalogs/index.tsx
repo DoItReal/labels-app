@@ -1,10 +1,7 @@
-
-
 import React, { useEffect, useRef, useState } from 'react';
 import {
     List,
     ListItem,
-    ListItemText,
     Button,
     TextField,
     Dialog,
@@ -16,11 +13,12 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
-import { fetchCatalogs, getCatalogs, loadCatalogsLocally, updateCatalogsLocally } from '../Catalogs/CatalogsDB';
-import { newCatalog, deleteCatalogLocally, IcatalogToIcatalogs, loadCatalog, catalogToLoadedCatalog } from '../Catalogs/CatalogDB';
-import { Icatalog, IloadedCatalog } from '../Catalogs/Interfaces/CatalogDB';
+import { deleteCatalogDB, fetchCatalogs, getCatalogs, loadCatalogsLocally, updateCatalogDB, updateCatalogsLocally } from '../Catalogs/CatalogsDB';
+import { newCatalog, deleteCatalogLocally, IcatalogToIcatalogs, loadCatalog, catalogToLoadedCatalog, getSelectedCatalog, loadedCatalogToCatalog } from '../Catalogs/CatalogDB';
+import { Icatalog, IloadedCatalog, isCatalogArray, isLoadedCatalog } from '../Catalogs/Interfaces/CatalogDB';
 import { Icatalogs } from '../Catalogs/Interfaces/CatalogsDB';
-import Catalog from './CatalogEditor';
+import CatalogEditor from './CatalogEditor';
+import CatalogPreview from './CatalogPreview';
 const useStyles = makeStyles((theme) => ({
     buttonStyle: {
         backgroundColor: 'lightgray',
@@ -39,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
 const Catalogs: React.FC = () => {
     const [catalogs, setCatalogs] = useState<Icatalogs>();
     const [editingCatalogId, setEditingCatalogId] = useState<string | null>(null);
+    const [previewingCatalogId, setPreviewingCatalogId] = useState<string | null>(null);
     const [loadedCatalog,setLoadedCatalog] = useState<IloadedCatalog | null>(null)
     const [open, setOpen] = useState(false);
     const [newCatalogName, setNewCatalogName] = useState('');
@@ -46,38 +45,61 @@ const Catalogs: React.FC = () => {
     const [renamingCatalogName, setRenamingCatalogName] = useState('');
     const [menuCollapsed, setMenuCollapsed] = useState(false);
     const classes = useStyles();
-
-    const setCatalog = (catalog: Icatalog) => { // This function is passed to the Catalog component to update the state with the edited catalog.
+    const setCatalog = async (catalog: Icatalog) => { // This function is passed to the CatalogEditor component to update the state with the edited catalog.
         // Logic to update the state with the edited catalog or add a new catalog to the list
         if (!catalogs) return;
         const updatedCatalogs: Icatalogs = {
             ...catalogs,
             [catalog._id]: catalog
         };
+        // Update the state with the new list of catalogs
         setCatalogs(updatedCatalogs);
+        // Save the updated catalogs locally in session storage
+        await updateCatalogsLocally(updatedCatalogs);
+        // Update the state with the new loaded CatalogEditor if it is the one being edited
+        if (loadedCatalog && loadedCatalog._id === catalog._id) {
+            const loadedCatalogTmp = await catalogToLoadedCatalog(catalog._id);
+            setLoadedCatalog(loadedCatalogTmp);
+        }
     };
     useEffect(() => {
-        const storedCatalogs = getCatalogs();
-        if (storedCatalogs) {
-            setCatalogs(storedCatalogs);
+        
+        //check if there are catalogs in the session storage
+        //even if there are catalogs in the session storage, fetch the catalogs from the database and update the session storage
+        const fetchCatalogsFromDB = async () => {
+
+            const selectedCatalog: IloadedCatalog | null = getSelectedCatalog();
             
-        } else {
-            const fetchCatalogsFromDB = async () => {
-                try {
-                    const fetchedCatalogs: Icatalog[] = await fetchCatalogs();
-                    // Save the fetched catalogs locally in session storage
-                    loadCatalogsLocally(fetchedCatalogs);
-                    // Fetch the catalogs from session storage
-                    const cats = getCatalogs();
-                    // Set the fetched catalogs to the state
-                    cats && setCatalogs(cats);
-                } catch (error) {
-                    console.error('Error fetching catalogs:', error);
+            try {
+                const fetchedCatalogs: Icatalog[] = await fetchCatalogs();
+                // Save the fetched catalogs locally in session storage
+                const catalogs: Icatalog[] = [];
+                if (selectedCatalog && isLoadedCatalog(selectedCatalog)) {
+                    
+                    var found = false;
+                    for (const fetchedCatalog of fetchedCatalogs) { // iterate fetchedCatalogs
+                        if (selectedCatalog._id === fetchedCatalog._id) { // if the catalog is found in the fetchedCatalogs
+                            found = true; // update the selectedCatalog
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        const catalog = loadedCatalogToCatalog(selectedCatalog);
+                        catalogs.push(catalog);
+                    }
                 }
-            };
+                const cats = await loadCatalogsLocally([...fetchedCatalogs, ...catalogs]);
+                // Fetch the catalogs from session storage
+                // Set the fetched catalogs to the state
+                cats && setCatalogs(cats);
+            } catch (error) {
+                console.error('Error fetching catalogs:', error);
+            }
+
+        };
 
             fetchCatalogsFromDB();
-        }
+
     }, []);
     useEffect(() => {
         
@@ -95,7 +117,27 @@ const Catalogs: React.FC = () => {
             fetchData(editingCatalogId);
         }
     }, [editingCatalogId]); // Run effect when editingCatalogId changes
- 
+    useEffect(() => {
+        const fetchData = async (catalogId: string) => {
+            try {
+                const loadedCatalog = await catalogToLoadedCatalog(catalogId);
+                // Set the loaded catalog to state
+                setLoadedCatalog(loadedCatalog);
+            } catch (error) {
+                console.error('Error fetching catalog:', error);
+            }
+        };
+        if (previewingCatalogId) {
+            fetchData(previewingCatalogId);
+        }
+
+    },[previewingCatalogId]); // Run effect when previewingCatalogId changes
+    const handlePreviewCatalog = (catalog: Icatalog) => {
+        loadCatalog(catalog._id);
+        setPreviewingCatalogId(catalog._id);
+        setMenuCollapsed(true); // Move blocks list to the left to make room for the editor UI
+        console.log('previewing catalog:', catalog);
+    };
     const handleEditCatalog = (catalog: Icatalog) => {
         loadCatalog(catalog._id);
         setEditingCatalogId(catalog._id);
@@ -124,16 +166,19 @@ const Catalogs: React.FC = () => {
         if (catalogs && catalogs[catalogId]) delete catalogs[catalogId];
             else console.log('catalog not found in catalogs');
         // Update the state with the new list of catalogs
-        setCatalogs(catalogs);
+        setCatalogs({ ...catalogs });
         // delete the catalog from the database
-        
+        deleteCatalogDB(catalogId);
+        //delete selectedCatalog if it is the one being deleted
+        const selectedCatalog = getSelectedCatalog();
+        if (selectedCatalog && selectedCatalog._id === catalogId && catalogId !== '1') {
+            sessionStorage.removeItem('selectedCatalog');
+        }
     };
 
     const handleRenameCatalog = (catalogId: string, newName: string) => {
         if (!catalogs) return;
-        //not tested
         const updatedCatalogs: Icatalogs = { ...catalogs, [catalogId]: { ...catalogs[catalogId], name: newName } };
-        console.log(catalogs); console.log(updatedCatalogs)
         setCatalogs(updatedCatalogs);
         updateCatalogsLocally(updatedCatalogs);
         setRenamingCatalogId(null);
@@ -148,10 +193,7 @@ const Catalogs: React.FC = () => {
         setRenamingCatalogName(designName);
     };
     
-    if (catalogs) {
-                    Object.values(catalogs).forEach((catalog: Icatalog) => {
-                    });
-                }
+    
     return (
         <>
         <Grid container>
@@ -160,7 +202,7 @@ const Catalogs: React.FC = () => {
                 <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >
                     {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
                 </IconButton>
-                {/* Catalog List */}
+                {/* CatalogEditor List */}
                 <List>
                     {catalogs && Object.values(catalogs).map((catalog: Icatalog) => (
                         <ListItem key={'newCatalog ' + catalog._id}>
@@ -179,7 +221,8 @@ const Catalogs: React.FC = () => {
                             
                             {!menuCollapsed && (
                                 <>
-                            <Button onClick={() => handleEditCatalog(catalog)}>Edit</Button>
+                                    <Button onClick={()=>handlePreviewCatalog(catalog) }>Preview</Button>
+                                    <Button onClick={() => handleEditCatalog(catalog)}>Edit</Button>
                             <Button onClick={() => handleDeleteCatalog(catalog._id)}>Delete</Button>
                             <Button onClick={() => { setRenamingCatalogId(catalog._id); setRenamingCatalogName(catalog.name); } }>Rename</Button>
                             </>
@@ -192,13 +235,13 @@ const Catalogs: React.FC = () => {
                 {/* Button to add new newCatalog */}
                 {!menuCollapsed && (
                     <>
-                <Button onClick={() => setOpen(true)}>Add Design</Button>
+                <Button onClick={() => setOpen(true)}>New Catalog</Button>
                 {/* Dialog for adding a new newCatalog */}
                 <Dialog open={open} onClose={handleClose}>
                     <DialogTitle>Add New Catalog</DialogTitle>
                     <DialogContent>
                         <TextField
-                            label="Catalog Name"
+                            label="CatalogEditor Name"
                             value={newCatalogName}
                             onChange={(e) => setNewCatalogName(e.target.value)}
                         />
@@ -213,12 +256,18 @@ const Catalogs: React.FC = () => {
             </Grid>
                 <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} >
                 {editingCatalogId !== null && loadedCatalog ? (
-                    <Catalog
+                    <CatalogEditor
                         key={'catalog/' + editingCatalogId}
                         catalog={ loadedCatalog }
                         setCatalog={ setCatalog }
                     />
-                ) : null}
+                    ) : null}
+                    {previewingCatalogId !== null && loadedCatalog ? (
+                        <CatalogPreview
+                        key={'catalog/' + previewingCatalogId}
+                            catalog={loadedCatalog}
+                        />
+                    ):null }
             </Grid>
     
             </Grid>

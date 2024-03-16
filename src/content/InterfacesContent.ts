@@ -6,7 +6,7 @@ export interface IcontentProps {
     dbData: labelDataType[] | undefined,
     setDbData: (arg: labelDataType[]) => void,
     handleCreateLabel: (arg: any) => Promise<boolean>,
-    loadedCatalog: IloadedCatalog | {},
+    loadedCatalog: IloadedCatalog | null,
     setLoadedCatalog: (arg: IloadedCatalog) => void,
     addLabel: (arg: IloadedLabel) => void,
     addNewLabel: (arg: labelDataType) => void,

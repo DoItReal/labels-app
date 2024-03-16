@@ -23,13 +23,14 @@ const address = 'http://localhost:8080/';
 //gets (catalogs:Icatalog[]) modifies it to Icatalogs and saves it to local storage
 export const loadCatalogsLocally = (catalogs: Icatalog[]) => {
     // if catalogs is not of type Icatalogs, return and do not proceed further
-    if (!catalogs) return;
+    if (!catalogs) return null;
     const catalogObj: Icatalogs = {};
     for (const catalog of catalogs) {
         catalogObj[catalog._id] = catalog;
     }
-    if (!isIcatalogs(catalogObj)) return;
+    if (!isIcatalogs(catalogObj)) return null;
     sessionStorage.setItem('catalogs', JSON.stringify(catalogObj));
+    return catalogObj;
 }
 export const updateCatalogsLocally = (catalogs: Icatalogs) => {
     if (!isIcatalogs(catalogs)) return;
@@ -62,7 +63,10 @@ export const fetchCatalogs = () => {
                 const catalogsStr = xhr.responseText;
                 const catalogs = catalogsStr ? JSON.parse(catalogsStr) as Icatalog[] : [];
                 //check if catalogs is not '{}' and is of type Icatalogs
+           //     console.log(catalogs)
+           //     console.log(isCatalogArray(catalogs))
                 if (isCatalogArray(catalogs)) {
+                    
                     resolve(catalogs);
                 }
             } else if (xhr.status !== 200) {
@@ -116,5 +120,23 @@ export const updateCatalogDB = (catalog: IloadedCatalog) => {
             }
         };
         xhr.send(JSON.stringify(modifiedCatalog));
+    }));
+}
+export const deleteCatalogDB = (id: string) => {
+    return (new Promise<void>((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("DELETE", address + 'catalogs/' + id);
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                resolve();
+            } else if (xhr.status !== 200) {
+                reject(new Error('Error in deleting Catalog'));
+            }
+        };
+        xhr.send();
     }));
 }

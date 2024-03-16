@@ -18,7 +18,7 @@ export default function ContentStates() {
     
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
-    const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | {}>(getSelectedCatalog());
+    const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | null>(getSelectedCatalog());
    // const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog>({});
     const [enableStates, setEnableStates] = useContext(enableStatesContext);
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);

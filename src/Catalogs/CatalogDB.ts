@@ -1,5 +1,5 @@
 import { db } from "../App";
-import { IloadedLabel, isIloadedLabel } from "./Interfaces/CatalogDB";
+import { IloadedLabel, isCatalog, isIloadedLabel } from "./Interfaces/CatalogDB";
 import { isLabelDataType, labelDataType } from "../db";
 import { getCatalogs } from "./CatalogsDB";
 import { Icatalogs } from './Interfaces/CatalogsDB';
@@ -38,15 +38,41 @@ export const newCatalog: (labels: IloadedLabel[]) => IloadedCatalog = (labels = 
 };
 const dummyCatalog = newCatalog([]);
 //transform the catalog to IloadedCatalog from catalogId
-export const catalogToLoadedCatalog = async (catalogId: string): Promise<IloadedCatalog> => {
+export const catalogToLoadedCatalog = async (catalogId: string | Icatalog): Promise<IloadedCatalog> => {
+
+    if (typeof catalogId !== 'string' && isCatalog(catalogId)) {
+        const catalog = { ...catalogId };
+        const labelsArr: IloadedLabel[] = await fetchLabels(catalog.labels);
+        return { ...catalog, labels: labelsArr };
+    }
     const catalogs = getCatalogs();
     if (catalogs) {
         const catalog = catalogs[catalogId];
         const labelsArr: IloadedLabel[] = await fetchLabels(catalog.labels);
-        sessionStorage.setItem('selectedCatalog', JSON.stringify({ ...catalog, labels: labelsArr }));
         return { ...catalog, labels: labelsArr };
     }
     return dummyCatalog;
+}
+export const loadedCatalogToCatalog = (loadedCatalog: IloadedCatalog): Icatalog => {
+    return {
+        _id: loadedCatalog._id,
+        name: loadedCatalog.name,
+        owner: loadedCatalog.owner,
+        labels: loadedCatalog.labels.map(label => {
+            if (isIloadedLabel(label)) {
+                return {
+                    _id: label._id,
+                    count: label.count
+                }
+            }
+            return null;
+        }).filter(isCatalogLabelPointer),
+        date: loadedCatalog.date,
+        lastUpdated: loadedCatalog.lastUpdated,
+        updates: loadedCatalog.updates,
+        volume: loadedCatalog.volume,
+        size: loadedCatalog.size
+    }
 }
 //fetches labels from labelPointers
 const fetchLabels = async (labelPointers: IcatalogLabelPointer[]): Promise<IloadedLabel[]> => {
@@ -65,13 +91,13 @@ const fetchLabels = async (labelPointers: IcatalogLabelPointer[]): Promise<Iload
     }
     return labelsArr;
 }
-//get selected catalog from local storage returns [IloadedCatalog] | {}
+//get selected catalog from local storage returns [IloadedCatalog] | null
 export const getSelectedCatalog = () => {
     const catalog = sessionStorage.getItem('selectedCatalog');
     if (catalog !== null) {
         return JSON.parse(catalog) as IloadedCatalog;
     }
-    return {};
+    return null;
 }
 //loads selected catalog from local storage and creates selectedCatalog in local storage if it does not exist
 export const loadCatalog = async (id: string) => {
@@ -141,7 +167,7 @@ export const deleteSelectedLabels = (label: labelDataType[] | null = null) => {
 export const addSelectedLabel = (label: labelDataType) => {
     // fetch locally loadedCatalog from local storage 
     // if it does not exist it means no catalog is selected and we create a new catalog
-    const catalog: IloadedCatalog | {} = getSelectedCatalog();
+    const catalog: IloadedCatalog | null = getSelectedCatalog();
     if (catalog && isLoadedCatalog(catalog) && catalog.labels.length > 0) {
         //if label is already in selected catalog, increment count
         if (catalog.labels.some(lbl => lbl._id === label._id)) {

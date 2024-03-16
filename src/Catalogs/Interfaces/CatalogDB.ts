@@ -33,17 +33,18 @@ export interface Icatalog {
 }
 export const isCatalog = (catalog: any): catalog is Icatalog => {
     return catalog &&
-        catalog._id &&
-        catalog.name &&
-        catalog.owner &&
-        catalog.labels && isCatalogLabelPointerArray(catalog.labels) &&
-        catalog.volume &&
-        catalog.size &&
-        catalog.date &&
-        catalog.lastUpdated &&
-        catalog.updates;
+        '_id' in catalog &&
+        'name' in catalog &&
+        'owner' in catalog &&
+        'labels' in catalog && isCatalogLabelPointerArray(catalog.labels) &&
+        'volume' in catalog &&
+        'size' in catalog &&
+        'date' in catalog &&
+        'lastUpdated' in catalog &&
+        'updates' in catalog;
 }
 export const isCatalogArray = (catalogs: any[]): catalogs is Icatalog[] => {
+    
     return catalogs.every(isCatalog);
 }
 export interface IloadedCatalog extends Icatalog {
