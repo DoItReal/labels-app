@@ -18,7 +18,8 @@ import StickyFooter from './UI/Footer';
 //import Playground from './DesignEditor/Editor';
 
 import Playground from './Designs/index';
-import { fetchCatalogs, loadCatalogsLocally } from './PDF/CatalogsDB';
+import { fetchCatalogs, loadCatalogsLocally } from './Catalogs/CatalogsDB';
+import Catalogs from './Catalogs';
 
 export var db = new DB();
 const fetchAndLoadCatalogs = async () => {
@@ -91,6 +92,11 @@ function App() {
                                 <Route path="/editor" element={
                                     <RequireAuth user={user}>
                                         <Playground />
+                                    </RequireAuth>
+                                } />
+                                <Route path="/catalogs" element={
+                                    <RequireAuth user={user}>
+                                        <Catalogs />
                                     </RequireAuth>
                                 } />
                         <Route path="/login" element={<LoginUI />} />

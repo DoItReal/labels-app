@@ -1,5 +1,4 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { IloadedLabel } from '../content/Content';
 import { enableStatesContext } from '../App';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
@@ -11,7 +10,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
 import { Design, isDesignArray } from '../DesignEditor/Interfaces/CommonInterfaces';
 import { getLocalDesigns } from '../DesignEditor/DesignDB';
-import { IloadedCatalog, fetchLoadedCatalog, isLoadedCatalog, loadCatalog } from './CatalogsDB';
+import { IloadedCatalog, isLoadedCatalog, } from '../Catalogs/Interfaces/CatalogDB';
+import { getSelectedCatalog} from '../Catalogs/CatalogDB';
 import { PDF } from './PDF';
 const isStringArray = (arr: any[] | null): arr is string[] => {
     if (!arr) return false;
@@ -25,7 +25,7 @@ const isHTMLCanvasElementArray = (canvasArr: any[] | null): canvasArr is HTMLCan
     return canvasArr.every(canvas => isHTMLCanvasElement(canvas));
 }
 export default function PdfViewer() {
-    const [selectedCatalog, setSelectedCatalog] = useState<IloadedCatalog | {}>(fetchLoadedCatalog());
+    const [selectedCatalog, setSelectedCatalog] = useState<IloadedCatalog | {}>(getSelectedCatalog());
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const PDFrow = useRef<JSX.Element | null>(null);
     const [ReactElementArr, setReactElementArr] = useState<Array<React.JSX.Element> | []>([]);

@@ -8,35 +8,26 @@ import { db } from '../App';
 import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
-import LoadedCategoryTable from './LeftSide/LabelsContainer/AddedLabels';
-import { IloadedCatalog, addSelectedLabel, fetchLoadedCatalog, isLoadedCatalog, saveLoadedCatalog, loadCatalog } from '../PDF/CatalogsDB';
+import CatalogEditor from '../Catalogs/CatalogEditor';
+import { addSelectedLabel, getSelectedCatalog, saveSelectedCatalog, loadCatalog } from '../Catalogs/CatalogDB';
+import { IloadedCatalog, IloadedLabel, isLoadedCatalog } from '../Catalogs/Interfaces/CatalogDB';
 import { IcontentProps } from './InterfacesContent';
-export interface IloadedLabel extends labelDataType {
-    count:number
-};
-export const isIloadedLabel = (label: any): label is IloadedLabel => {
-    return label && label.count && isLabelDataType(label);
-}
-export const isIloadedLabelArray = (labels: any[]): labels is IloadedLabel[] => {
-    return labels.every(isIloadedLabel);
-}
+
 
 export default function ContentStates() {
     
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
-    const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | {}>(fetchLoadedCatalog());
+    const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | {}>(getSelectedCatalog());
    // const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog>({});
     const [enableStates, setEnableStates] = useContext(enableStatesContext);
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const enableLabelForm = enableStates.get('labelForm');
 
-    //FOR TESTING PURPOSES ONLY!!!
-    loadCatalog('65e8cd5584f929813a398284');
 
     const setCatalog = (catalog: IloadedCatalog) => {
         setLoadedCatalog(catalog);
-        saveLoadedCatalog(catalog);
+        saveSelectedCatalog(catalog);
     }
     const handleLabelFormClose = () => {
         setEnableStates('labelForm',false);
@@ -56,12 +47,12 @@ export default function ContentStates() {
         //add label to selected catalog and update loadedCatalog
         addSelectedLabel(label);
         //fetch updated catalog and set it to loadedCatalog
-        setLoadedCatalog(fetchLoadedCatalog());
+        setLoadedCatalog(getSelectedCatalog());
     };
     //add 1 label to selected
     const addNewLabel = (label: labelDataType) => {
         addSelectedLabel(label);
-        setLoadedCatalog(fetchLoadedCatalog());
+        setLoadedCatalog(getSelectedCatalog());
     };
     //add Array<labelDataType> to selected
     const addLabels = (labels: labelDataType[]) => {
@@ -168,7 +159,7 @@ function Content({ props }: { props: IcontentProps }) {
             </Grid>
                     {isLoadedCatalog(props.loadedCatalog) ? (
                         <Grid xs={12} md={6} m={0} p={0} height={1}>
-                            <LoadedCategoryTable catalog={props.loadedCatalog} setCatalog={props.setLoadedCatalog} updateLabel={props.addLabel} />
+                            <CatalogEditor catalog={props.loadedCatalog} setCatalog={props.setLoadedCatalog} />
                         </Grid>
                     ) : null}
                   

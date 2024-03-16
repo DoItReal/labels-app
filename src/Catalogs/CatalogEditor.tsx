@@ -1,9 +1,10 @@
 import { Box, Button, Grid, Input, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Tooltip } from '@mui/material';
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
-import { isNotNullOrUndefined } from '../../../tools/helpers';
-import { IloadedLabel } from '../../Content';
-import { Icatalog, IloadedCatalog, isLoadedCatalog, createCatalogDB, updateCatalogDB, loadCatalog, fetchCatalogsLocally, newCatalog } from '../../../PDF/CatalogsDB';
 import { useState } from 'react';
+import { isNotNullOrUndefined } from '../tools/helpers';
+import { addSelectedLabel, loadCatalog, newCatalog } from './CatalogDB';
+import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
+import { createCatalogDB, getCatalogs, updateCatalogDB } from './CatalogsDB';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -13,7 +14,7 @@ dataMap.set('de', 'Deutsch');
 dataMap.set('rus', 'Russian');
 dataMap.set('allergens', 'Allergens');
 dataMap.set('count', 'Count');
-
+ 
 
 const getRows = (data: any[]) => {
    return data.map(el => {
@@ -44,8 +45,8 @@ function renderEditName(params: GridRenderEditCellParams) {
 }
 
 const dummyCatalog = newCatalog([]);
-export default function DataTableStates({ catalog,setCatalog, updateLabel }:
-    { catalog: IloadedCatalog,setCatalog:(arg:IloadedCatalog)=>void, updateLabel: (arg: IloadedLabel) => void }) {
+export default function DataTableStates({ catalog,setCatalog}:
+    { catalog: IloadedCatalog, setCatalog: (arg: IloadedCatalog) => void }) {
     const updateCatalog = (catalog: IloadedCatalog) => {
         setCatalog({ ...catalog});
     }
@@ -83,7 +84,7 @@ export default function DataTableStates({ catalog,setCatalog, updateLabel }:
                         if (!hasError) {
                             const lbl = { ...params.row };
                             lbl.count = params.props.value;
-                            updateLabel(lbl);
+                            addSelectedLabel(lbl);
                         }
                         return { ...params.props, error: hasError };
                     },
@@ -110,8 +111,8 @@ const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" ju
     No Labels Loaded
 </Stack>);
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
-    const [selectedCatalog, setSelectedCatalog] = useState<string>('-1')
-    const catalogs = fetchCatalogsLocally();
+    const [selectedCatalog, setSelectedCatalog] = useState<string>(catalog._id)
+    const catalogs = getCatalogs();
     const handleSelectChange = async (event: SelectChangeEvent<string | unknown>) => {
         const selectedCatalogId = event.target.value as string; // Assuming value is a string
         if (selectedCatalogId === dummyCatalog._id) {
@@ -132,31 +133,6 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
     return (
         <>
             <Grid container>
-                <Grid item md={12}>
-                    {catalogs && Object.keys(catalogs).length > 0 ?
-                            <>
-                                <InputLabel>Select Catalog</InputLabel>
-                                <Select value={catalogs[selectedCatalog] ? catalogs[selectedCatalog]._id : dummyCatalog._id} onChange={handleSelectChange}>
-                                {Object.keys(catalogs).map((catalogId) => (
-                                    <MenuItem key={catalogId} value={catalogs[catalogId]._id}>
-                                        {catalogs[catalogId].name}
-                                    </MenuItem>
-                                ))}
-                                <MenuItem key={dummyCatalog._id} value={dummyCatalog._id}>
-                                    {dummyCatalog.name}
-                                </MenuItem>
-                                </Select>
-                            </>
-                        : <>
-                            <InputLabel>Select Catalog</InputLabel>
-                                <Select value={dummyCatalog.name} onChange={handleSelectChange}>                             
-                                    <MenuItem key={dummyCatalog._id} value={dummyCatalog.name}>
-                                        {dummyCatalog.name}
-                                    </MenuItem>
-                            </Select>
-                        </>
-                    }
-                </Grid>
                 <Grid item>
                     <InputLabel>Catalog Name</InputLabel>
             <Input type='text' placeholder='Catalog Name' size='medium' value={catalog.name}

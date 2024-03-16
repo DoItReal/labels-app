@@ -1,15 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\public",
     "\\src",
+    "\\src\\Catalogs",
+    "\\src\\Catalogs\\Interfaces",
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\DesignEditor",
-    "\\src\\DesignEditor\\Interfaces",
+    "\\src\\Designs",
     "\\src\\PDF",
     "\\src\\UI"
   ],
+  "SelectedNode": "\\src\\Catalogs\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

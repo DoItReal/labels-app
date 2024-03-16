@@ -1,6 +1,6 @@
-import { IloadedCatalog } from "../PDF/CatalogsDB";
+import { IloadedCatalog, IloadedLabel } from "../Catalogs/Interfaces/CatalogDB";
 import { labelDataType } from "../db";
-import { IloadedLabel } from "./Content";
+
 
 export interface IcontentProps {
     dbData: labelDataType[] | undefined,
