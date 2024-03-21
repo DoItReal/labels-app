@@ -135,12 +135,13 @@ const Catalogs: React.FC = () => {
     const handlePreviewCatalog = (catalog: Icatalog) => {
         loadCatalog(catalog._id);
         setPreviewingCatalogId(catalog._id);
+        setEditingCatalogId(null); // Move blocks list to the left to make room for the editor UI)
         setMenuCollapsed(true); // Move blocks list to the left to make room for the editor UI
-        console.log('previewing catalog:', catalog);
     };
     const handleEditCatalog = (catalog: Icatalog) => {
         loadCatalog(catalog._id);
         setEditingCatalogId(catalog._id);
+        setPreviewingCatalogId(null);
         setMenuCollapsed(true); // Move blocks list to the left to make room for the editor UI
         // Logic to display the editor UI for the selected newCatalog
         // Move Catalogs list to the left to make room for the editor UI

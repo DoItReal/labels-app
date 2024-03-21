@@ -1,143 +1,80 @@
-import { Box, Grid, Input, InputLabel, Stack, Tooltip } from '@mui/material';
-import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
-import { isNotNullOrUndefined } from '../tools/helpers';
-import { addSelectedLabel} from './CatalogDB';
+/* Used to display the catalog data in a table
+ to allow the user to edit the count of the labels
+ preview of the labels in the catalog
+ */
+
+import LabelTable from './PreviewLabelTable';
+import LabelPreview from './PreviewLabels';
 import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
+import { Grid, Input, InputLabel } from '@mui/material';
+import { fetchDesigns, getLocalDesigns, setLocalDesigns } from '../DesignEditor/DesignDB';
+import { useEffect, useState } from 'react';
+import { Design } from '../DesignEditor/Interfaces/CommonInterfaces';
 
-// TODO: to save in db and fetch it
-const dataMap = new Map();
-dataMap.set('bg', 'Bulgarian');
-dataMap.set('en', 'English');
-dataMap.set('de', 'Deutsch');
-dataMap.set('rus', 'Russian');
-dataMap.set('allergens', 'Allergens');
-dataMap.set('count', 'Count');
- 
-
-const getRows = (data: any[]) => {
-   return data.map(el => {
-        el.id = structuredClone(el._id); el.actions = {}; return el;
-    })
-};
-const keys = (rows: any[]) => Object.keys(rows[0]);
-const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
-    if (dataMap.get(key))
-        return { name: dataMap.get(key), type: key, width: 150 }
-    return null;
-}).filter(isNotNullOrUndefined);
-
-
-
-function NameEditInputCell(props: GridRenderEditCellParams) {
-    const { error } = props;
-
-    return (
-        <Tooltip open={!!error} title={error}>
-            <GridEditInputCell {...props} />
-        </Tooltip>
-    );
-}
-
-function renderEditName(params: GridRenderEditCellParams) {
-    return <NameEditInputCell {...params} />;
+const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 export default function DataTableStates({ catalog }:
     { catalog: IloadedCatalog }) {
- 
- 
-    const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
-        if (!isLoadedCatalog(catalog) || catalog.labels.length === 0) return [[], []];
-        const row = getRows(catalog.labels);
-        const colUnfilteredData = dataColUnfiltered(keys(row));
-        const cols = col(colUnfilteredData);
-        return [row, [...cols]];
+const [designs, setDesigns] = useState<Design[]>([]);
 
-    }
+    useEffect(() => {
+        const storedDesigns = getLocalDesigns();
+        if (storedDesigns) {
+            setDesigns(storedDesigns);
 
-    const col = (dataColUnfiltered: { name: any, type: string, width: number }[]) => dataColUnfiltered.map(element => {
-        if (element !== null) {
-            if (element.type === 'allergens') {
-                return { field: element.type, headerName: element.name, width: 120, sortable: false, filterable: false };
-            } else if (element.type === 'count') {
-                return {
-                    field: element.type, headerName: element.name, type: 'number', width: 80, max: 20, min: 1, editable: true, sortable: false, filterable: false,
-                    preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-                        const hasError = params.props.value < 1 || params.props.value > 25 ? "The count must be > 0 and < 25" : null;
-                        if (!hasError) {
-                            const lbl = { ...params.row };
-                            lbl.count = params.props.value;
-                            addSelectedLabel(lbl);
-                        }
-                        return { ...params.props, error: hasError };
-                    },
-                    renderEditCell: renderEditName,
-                    hideable:false
-                };
-            } else {
-                return { field: element.type, headerName: element.name, width: element.width }
-            }
+        } else {
+            const fetchDesignsFromDB = async () => {
+                try {
+                    const fetchedDesigns: string = await fetchDesigns();
+                    const JSONfetchedDesigns: Design[] = JSON.parse(fetchedDesigns);
+                    setDesigns(JSONfetchedDesigns);
+                    // Store blocks in session storage
+                    setLocalDesigns(JSON.parse(fetchedDesigns));
+                } catch (error) {
+                    console.error('Error fetching blocks:', error);
+                }
+            };
+
+            fetchDesignsFromDB();
         }
-        else {
-            return null;
-        };
-    }).filter(isNotNullOrUndefined);
-
-    const [rows, columns] = getColsRows(catalog);
+    }, []);
+        
    
     return (
-        <DataTable rows={rows} columns={columns} catalog={catalog}  />
+
+        <Grid container spacing={1} style={{ maxWidth: '100%',height:'75vh' }}>
+            <Grid item width={1} >
+                <InfoBar catalog={catalog} />
+            </Grid>  
+            <Grid item width={1 / 2} >
+                <LabelTable catalog={catalog} />
+            </Grid>
+            <Grid item width={1 / 2}  style={{ maxHeight: '100%',maxWidth: '100%', overflow: 'auto' }}>
+                <LabelPreview catalog={catalog} design={designs[0] } />
+            </Grid>
+        </Grid>
     )
 }
 
-const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
-    No Labels Loaded
-</Stack>);
-function DataTable({ rows, columns, catalog}: { rows: any, columns: any, catalog: IloadedCatalog }) {
-  
+const InfoBar = ({ catalog }: { catalog: IloadedCatalog }) => {
     return (
-        <>
-            <Grid container>
-                <Grid item>
-                    <InputLabel>Catalog Name</InputLabel>
-            <Input type='text' placeholder='Catalog Name' size='medium' value={catalog.name}
-                       disabled />
-                Grid</Grid>
-                <Grid item>
-            <InputLabel>Created At</InputLabel>
-                    <Input value={catalog.date} disabled />
-                </Grid>
-                <Grid item>
-                    <InputLabel>Size</InputLabel>
-                    <Input value={catalog.size} disabled />
-                </Grid>
-                <Grid item>
-                </Grid>
+        <Grid container columnSpacing={1 }>
+            <Grid item>
+                <InputLabel>Catalog Name</InputLabel>
+                <Input type='text' placeholder='Catalog Name' size='medium' value={catalog.name}
+                    disabled />
             </Grid>
-        <Box height={1} sx={{
-            position: 'relative',
-            overflow: 'auto',
-
-        }}>
-            <DataGrid
-                density='compact'
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 15 },
-                    },
-                }}
-                pageSizeOptions={[10, 15, 25, 50, 100]}
-                sx={{
-                    height: 1,
-                    width: 1,
-                }}
-                slots={{
-                    noRowsOverlay: MyCustomNoRowsOverlay,
-                    toolbar: GridToolbar
-                }}
-            />
-            </Box>
-        </>
-    );
-}
+            <Grid item>
+                <InputLabel>Created At</InputLabel>
+                <Input value={formatDate(catalog.date)} disabled />
+            </Grid>
+            <Grid item>
+                <InputLabel>Size</InputLabel>
+                <Input value={catalog.size} disabled />
+            </Grid>
+            <Grid item>
+            </Grid>
+        </Grid>
+    )
+};

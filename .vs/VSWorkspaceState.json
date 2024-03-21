@@ -8,9 +8,9 @@
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\Designs",
+    "\\src\\nav",
     "\\src\\PDF",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\Catalogs\\Interfaces\\CatalogDB.ts",
   "PreviewInSolutionExplorer": false
 }
