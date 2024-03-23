@@ -37,7 +37,7 @@ export default function PdfViewer() {
 
         fetchData();
     }, []);
-
+    //
     useEffect(() => {
         if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design) {
             return;

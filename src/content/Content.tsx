@@ -1,6 +1,5 @@
 import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
-import RightSide from '../PDF/index';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState, useContext } from 'react';
 import { isLabelDataType, labelDataType } from '../db';
@@ -154,11 +153,11 @@ function Content({ props }: { props: IcontentProps }) {
             alignItems: 'stretch',
         }}>
             <Grid container spacing={0} m={0} p={0} height={1} sx={{ p: 0, m: 0,overflow:'auto'}} >
-                    <Grid xs={12} md={isLoadedCatalog(props.loadedCatalog)? 6 : 12} m={0} p={0} height={1 } >
+                    <Grid item xs={12} md={isLoadedCatalog(props.loadedCatalog)? 6 : 12} m={0} p={0} height={1 } >
               <LeftSide {...props} />
             </Grid>
                     {isLoadedCatalog(props.loadedCatalog) ? (
-                        <Grid xs={12} md={6} m={0} p={0} height={1}>
+                        <Grid item xs={12} md={6} m={0} p={0} height={1}>
                             <CatalogEditor catalog={props.loadedCatalog} setCatalog={props.setLoadedCatalog} />
                         </Grid>
                     ) : null}
@@ -168,7 +167,6 @@ function Content({ props }: { props: IcontentProps }) {
 
             </Grid>
             </Box>
-            <RightSide /> 
          { props.enableLabelForm ? <CreateLabel {...props} /> : null }
          </>
     );

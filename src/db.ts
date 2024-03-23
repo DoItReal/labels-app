@@ -70,7 +70,6 @@ export default class DB {
 
             xhr.send();
         }));
-        fetch(this.address + 'signs/' + id).then(response => response.json()).then(sign => { return sign });
     }
     createNewLabel(label:any, data = this.data) {
         return (new Promise<labelDataType>((resolve, reject) => {

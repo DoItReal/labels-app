@@ -200,7 +200,17 @@ export const addSelectedLabel = (label: labelDataType) => {
         saveSelectedCatalog(catalog);
     }
 }
-
+export const updateSelectedLabel = (label: IloadedLabel) => {
+    const catalog: IloadedCatalog | null = getSelectedCatalog();
+    if (catalog && isLoadedCatalog(catalog) && catalog.labels.length > 0) {
+        const newLabels = catalog.labels.map(lbl => {
+            if (lbl._id === label._id) {
+                return label;
+            } else return lbl;
+        });
+        saveSelectedCatalog(structuredClone({ ...catalog, labels: newLabels }));
+    }
+}
 export const IcatalogToIcatalogs = (catalogs: Icatalog[]): Icatalogs => {
     const catalogObj: Icatalogs = {};
     for (const catalog of catalogs) {

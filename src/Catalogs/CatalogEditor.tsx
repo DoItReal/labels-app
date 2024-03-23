@@ -2,9 +2,11 @@ import { Box, Button, Grid, Input, InputLabel, MenuItem, Select, SelectChangeEve
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { isNotNullOrUndefined } from '../tools/helpers';
-import { addSelectedLabel, loadCatalog, newCatalog } from './CatalogDB';
+import { addSelectedLabel, updateSelectedLabel, loadCatalog, newCatalog } from './CatalogDB';
 import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
 import { createCatalogDB, getCatalogs, updateCatalogDB } from './CatalogsDB';
+import { formatDate } from '../tools/helpers';
+import { debounce } from 'lodash';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -47,8 +49,8 @@ function renderEditName(params: GridRenderEditCellParams) {
 const dummyCatalog = newCatalog([]);
 export default function DataTableStates({ catalog,setCatalog}:
     { catalog: IloadedCatalog, setCatalog: (arg: IloadedCatalog) => void }) {
-    const updateCatalog = (catalog: IloadedCatalog) => {
-        setCatalog({ ...catalog});
+    const updateCatalog = (updatedCatalog: IloadedCatalog) => {
+        setCatalog(updatedCatalog);
     }
     const saveCatalog = async () => {
         const updatedCatalog = { ...catalog, lastUpdated: new Date().toISOString(), updates: catalog.updates + 1 };
@@ -84,7 +86,7 @@ export default function DataTableStates({ catalog,setCatalog}:
                         if (!hasError) {
                             const lbl = { ...params.row };
                             lbl.count = params.props.value;
-                            addSelectedLabel(lbl);
+                            updateSelectedLabel(lbl);
                         }
                         return { ...params.props, error: hasError };
                     },
@@ -111,48 +113,10 @@ const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" ju
     No Labels Loaded
 </Stack>);
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
-    const [selectedCatalog, setSelectedCatalog] = useState<string>(catalog._id)
-    const catalogs = getCatalogs();
-    const handleSelectChange = async (event: SelectChangeEvent<string | unknown>) => {
-        const selectedCatalogId = event.target.value as string; // Assuming value is a string
-        if (selectedCatalogId === dummyCatalog._id) {
-           setSelectedCatalog(dummyCatalog._id);
-            const loadedDummyCatalog = await loadCatalog(dummyCatalog._id);
-            if (loadedDummyCatalog) {
-                updateCatalog(loadedDummyCatalog);
-            }
-            return
-        }
-        if (catalogs && catalogs[selectedCatalogId] && catalogs[selectedCatalogId].name) {
-            setSelectedCatalog(catalogs[selectedCatalogId]._id);
-            const loadedCatalog = await loadCatalog(selectedCatalogId);
-            if (!loadedCatalog) return;
-            updateCatalog(loadedCatalog);
-        }
-    };
+
     return (
-        <>
-            <Grid container>
-                <Grid item>
-                    <InputLabel>Catalog Name</InputLabel>
-            <Input type='text' placeholder='Catalog Name' size='medium' value={catalog.name}
-                        onChange={(e) => updateCatalog({ ...catalog, name: e.target.value })} />
-                Grid</Grid>
-                <Grid item>
-            <InputLabel>Created At</InputLabel>
-                    <Input value={catalog.date} disabled />
-                </Grid>
-                <Grid item>
-                    <InputLabel>Size</InputLabel>
-                    <Input value={catalog.size} disabled />
-                </Grid>
-                <Grid item>
-                    <Button variant='contained' color='primary'
-                        onClick={saveCatalog}>
-                        Save
-                    </Button>
-                </Grid>
-            </Grid>
+        <Grid container>
+           <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
         <Box height={1} sx={{
             position: 'relative',
             overflow: 'auto',
@@ -178,6 +142,39 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
                 }}
             />
             </Box>
-        </>
+        </Grid>
+    );
+}
+
+const InfoBar = ({ catalog, updateCatalog, saveCatalog }: { catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) => {
+    const [name, setName] = useState(catalog.name);
+
+   // Debounce the handleNameChange function
+    const handleNameChange = debounce((newValue: string) => {
+        updateCatalog({ ...catalog, name: newValue });
+    }, 1000);
+
+    return (
+        <Grid container spacing={1} style={{ maxWidth: '100%', height: '100%' }}>
+            <Grid item>
+                <InputLabel>Catalog Name</InputLabel>
+                <Input type='text' placeholder='Catalog Name' size='medium' value={name}
+                    onChange={(e) => { setName(e.target.value); handleNameChange(e.target.value) }} />
+                Grid</Grid>
+            <Grid item>
+                <InputLabel>Created At</InputLabel>
+                <Input value={formatDate(catalog.date)} disabled />
+            </Grid>
+            <Grid item>
+                <InputLabel>Size</InputLabel>
+                <Input value={catalog.size} disabled />
+            </Grid>
+            <Grid item>
+                <Button variant='contained' color='primary'
+                    onClick={saveCatalog}>
+                    Save
+                </Button>
+            </Grid>
+        </Grid>
     );
 }

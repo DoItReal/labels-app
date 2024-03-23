@@ -4,13 +4,13 @@
     "\\src",
     "\\src\\Catalogs",
     "\\src\\Catalogs\\Interfaces",
+    "\\src\\content",
     "\\src\\DesignEditor",
     "\\src\\DesignEditor\\Interfaces",
-    "\\src\\Designs",
     "\\src\\nav",
     "\\src\\PDF",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\DesignEditor\\EditorUI.tsx",
+  "SelectedNode": "\\src\\DesignEditor\\DesignDB.ts",
   "PreviewInSolutionExplorer": false
 }

@@ -11,10 +11,8 @@ import { fetchDesigns, getLocalDesigns, setLocalDesigns } from '../DesignEditor/
 import { useContext, useEffect, useState } from 'react';
 import { Design, isDesign, isDesignArray } from '../DesignEditor/Interfaces/CommonInterfaces';
 import { enableStatesContext } from '../App';
+import {formatDate} from '../tools/helpers';
 
-const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-}
 export default function DataTableStates({ catalog }:
     { catalog: IloadedCatalog }) {
         const [design, setDesign] = useState<Design | null>(null);
