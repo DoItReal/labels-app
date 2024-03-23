@@ -24,7 +24,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import { createNewDesign, getLocalDesigns, setLocalDesigns, updateDesign } from './DesignDB';
+import { createNewDesign, getLocalDesigns, setLocalDesigns, updateDesign, updateLocalDesign } from './DesignDB';
 import { textParametersMap, images, dummyImageBlock, dummyImage } from './Editor';
 import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from './Interfaces/CommonInterfaces';
 import ImageUpload from './ImageUpload';
@@ -370,6 +370,7 @@ setOpenDialog(prevOpenDialog => {
             //if it is not then create new block
             for (let i = 0; i < storedDesigns.length; i++) {
                 if (storedDesigns[i]._id === design._id) {
+                    console.log(storedDesigns);
                     //update DB
                     storedDesigns[i] = await updateDesign(design);
                     //update sessionStorage
@@ -379,8 +380,10 @@ setOpenDialog(prevOpenDialog => {
                 }
             }
             //if we are here this means that the block is not in the storedDesigns
-                //create new block in DB
-            await createNewDesign(design);
+            //create new block in DB
+            
+            const newDesign = await createNewDesign(design);
+            if(isDesign(newDesign))updateLocalDesign(newDesign);
                 //update session storage
             storedDesigns.push(design);
             setLocalDesigns(storedDesigns);    
@@ -601,7 +604,6 @@ interface ColorPickerProps {
 
 const ColorPicker: React.FC<ColorPickerProps> = ({ id, value, onChange }) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event.target.value);
         onChange(event.target.value);
     };
 

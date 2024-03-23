@@ -182,7 +182,6 @@ export interface Design {
     blocks: UnifiedBlock[];
 }
 export function isDesign(obj: any): obj is Design {
-
     return (
         typeof obj._id === 'string' &&
         typeof obj.name === 'string' &&
@@ -193,12 +192,12 @@ export function isDesign(obj: any): obj is Design {
     );
 }
 export function isDesignArray(arr: any): arr is Design[] {
-    return Array.isArray(arr) && arr.every((obj: any) => isDesign(obj));
+    return (Array.isArray(arr) && arr.length > 0 && arr.every((obj: any) => isDesign(obj)));
 }
 export interface NewDesign {
     name: string;
     owner: string; //Represents the ID of the owner in the database
-    canvas: { dim: Dimensions };
+    canvas: DesignCanvas;
     blocks: UnifiedBlock[];
 }
 

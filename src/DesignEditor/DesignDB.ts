@@ -1,7 +1,7 @@
 import { NewDesign, Design, isDesign, isDesignArray } from "./Interfaces/CommonInterfaces";
 const address = "http://localhost:8080/";
-export const createNewDesign = (design: Design) => {
-    return (new Promise<NewDesign>((resolve, reject) => {
+export const createNewDesign = (design: NewDesign) => {
+    return (new Promise<Design>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", address + 'designs');
         xhr.withCredentials = true;
@@ -10,7 +10,7 @@ export const createNewDesign = (design: Design) => {
 
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(design);
+                resolve(JSON.parse(xhr.responseText));
             } else if (xhr.status !== 200) {
                 reject(new Error('Error in saving new Design'));
             }
@@ -100,4 +100,17 @@ export const getLocalDesigns = (): Design[] | null => {
 
 export const setLocalDesigns = (designs: Design[]) => {
     sessionStorage.setItem('designs', JSON.stringify(designs));
+}
+export const updateLocalDesign = (design: Design) => {
+    const storedDesigns = getLocalDesigns();
+    if (storedDesigns && isDesignArray(storedDesigns)) {
+        const updatedDesigns = storedDesigns.map(designItem => {
+            if (designItem._id === design._id) {
+                return design;
+            } else {
+                return designItem;
+            }
+        });
+        setLocalDesigns(updatedDesigns);
+    }
 }

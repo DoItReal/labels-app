@@ -15,7 +15,7 @@ import { Theme, ThemeProvider } from '@emotion/react';
 import { Container, createTheme, CssBaseline } from '@mui/material';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
-//import Playground from './DesignEditor/Editor';
+import PDF from './PDF/index';
 
 import Playground from './Designs/index';
 import { fetchCatalogs, loadCatalogsLocally } from './Catalogs/CatalogsDB';
@@ -75,9 +75,9 @@ function App() {
                     p: 0,
                 }}
             >
-            
         <HashRouter basename="/">               
-                        <Nav toggleMode={toggleMode} /> 
+                            <Nav toggleMode={toggleMode} /> 
+                         <PDF /> 
                         <Routes>
                     <Route path="/" element={
                                 <RequireAuth user={user}>

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import * as PDFLib from 'pdf-lib';
 
-export const PDF = ({ imageURLs }: { imageURLs: string[] }) => {
+export const PDF = ({ imageURLs }: { imageURLs: Map<string, number> }) => {
     const [pdf, setPdf] = useState('');
 
     const generate = () => {
         if (pdf) return;
-        if (imageURLs.length < 1) return;
+        if (imageURLs.size < 1) return;
         createPDF(imageURLs, setPdf);
     }
     generate();
@@ -21,7 +21,7 @@ export const PDF = ({ imageURLs }: { imageURLs: string[] }) => {
 
 // Function to transform an array of ReactCanvas components to an array of DataURLs
 
-async function createPDF(labels: Array<string>, setPdf: (arg: string) => void) {
+async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => void) {
 
     //creates new PDF Document
     const doc = await PDFLib.PDFDocument.create();
@@ -37,8 +37,20 @@ async function createPDF(labels: Array<string>, setPdf: (arg: string) => void) {
     // console.log(catalog);
     // const labelsURLs = transformToDataUrl(catalog);
     const chunks = [];
-    for (let i = 0; i < labels.length; i += 8) {
-        chunks.push(labels.slice(i, i + 8));
+
+    const getAllLabels = (labelsMap: Map<string, number>) => {
+        const chunks: string[] = [];
+        const labels = Array.from(labelsMap.entries());
+        labels.map(([dataURL, count], index) => {
+            for (let i = 0; i < count; i++) {
+                chunks.push(dataURL);
+            }
+        });
+        return chunks;
+    }
+    const labelsData = getAllLabels(labels);
+    for (let i = 0; i < labelsData.length; i += 8) {
+        chunks.push(labelsData.slice(i, i + 8));
     }
 
     // Generate pages for each chunk of entries

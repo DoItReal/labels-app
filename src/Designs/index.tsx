@@ -13,8 +13,8 @@ import {
     IconButton,
 } from '@mui/material';
 import Editor from '../DesignEditor/Editor';
-import { Design } from '../DesignEditor/Interfaces/CommonInterfaces';
-import { deleteDesign, fetchDesigns, getLocalDesigns, setLocalDesigns } from '../DesignEditor/DesignDB';
+import { Design, NewDesign } from '../DesignEditor/Interfaces/CommonInterfaces';
+import { createNewDesign, deleteDesign, fetchDesigns, getLocalDesigns, setLocalDesigns } from '../DesignEditor/DesignDB';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
@@ -83,10 +83,9 @@ const Designs: React.FC = () => {
     const toggleMenu = () => {
         setMenuCollapsed(!menuCollapsed);
     };
-    const handleAddDesign = () => {
+    const handleAddDesign =async () => {
         // Logic to add a new design to the list
-        const newDesign: Design = {
-            _id: String('LocalDesign' + designs.length + 1),
+        const newDesign: NewDesign = {
             name: newDesignName,
             owner: 'LocalUser',
             canvas: {
@@ -97,7 +96,9 @@ const Designs: React.FC = () => {
             blocks: [],
             // Set other properties for the new design
         };
-        const updatedDesigns = [...designs, newDesign];
+        const newSavedDesign = await createNewDesign(newDesign);
+        const updatedDesigns = [...designs, newSavedDesign];
+        
         setDesigns(updatedDesigns);
         setLocalDesigns(updatedDesigns);
         handleClose();
