@@ -4,13 +4,8 @@
     "\\src",
     "\\src\\Catalogs",
     "\\src\\Catalogs\\Interfaces",
-    "\\src\\content",
     "\\src\\DesignEditor",
-    "\\src\\DesignEditor\\Interfaces",
-    "\\src\\nav",
-    "\\src\\PDF",
-    "\\src\\UI"
+    "\\src\\DesignEditor\\Interfaces"
   ],
-  "SelectedNode": "\\src\\DesignEditor\\DesignDB.ts",
   "PreviewInSolutionExplorer": false
 }

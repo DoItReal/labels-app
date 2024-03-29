@@ -46,7 +46,6 @@ function renderEditName(params: GridRenderEditCellParams) {
     return <NameEditInputCell {...params} />;
 }
 
-const dummyCatalog = newCatalog([]);
 export default function DataTableStates({ catalog,setCatalog}:
     { catalog: IloadedCatalog, setCatalog: (arg: IloadedCatalog) => void }) {
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
@@ -64,7 +63,16 @@ export default function DataTableStates({ catalog,setCatalog}:
             console.error(e);
         }
     }
- 
+    const handleCountChange = (newValue: number, rowId: string) => {
+        // Update the count value in the catalog.labels array
+        const updatedLabels = catalog.labels.map((label: any) => {
+            if (label.id === rowId) {
+                return { ...label, count: newValue };
+            }
+            return label;
+        });
+        updateCatalog({ ...catalog, labels: updatedLabels });
+    };
     const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
         if (!isLoadedCatalog(catalog) || catalog.labels.length === 0) return [[], []];
         const row = getRows(catalog.labels);
@@ -87,6 +95,7 @@ export default function DataTableStates({ catalog,setCatalog}:
                             const lbl = { ...params.row };
                             lbl.count = params.props.value;
                             updateSelectedLabel(lbl);
+                            handleCountChange(params.props.value, lbl.id);
                         }
                         return { ...params.props, error: hasError };
                     },

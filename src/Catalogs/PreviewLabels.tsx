@@ -1,3 +1,6 @@
+/**
+ * Component for previewing labels based on a design and catalog.
+ */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
@@ -7,16 +10,25 @@ import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
 interface Props {
-    design: Design
+    design: Design;
     catalog: IloadedCatalog;
 }
 
+/**
+ * Component for previewing labels based on a design and catalog.
+ * @param catalog The loaded catalog containing labels.
+ * @param design The design to be used for rendering labels.
+ * @returns The PreviewLabels component.
+ */
 const PreviewLabels = ({ catalog, design }: Props) => {
     const [labelData, setLabelData] = useState<Map<string, number>>(new Map());
     const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Loading state
 
     useLayoutEffect(() => {
+        /**
+         * Renders labels to data URLs.
+         */
         const renderLabelsToDataUrls = async () => {
             const newData = new Map();
             await Promise.all(

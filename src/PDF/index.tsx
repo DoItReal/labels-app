@@ -16,28 +16,13 @@ import { PDF } from './PDF';
 import { createRoot } from 'react-dom/client';
 import ReactDOM from 'react-dom';
 
-export default function PdfViewer() {
-    const [selectedCatalog, setSelectedCatalog] = useState<IloadedCatalog | null>(getSelectedCatalog());
+export default function PdfViewer({ selectedCatalog, design }: {selectedCatalog:IloadedCatalog, design: Design }) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [dataURLs, setDataURLs] = useState<Map<string, number>>(new Map());
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const [design, setDesign] = useState<Design | null>(null);
     const classes = useStyles();
     const id = enableStates.get('createPDF') ? 'PDFPopover' : undefined;
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const designs = await getLocalDesigns();
-            if (designs && isDesignArray(designs)) {
-                // Set the first design as the default design for the PDF viewer. To be changed later to selected Design
-                setDesign(designs[0]);
-            }
-        };
-
-        fetchData();
-    }, []);
-    //
     useEffect(() => {
         if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design) {
             return;

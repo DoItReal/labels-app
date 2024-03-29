@@ -46,10 +46,19 @@ function NameEditInputCell(props: GridRenderEditCellParams) {
 function renderEditName(params: GridRenderEditCellParams) {
     return <NameEditInputCell {...params} />;
 }
-export default function DataTableStates({ catalog }:
-    { catalog: IloadedCatalog }) {
-
-
+export default function DataTableStates({ catalog, updateCatalog }:
+    { catalog: IloadedCatalog, updateCatalog: (catalog:IloadedCatalog)=>void }) {
+   // const [catalog, setCatalog] = useState(catalog);
+    const handleCountChange = (newValue: number, rowId: string) => {
+        // Update the count value in the catalog.labels array
+        const updatedLabels = catalog.labels.map((label: any) => {
+            if (label.id === rowId) {
+                return { ...label, count: newValue };
+            }
+            return label;
+        });
+        updateCatalog({ ...catalog, labels: updatedLabels });
+    };
     const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
         if (!isLoadedCatalog(catalog) || catalog.labels.length === 0) return [[], []];
         const row = getRows(catalog.labels);
@@ -58,7 +67,7 @@ export default function DataTableStates({ catalog }:
         return [row, [...cols]];
 
     }
-
+    
     const col = (dataColUnfiltered: { name: any, type: string, width: number }[]) => dataColUnfiltered.map(element => {
         if (element !== null) {
             if (element.type === 'allergens') {
@@ -71,6 +80,7 @@ export default function DataTableStates({ catalog }:
                         if (!hasError) {
                             const lbl = { ...params.row };
                             lbl.count = params.props.value;
+                            handleCountChange(params.props.value, lbl.id);
                             addSelectedLabel(lbl);
                         }
                         return { ...params.props, error: hasError };

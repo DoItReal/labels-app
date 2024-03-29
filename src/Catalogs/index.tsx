@@ -266,7 +266,7 @@ const Catalogs: React.FC = () => {
                     {previewingCatalogId !== null && loadedCatalog ? (
                         <CatalogPreview
                         key={'catalog/' + previewingCatalogId}
-                            catalog={loadedCatalog}
+                            previewedCatalog={loadedCatalog}
                         />
                     ):null }
             </Grid>
