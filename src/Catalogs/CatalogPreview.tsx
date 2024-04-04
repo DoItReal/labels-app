@@ -2,10 +2,11 @@
  to allow the user to edit the count of the labels
  preview of the labels in the catalog
  */import React, { useState, useEffect, useContext } from 'react';
-import { Button, Grid, Input, InputLabel, MenuItem, Select } from '@mui/material';
+import { db } from '../App';
+import { Autocomplete, Button, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import LabelTable from './PreviewLabelTable';
 import LabelPreview from './PreviewLabels';
-import { IloadedCatalog } from './Interfaces/CatalogDB';
+import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
 import { getLocalDesigns} from '../DesignEditor/DesignDB';
 import { Design, isDesign, isDesignArray } from '../DesignEditor/Interfaces/CommonInterfaces';
 import { enableStatesContext } from '../App';
@@ -17,7 +18,34 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
         setCatalog({ ...updatedCatalog });
     };
-
+    const addLabelLocally = (label: any) => {
+        const isLabelFound = catalog.labels.some((l) => l._id === label._id);
+        //if label is found increment the count
+        if (isLabelFound) {
+            const newLabels = catalog.labels.map(lbl => {
+                if (lbl._id === label._id) {
+                    return {
+                        ...lbl,
+                        count: lbl.count + 1
+                    }
+                } else return lbl;
+            });
+            //update the catalog in the state
+            updateCatalog(({ ...catalog, size: catalog.size + 1, labels: newLabels }));
+        }
+        //else add label to selected catalog
+        else {
+            const newCatalog = {
+                ...catalog, labels: [...catalog.labels, { ...label, count: 1 }]
+            };
+            newCatalog.volume += 1;
+            newCatalog.size += 1;
+            if (isLoadedCatalog(newCatalog)) {
+                //update the catalog in the state
+                updateCatalog(newCatalog);
+            }
+        }
+    }
     useEffect(() => {
         // Fetch designs from session storage on component mount
         const fetchedDesigns = getLocalDesigns();
@@ -34,9 +62,12 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                 <Grid item xs={12}>
                     <InfoBar catalog={catalog} design={design} setDesign={setDesign} />
                 </Grid>
+                <Grid item xs={12}>
+                    <SearchBar addLabel={addLabelLocally } />
+                </Grid>
                 <Grid item xs={6}>
                     <LabelTable catalog={catalog} updateCatalog={updateCatalog} />
-                </Grid>
+                Grid</Grid>
                 {/* Render LabelPreview component if design is available */}
                 {design && (
                     <Grid item xs={6} style={{ maxHeight: '100%', maxWidth: '100%', overflow: 'auto' }}>
@@ -47,7 +78,23 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
         </>
     );
 }
+const SearchBar = ({ addLabel }: {addLabel:(label:any)=>void}) => {
+    const labels = db.data;
 
+    return (
+        <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={labels}
+            getOptionLabel={(option) => option.bg} // Display 'bg' attribute in autocomplete
+            renderInput={(params) => <TextField {...params} label="Insert Label" />}
+            onChange={(event, value) => {
+                addLabel(value); // This will be the selected object containing both 'bg' and '_id'
+                // Do something with selected value, like updating state
+            }}
+        />
+    );
+};
 const InfoBar = ({ catalog, design, setDesign}:
     {
         catalog: IloadedCatalog; design: Design | null; setDesign: (design: Design) => void }) => {

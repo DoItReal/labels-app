@@ -1,12 +1,13 @@
-import { Box, Button, Grid, Input, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Tooltip } from '@mui/material';
+import { Autocomplete, Box, Button, Grid, Input, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Tooltip } from '@mui/material';
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { isNotNullOrUndefined } from '../tools/helpers';
-import { addSelectedLabel, updateSelectedLabel, loadCatalog, newCatalog } from './CatalogDB';
+import { addSelectedLabel, updateSelectedLabel, loadCatalog, newCatalog, saveSelectedCatalog } from './CatalogDB';
 import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
 import { createCatalogDB, getCatalogs, updateCatalogDB } from './CatalogsDB';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
+import { db } from '../App';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -117,15 +118,67 @@ export default function DataTableStates({ catalog,setCatalog}:
         <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
     )
 }
+const SearchBar = ({ addLabel }: { addLabel: (label: any) => void }) => {
+    const labels = db.data;
 
+    return (
+        <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={labels}
+            getOptionLabel={(option) => option.bg} // Display 'bg' attribute in autocomplete
+            renderInput={(params) => <TextField {...params} label="Insert Label" />}
+            onChange={(event, value) => {
+                addLabel(value); // This will be the selected object containing both 'bg' and '_id'
+                // Do something with selected value, like updating state
+            }}
+        />
+    );
+};
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
-
+    const addLabel = (label: any) => {
+        const isLabelFound = catalog.labels.some((l) => l._id === label._id);
+        //if label is found increment the count
+        if (isLabelFound) {
+            const newLabels = catalog.labels.map(lbl => {
+                if (lbl._id === label._id) {
+                    return {
+                        ...lbl,
+                        count: lbl.count + 1
+                    }
+                } else return lbl;
+            });
+            //save the updated catalog to local storage
+            saveSelectedCatalog(structuredClone({ ...catalog, size: catalog.size + 1, labels: newLabels }));
+            //update the catalog in the state
+            updateCatalog(({ ...catalog, size: catalog.size + 1, labels: newLabels }));
+        }
+        //else add label to selected catalog
+        else {
+            const newCatalog = {
+                ...catalog, labels: [...catalog.labels, { ...label, count: 1 }]
+            };
+            newCatalog.volume += 1;
+            newCatalog.size += 1;
+            if (isLoadedCatalog(newCatalog)) {
+                //save the updated catalog to local storage
+                saveSelectedCatalog(newCatalog);
+                //update the catalog in the state
+                updateCatalog(newCatalog);
+            }
+        }
+    }
     return (
         <Grid container>
-           <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
+            <Grid item xs={12 } >
+                <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
+            </Grid>
+            <Grid item xs={12} >
+                <SearchBar addLabel = {addLabel} />
+            </Grid>
         <Box height={1} sx={{
             position: 'relative',
             overflow: 'auto',
@@ -169,7 +222,7 @@ const InfoBar = ({ catalog, updateCatalog, saveCatalog }: { catalog: IloadedCata
                 <InputLabel>Catalog Name</InputLabel>
                 <Input type='text' placeholder='Catalog Name' size='medium' value={name}
                     onChange={(e) => { setName(e.target.value); handleNameChange(e.target.value) }} />
-                Grid</Grid>
+                </Grid>
             <Grid item>
                 <InputLabel>Created At</InputLabel>
                 <Input value={formatDate(catalog.date)} disabled />
