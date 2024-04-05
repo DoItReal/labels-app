@@ -10,7 +10,7 @@ import { Container, Grid } from '@mui/material';
 import DesignUI from './EditorUI';
 import Canvas from './EditorCanvas';
 import Label from './LabelCanvas';
-import { labelDataType } from '../db';
+import { labelDataType } from '../DB/Interfaces/Labels';
 import {
   Iimage,
   ImageURL,

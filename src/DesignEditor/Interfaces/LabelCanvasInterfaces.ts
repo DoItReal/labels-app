@@ -1,5 +1,5 @@
 //All interfeces in ../LabelCanvas.tsx are defined here
-import { labelDataType } from '../../db';
+import { labelDataType } from '../../DB/Interfaces/Labels';
 import { Design, Dimensions, Position, UnifiedBlock } from './CommonInterfaces'; 
 
 export interface CanvasProps {

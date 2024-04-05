@@ -5,7 +5,7 @@ import {
 } from '@mui/x-data-grid';
 import { GridActionsCellItem } from "@mui/x-data-grid"; 
 import { isNotNullOrUndefined } from '../../../tools/helpers';
-import { labelDataType } from '../../../db';
+import { labelDataType } from '../../../DB/Interfaces/Labels';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';

@@ -1,7 +1,7 @@
 import FilterNavContainer from './FilterNavContainer';
 import { useState, createContext } from 'react';
 import './index.css';
-import { labelDataType } from '../../../db';
+import { labelDataType } from '../../../DB/Interfaces/Labels';
 import { IlabelsContainerProps } from '../index';
 import LabelTable from './LabelTable';
 import { Box, Grid } from '@mui/material';

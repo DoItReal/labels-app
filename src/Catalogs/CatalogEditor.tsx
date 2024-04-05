@@ -7,7 +7,7 @@ import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
 import { createCatalogDB, getCatalogs, updateCatalogDB } from './CatalogsDB';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
-import { db } from '../App';
+import { getLabels } from '../LocalStorage/Labels';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -119,7 +119,7 @@ export default function DataTableStates({ catalog,setCatalog}:
     )
 }
 const SearchBar = ({ addLabel }: { addLabel: (label: any) => void }) => {
-    const labels = db.data;
+    const labels = getLabels();
 
     return (
         <Autocomplete

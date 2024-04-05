@@ -1,9 +1,9 @@
-import { db } from "../App";
 import { IloadedLabel, isCatalog, isIloadedLabel } from "./Interfaces/CatalogDB";
-import { isLabelDataType, labelDataType } from "../db";
+import { isLabelDataType, labelDataType } from "../DB/Interfaces/Labels";
 import { getCatalogs } from "./CatalogsDB";
 import { Icatalogs } from './Interfaces/CatalogsDB';
 import { Icatalog, IloadedCatalog, isLoadedCatalog, IcatalogLabelPointer, isCatalogLabelPointer } from "./Interfaces/CatalogDB";
+import { fetchLabelById } from "../DB/Labels";
 
 /* Responsability for:
                     ***** Managing Loaded Catalog [Icatalog] in localStorage  *****
@@ -79,7 +79,7 @@ const fetchLabels = async (labelPointers: IcatalogLabelPointer[]): Promise<Iload
     const labelsArr: IloadedLabel[] = [];
     for (const labelPointer of labelPointers) {
         try {
-            const label = await db.getLabelById(labelPointer._id);
+            const label = await fetchLabelById(labelPointer._id);
             if (!isLabelDataType(label)) throw new Error('Label is not of type LabelDataType');
             const addedLabel = { ...label, count: labelPointer.count };
             if (isIloadedLabel(addedLabel)) {
@@ -119,8 +119,10 @@ export const loadCatalog = async (id: string) => {
 
             //TO GET LABEL FROM LOCAL STORAGE
             try {
-                const label = await db.getLabelById(labelPointer._id);
-                if (!isLabelDataType(label)) throw new Error('Label is not of type LabelDataType');
+                const label = await fetchLabelById(labelPointer._id);
+                if (!isLabelDataType(label)) {
+                    throw new Error('Label is not of type LabelDataType');
+                }
                 const addedLabel = { ...label, count: labelPointer.count };
                 if (isIloadedLabel(addedLabel)) {
                     labelsArr.push(addedLabel);

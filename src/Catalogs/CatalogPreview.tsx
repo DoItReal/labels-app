@@ -2,7 +2,6 @@
  to allow the user to edit the count of the labels
  preview of the labels in the catalog
  */import React, { useState, useEffect, useContext } from 'react';
-import { db } from '../App';
 import { Autocomplete, Button, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import LabelTable from './PreviewLabelTable';
 import LabelPreview from './PreviewLabels';
@@ -12,6 +11,7 @@ import { Design, isDesign, isDesignArray } from '../DesignEditor/Interfaces/Comm
 import { enableStatesContext } from '../App';
 import { formatDate } from '../tools/helpers';
 import PDF from '../PDF/index';
+import { getLabels } from '../LocalStorage/Labels';
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
@@ -79,7 +79,7 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
     );
 }
 const SearchBar = ({ addLabel }: {addLabel:(label:any)=>void}) => {
-    const labels = db.data;
+    const labels = getLabels();
 
     return (
         <Autocomplete

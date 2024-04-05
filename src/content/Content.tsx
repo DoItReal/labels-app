@@ -2,8 +2,8 @@ import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState, useContext } from 'react';
-import { isLabelDataType, labelDataType } from '../db';
-import { db } from '../App';
+import { isLabelDataType, labelDataType } from '../DB/Interfaces/Labels';
+import {createNewLabelDB, deleteLabelDB, editLabelDB } from '../DB/Labels';
 import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
@@ -68,7 +68,7 @@ export default function ContentStates() {
         };
         
         try {
-            await db.deleteLabel(label._id).then(async(lbl) => {
+            await deleteLabelDB(label._id).then(async(lbl) => {
                 const array = [...dbData];
                 setDbData(array => update(array));
             });
@@ -95,7 +95,7 @@ export default function ContentStates() {
     //handle saving label and updating dbData
     const handleSaveLabel = async (label: labelDataType) => {
         try {
-            const editedLabel = await db.saveLabel(label);
+            const editedLabel = await editLabelDB(label);
             const array = [...dbData];
             const index = findIndexByProperty(array, '_id', editedLabel._id);
             if (index === -1) return;
@@ -108,7 +108,7 @@ export default function ContentStates() {
     //handle create label and updating dbData
     const handleCreateLabel = async (label: any) => {
         try {
-            const lbl = await db.createNewLabel(label);
+            const lbl = await createNewLabelDB(label);
             addDbLabel(lbl);
             return true;
         } catch (error) {

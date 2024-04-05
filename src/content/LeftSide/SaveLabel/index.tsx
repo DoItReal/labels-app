@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { LabelContent } from './LabelContent';
 import './index.css';
 import './saveLabel.css';
-import { labelDataType } from '../../../db';
+import { labelDataType } from '../../../DB/Interfaces/Labels';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { IcontentProps } from '../../InterfacesContent';
 import React from 'react';

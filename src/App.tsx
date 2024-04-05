@@ -6,7 +6,6 @@ import type { } from '@mui/x-data-grid/themeAugmentation';
 import  Nav from './nav/Nav';
 import Content from './content/Content';
 import './style.css';
-import DB from './db';
 import { useState,createContext} from 'react';
 import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-dom';
 import { useUser, Iuser, IuseUser } from './Login/Login';
@@ -19,8 +18,9 @@ import StickyFooter from './UI/Footer';
 import Playground from './Designs/index';
 import { fetchCatalogs, loadCatalogsLocally } from './Catalogs/CatalogsDB';
 import Catalogs from './Catalogs';
+import { initDB } from './Init/InitializeDB';
 
-export var db = new DB();
+initDB();
 const fetchAndLoadCatalogs = async () => {
     try {
         const catalogs = await fetchCatalogs();

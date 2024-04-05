@@ -1,4 +1,4 @@
-import { isLabelDataType, labelDataType } from "../../db";
+import { isLabelDataType, labelDataType } from "../../DB/Interfaces/Labels";
 
 
 export interface IloadedLabel extends labelDataType {

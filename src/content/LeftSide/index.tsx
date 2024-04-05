@@ -1,6 +1,6 @@
 import { LabelsContainerStates } from './LabelsContainer/index';
 import './style.css';
-import  { labelDataType } from '../../db';
+import  { labelDataType } from '../../DB/Interfaces/Labels';
 import { IcontentProps } from '../InterfacesContent';
 
 export interface IlabelsContainerProps {

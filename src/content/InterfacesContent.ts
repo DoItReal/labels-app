@@ -1,5 +1,5 @@
 import { IloadedCatalog, IloadedLabel } from "../Catalogs/Interfaces/CatalogDB";
-import { labelDataType } from "../db";
+import { labelDataType } from "../DB/Interfaces/Labels";
 
 
 export interface IcontentProps {
