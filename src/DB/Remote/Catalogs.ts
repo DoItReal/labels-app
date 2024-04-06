@@ -13,39 +13,8 @@
           ==> editCatalogsLocally
           ==> deleteCatalogsLocally
 */
-import { Icatalog, IloadedCatalog, isCatalog, isCatalogArray } from './Interfaces/CatalogDB';
-import { Icatalogs, isIcatalogs } from './Interfaces/CatalogsDB';
+import { Icatalog, IloadedCatalog, isCatalog, isCatalogArray } from '../Interfaces/Catalogs';
 const address = 'http://localhost:8080/';
-
-
-
-
-//gets (catalogs:Icatalog[]) modifies it to Icatalogs and saves it to local storage
-export const loadCatalogsLocally = (catalogs: Icatalog[]) => {
-    // if catalogs is not of type Icatalogs, return and do not proceed further
-    if (!catalogs) return null;
-    const catalogObj: Icatalogs = {};
-    for (const catalog of catalogs) {
-        catalogObj[catalog._id] = catalog;
-    }
-    if (!isIcatalogs(catalogObj)) return null;
-    sessionStorage.setItem('catalogs', JSON.stringify(catalogObj));
-    return catalogObj;
-}
-export const updateCatalogsLocally = (catalogs: Icatalogs) => {
-    if (!isIcatalogs(catalogs)) return;
-    sessionStorage.setItem('catalogs', JSON.stringify(catalogs));
-}
-
-//get catalogs from session storage returns Icatalogs | null
-export const getCatalogs = () => {
-    const catalogsStr = sessionStorage.getItem('catalogs');
-    if (catalogsStr) {
-        const parsedCatalogs = JSON.parse(catalogsStr) as Icatalogs;
-        return parsedCatalogs;
-    }
-    return null;
-}
 
 //DB API MongoDB
 //fetches catalogs from server and returns a promise of type Icatalog[]
@@ -79,7 +48,7 @@ export const fetchCatalogs = () => {
 }
 export const createCatalogDB  = (catalog: IloadedCatalog) => {
 //TODO 
-    const modifiedCatalog = { ...catalog,_id:'65e8cd9784f929813a398288', labels: catalog.labels.map(label => ({ _id: label._id, count: label.count })) };
+    const modifiedCatalog = { ...catalog,_id:'', labels: catalog.labels.map(label => ({ _id: label._id, count: label.count })) };
     if (!isCatalog(modifiedCatalog)) {
         return;
     }
@@ -92,7 +61,7 @@ export const createCatalogDB  = (catalog: IloadedCatalog) => {
 
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(modifiedCatalog);
+                resolve(JSON.parse(xhr.responseText));
             } else if (xhr.status !== 200) {
                 reject(new Error('Error in saving Catalog'));
             }

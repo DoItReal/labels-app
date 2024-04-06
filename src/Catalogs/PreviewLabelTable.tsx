@@ -6,8 +6,8 @@
 import { Box, Grid, Input, InputLabel, Stack, Tooltip } from '@mui/material';
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { isNotNullOrUndefined } from '../tools/helpers';
-import { addSelectedLabel } from './CatalogDB';
-import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
+import { addSelectedLabel } from '../DB/SessionStorage/Catalogs';
+import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();

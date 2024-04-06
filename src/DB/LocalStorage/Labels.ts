@@ -1,4 +1,4 @@
-import { labelDataType } from '../DB/Interfaces/Labels';
+import { labelDataType } from '../Interfaces/Labels';
 export const getLabels = (): labelDataType[] => {
     return JSON.parse(localStorage.getItem('labels') || '[]');
 }

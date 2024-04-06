@@ -2,10 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
-    "\\src\\Catalogs\\Interfaces",
-    "\\src\\DesignEditor",
-    "\\src\\DesignEditor\\Interfaces"
+    "\\src\\content",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\DB",
+    "\\src\\DB\\Interfaces",
+    "\\src\\DesignEditor\\Interfaces",
+    "\\src\\Init",
+    "\\src\\LocalStorage"
   ],
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\FilterNavContainer.tsx",
   "PreviewInSolutionExplorer": false
 }

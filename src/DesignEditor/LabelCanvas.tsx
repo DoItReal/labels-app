@@ -42,7 +42,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { textParametersMap, getImageById } from './Editor'; // Import the Design type
 import { png } from '../labels';
-import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from './Interfaces/CommonInterfaces';
+import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
 import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue, isTextQueueArray } from './Interfaces/LabelCanvasInterfaces';
 
 

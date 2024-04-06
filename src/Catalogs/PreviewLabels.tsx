@@ -1,10 +1,10 @@
 /**
  * Component for previewing labels based on a design and catalog.
  */
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { IloadedCatalog } from '../DB/Interfaces/Catalogs';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
-import { Design } from '../DesignEditor/Interfaces/CommonInterfaces';
+import { Design } from '../DB/Interfaces/Designs';
 import { CircularProgress, Grid } from '@mui/material';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';

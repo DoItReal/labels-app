@@ -2,14 +2,14 @@ import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
 import { CreateLabel } from './LeftSide/SaveLabel';
 import { useState, useContext } from 'react';
-import { isLabelDataType, labelDataType } from '../DB/Interfaces/Labels';
-import {createNewLabelDB, deleteLabelDB, editLabelDB } from '../DB/Labels';
+import { labelDataType } from '../DB/Interfaces/Labels';
+import {createNewLabelDB, deleteLabelDB, editLabelDB } from '../DB/Remote/Labels';
 import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
 import CatalogEditor from '../Catalogs/CatalogEditor';
-import { addSelectedLabel, getSelectedCatalog, saveSelectedCatalog, loadCatalog } from '../Catalogs/CatalogDB';
-import { IloadedCatalog, IloadedLabel, isLoadedCatalog } from '../Catalogs/Interfaces/CatalogDB';
+import { addSelectedLabel, getSelectedCatalog, saveSelectedCatalog } from '../DB/SessionStorage/Catalogs';
+import { IloadedCatalog, IloadedLabel, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { IcontentProps } from './InterfacesContent';
 
 

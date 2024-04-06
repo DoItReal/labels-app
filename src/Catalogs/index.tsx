@@ -13,10 +13,9 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
-import { deleteCatalogDB, fetchCatalogs, getCatalogs, loadCatalogsLocally, updateCatalogDB, updateCatalogsLocally } from '../Catalogs/CatalogsDB';
-import { newCatalog, deleteCatalogLocally, IcatalogToIcatalogs, loadCatalog, catalogToLoadedCatalog, getSelectedCatalog, loadedCatalogToCatalog } from '../Catalogs/CatalogDB';
-import { Icatalog, IloadedCatalog, isCatalogArray, isLoadedCatalog } from '../Catalogs/Interfaces/CatalogDB';
-import { Icatalogs } from '../Catalogs/Interfaces/CatalogsDB';
+import { deleteCatalogDB } from '../DB/Remote/Catalogs';
+import { newCatalog, deleteCatalogLocally, loadCatalog, catalogToLoadedCatalog, getSelectedCatalog, loadCatalogsLocally, updateCatalogsLocally, getCatalogs } from '../DB/SessionStorage/Catalogs';
+import { Icatalog, IloadedCatalog, Icatalogs } from '../DB/Interfaces/Catalogs';
 import CatalogEditor from './CatalogEditor';
 import CatalogPreview from './CatalogPreview';
 const useStyles = makeStyles((theme) => ({
@@ -63,43 +62,10 @@ const Catalogs: React.FC = () => {
         }
     };
     useEffect(() => {
-        
-        //check if there are catalogs in the session storage
-        //even if there are catalogs in the session storage, fetch the catalogs from the database and update the session storage
-        const fetchCatalogsFromDB = async () => {
-
-            const selectedCatalog: IloadedCatalog | null = getSelectedCatalog();
-            
-            try {
-                const fetchedCatalogs: Icatalog[] = await fetchCatalogs();
-                // Save the fetched catalogs locally in session storage
-                const catalogs: Icatalog[] = [];
-                if (selectedCatalog && isLoadedCatalog(selectedCatalog)) {
-                    
-                    var found = false;
-                    for (const fetchedCatalog of fetchedCatalogs) { // iterate fetchedCatalogs
-                        if (selectedCatalog._id === fetchedCatalog._id) { // if the catalog is found in the fetchedCatalogs
-                            found = true; // update the selectedCatalog
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        const catalog = loadedCatalogToCatalog(selectedCatalog);
-                        catalogs.push(catalog);
-                    }
-                }
-                const cats = await loadCatalogsLocally([...fetchedCatalogs, ...catalogs]);
+                const cats = getCatalogs();
                 // Fetch the catalogs from session storage
                 // Set the fetched catalogs to the state
                 cats && setCatalogs(cats);
-            } catch (error) {
-                console.error('Error fetching catalogs:', error);
-            }
-
-        };
-
-            fetchCatalogsFromDB();
-
     }, []);
     useEffect(() => {
         

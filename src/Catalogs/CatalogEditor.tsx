@@ -1,13 +1,13 @@
-import { Autocomplete, Box, Button, Grid, Input, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Tooltip } from '@mui/material';
+import { Autocomplete, Box, Button, Grid, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
 import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { isNotNullOrUndefined } from '../tools/helpers';
-import { addSelectedLabel, updateSelectedLabel, loadCatalog, newCatalog, saveSelectedCatalog } from './CatalogDB';
-import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
-import { createCatalogDB, getCatalogs, updateCatalogDB } from './CatalogsDB';
+import { updateSelectedLabel, saveSelectedCatalog } from '../DB/SessionStorage/Catalogs';
+import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { createCatalogDB, updateCatalogDB } from '../DB/Remote/Catalogs';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
-import { getLabels } from '../LocalStorage/Labels';
+import { getLabels } from '../DB/LocalStorage/Labels';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -56,9 +56,13 @@ export default function DataTableStates({ catalog,setCatalog}:
         const updatedCatalog = { ...catalog, lastUpdated: new Date().toISOString(), updates: catalog.updates + 1 };
         setCatalog(updatedCatalog);
         try {
-            if (updatedCatalog._id === '1')
-            await createCatalogDB(updatedCatalog);
+            // If the catalog is new, create it in the database
+            if (updatedCatalog._id === '1') {
+                const newCatalog = await createCatalogDB(updatedCatalog);
+                if(isLoadedCatalog(newCatalog)) setCatalog(newCatalog);
+            }
             else
+            // Otherwise, update the existing catalog
             await updateCatalogDB(updatedCatalog);
         } catch (e) {
             console.error(e);

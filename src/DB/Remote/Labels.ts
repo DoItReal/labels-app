@@ -1,5 +1,5 @@
 import { addLabel, deleteLabel, editLabel } from "../LocalStorage/Labels";
-import { isLabelDataType, isLabelDataTypeArray, labelDataType } from "./Interfaces/Labels";
+import { isLabelDataType, isLabelDataTypeArray, labelDataType } from "../Interfaces/Labels";
 
 const address = 'http://localhost:8080/';
 export const fetchLabels = () => {
@@ -11,7 +11,6 @@ export const fetchLabels = () => {
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const data = JSON.parse(xhr.responseText);
-                console.log(data);
                 if (isLabelDataTypeArray(data))
                     resolve(data);
                 else 

@@ -5,13 +5,13 @@
 import { Autocomplete, Button, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import LabelTable from './PreviewLabelTable';
 import LabelPreview from './PreviewLabels';
-import { IloadedCatalog, isLoadedCatalog } from './Interfaces/CatalogDB';
-import { getLocalDesigns} from '../DesignEditor/DesignDB';
-import { Design, isDesign, isDesignArray } from '../DesignEditor/Interfaces/CommonInterfaces';
+import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { getLocalDesigns} from '../DB/LocalStorage/Designs';
+import { Design, isDesign, isDesignArray } from '../DB/Interfaces/Designs';
 import { enableStatesContext } from '../App';
 import { formatDate } from '../tools/helpers';
 import PDF from '../PDF/index';
-import { getLabels } from '../LocalStorage/Labels';
+import { getLabels } from '../DB/LocalStorage/Labels';
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);

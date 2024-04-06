@@ -24,9 +24,10 @@ import SaveIcon from '@mui/icons-material/Save';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import { createNewDesign, getLocalDesigns, setLocalDesigns, updateDesign, updateLocalDesign } from './DesignDB';
+import { createNewDesign, updateDesign } from '../DB/Remote/Designs';
+import { getLocalDesigns, setLocalDesigns, updateLocalDesign } from '../DB/LocalStorage/Designs';
 import { textParametersMap, images, dummyImageBlock, dummyImage } from './Editor';
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from './Interfaces/CommonInterfaces';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from '../DB/Interfaces/Designs';
 import ImageUpload from './ImageUpload';
 interface DesignUIProps {
     design: Design;

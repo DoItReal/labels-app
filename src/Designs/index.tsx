@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     List,
     ListItem,
-    ListItemText,
     Button,
     TextField,
     Dialog,
@@ -13,8 +12,9 @@ import {
     IconButton,
 } from '@mui/material';
 import Editor from '../DesignEditor/Editor';
-import { Design, NewDesign } from '../DesignEditor/Interfaces/CommonInterfaces';
-import { createNewDesign, deleteDesign, fetchDesigns, getLocalDesigns, setLocalDesigns } from '../DesignEditor/DesignDB';
+import { Design, NewDesign } from '../DB/Interfaces/Designs';
+import { createNewDesign, deleteDesign } from '../DB/Remote/Designs';
+import { getLocalDesigns, setLocalDesigns } from '../DB/LocalStorage/Designs';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
@@ -54,24 +54,7 @@ const Designs: React.FC = () => {
     }
     useEffect(() => {
         const storedDesigns = getLocalDesigns();
-        if (storedDesigns) {
-            setDesigns(storedDesigns);
-            
-        } else {
-            const fetchDesignsFromDB = async () => {
-                try {
-                    const fetchedDesigns: string = await fetchDesigns();
-                    const JSONfetchedDesigns: Design[] = JSON.parse(fetchedDesigns);
-                    setDesigns(JSONfetchedDesigns);
-                    // Store blocks in session storage
-                    setLocalDesigns(JSON.parse(fetchedDesigns));
-                } catch (error) {
-                    console.error('Error fetching blocks:', error);
-                }
-            };
-
-            fetchDesignsFromDB();
-        }
+        setDesigns(storedDesigns || []);
     }, []);
     
     const handleEditDesign = (design: Design) => {

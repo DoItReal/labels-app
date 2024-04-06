@@ -19,9 +19,9 @@ import {
   allergenFieldBlock,
   UnifiedBlock,
   Design
-} from './Interfaces/CommonInterfaces';
+} from '../DB/Interfaces/Designs';
 import { fetchImages } from './ImageDB';
-import { getLocalDesigns, setLocalDesigns } from './DesignDB';
+import { getLocalDesigns, setLocalDesigns } from '../DB/LocalStorage/Designs';
 
 /* dummyImageURLs is a list of dummy image URLs that are used to populate the image gallery if the image database is empty */
 const dummyImageURLs: ImageURL[] = [{

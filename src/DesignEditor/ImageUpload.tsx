@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { HandleType } from './Interfaces/CommonInterfaces';
+import { HandleType } from '../DB/Interfaces/Designs';
 import { saveNewImage } from './ImageDB';
 import { Button, Container, Dialog, DialogContent, Grid, Paper, TextField } from '@mui/material';
 export interface Image {

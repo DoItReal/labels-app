@@ -14,22 +14,12 @@ import { Theme, ThemeProvider } from '@emotion/react';
 import { Container, createTheme, CssBaseline } from '@mui/material';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
-
 import Playground from './Designs/index';
-import { fetchCatalogs, loadCatalogsLocally } from './Catalogs/CatalogsDB';
 import Catalogs from './Catalogs';
 import { initDB } from './Init/InitializeDB';
 
 initDB();
-const fetchAndLoadCatalogs = async () => {
-    try {
-        const catalogs = await fetchCatalogs();
-        loadCatalogsLocally(catalogs);
-    } catch (e) {
-        console.error(e);
-    }
-};
-    fetchAndLoadCatalogs();
+
 export interface IenableStates {
     enableStates: Map<string, boolean>,
     updateStates: (key: string, value: boolean) => void

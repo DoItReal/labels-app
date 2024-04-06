@@ -1,4 +1,4 @@
-import { IloadedCatalog, IloadedLabel } from "../Catalogs/Interfaces/CatalogDB";
+import { IloadedCatalog, IloadedLabel } from "../DB/Interfaces/Catalogs";
 import { labelDataType } from "../DB/Interfaces/Labels";
 
 

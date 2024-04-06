@@ -8,7 +8,7 @@ import { Container, IconButton } from "@mui/material";
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import DeleteIcon from '@mui/icons-material/Delete';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import { getLabels } from "../../../LocalStorage/Labels";
+import { getLabels } from "../../../DB/LocalStorage/Labels";
 
 interface IfilterNavContainer {
     setDbData:(arg:labelDataType[])=>void,
@@ -52,7 +52,6 @@ function FetchButton({ setDbData }: { setDbData: (arg: labelDataType[]) => void 
         e.preventDefault();
         try {
             animID.current = requestAnimationFrame(anim);
-            console.log('OLD Way of fetching Data');
             setDbData(getLabels());
             setDisabled(true);
             stopAnim();

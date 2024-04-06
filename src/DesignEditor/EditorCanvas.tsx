@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { textParametersMap } from './Editor'; // Import the Design type
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, allergenFieldBlock, UnifiedBlock, isUnifiedBlock, isDesign, isDesignArray, Design, NewDesign, HandleType } from './Interfaces/CommonInterfaces';
+import { Position, Dimensions, UnifiedBlock, HandleType } from '../DB/Interfaces/Designs';
 import { styled } from '@mui/system';
 
 const StyledCanvas = styled('canvas')`

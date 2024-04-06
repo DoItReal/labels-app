@@ -6,7 +6,7 @@ import { Label } from "../labels";
 import { Theme } from '@emotion/react';
 import { makeStyles } from '@mui/styles';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
-import { getLocalDesigns } from "../DesignEditor/DesignDB";
+import { getLocalDesigns } from "../DB/LocalStorage/Designs";
 export default function Preview({ label, open, handleClose }:
     { label: labelDataType | undefined, open: boolean, handleClose: () => void }) {
         
