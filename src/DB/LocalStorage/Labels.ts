@@ -26,3 +26,7 @@ export const addLabel = (label: labelDataType) => {
     labels.push(label);
     updateLabels(labels);
 }
+export const getLocalLabelById = (id: string): labelDataType | undefined => {
+    const labels = getLabels();
+    return labels.find((item) => item._id === id);
+}

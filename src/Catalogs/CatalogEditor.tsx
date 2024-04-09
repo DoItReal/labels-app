@@ -1,13 +1,14 @@
 import { Autocomplete, Box, Button, Grid, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
-import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { isNotNullOrUndefined } from '../tools/helpers';
-import { updateSelectedLabel, saveSelectedCatalog } from '../DB/SessionStorage/Catalogs';
+import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels } from '../DB/SessionStorage/Catalogs';
 import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { createCatalogDB, updateCatalogDB } from '../DB/Remote/Catalogs';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
-import { getLabels } from '../DB/LocalStorage/Labels';
+import { getLabels, getLocalLabelById } from '../DB/LocalStorage/Labels';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -17,11 +18,18 @@ dataMap.set('de', 'Deutsch');
 dataMap.set('rus', 'Russian');
 dataMap.set('allergens', 'Allergens');
 dataMap.set('count', 'Count');
+dataMap.set('actions', 'Actions');
  
 
 const getRows = (data: any[]) => {
    return data.map(el => {
-        el.id = structuredClone(el._id); el.actions = {}; return el;
+       el.id = structuredClone(el._id);
+       el.actions = {
+           name: 'Actions',
+           type: 'actions',
+           width: 100
+       };
+       return el;
     })
 };
 const keys = (rows: any[]) => Object.keys(rows[0]);
@@ -79,14 +87,27 @@ export default function DataTableStates({ catalog,setCatalog}:
         updateCatalog({ ...catalog, labels: updatedLabels });
     };
     const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
+        // If the catalog is not loaded or there are no labels, return empty arrays
         if (!isLoadedCatalog(catalog) || catalog.labels.length === 0) return [[], []];
+        // Otherwise, return the rows and columns
         const row = getRows(catalog.labels);
         const colUnfilteredData = dataColUnfiltered(keys(row));
         const cols = col(colUnfilteredData);
+        //console.log(cols);
         return [row, [...cols]];
 
     }
-
+    const handleDeleteLabel = (row: any) => () => {
+        //remove the label from the catalog and setCatalog state
+        const newLabels = catalog.labels.filter((label: any) => label.id !== row.id);
+        const updatedCatalog = { ...catalog, size: catalog.size - 1, labels: newLabels };
+        updateCatalog(updatedCatalog);
+        const label = getLocalLabelById(row.id);
+        if (label) {
+            deleteSelectedLabels([label]);
+            saveSelectedCatalog(updatedCatalog);
+        }
+        }
     const col = (dataColUnfiltered: { name: any, type: string, width: number }[]) => dataColUnfiltered.map(element => {
         if (element !== null) {
             if (element.type === 'allergens') {
@@ -106,6 +127,18 @@ export default function DataTableStates({ catalog,setCatalog}:
                     },
                     renderEditCell: renderEditName,
                     hideable:false
+                };
+            } else if (element.type === 'actions') {
+                return {
+                    field: 'actions', headerName: 'Delete', sortable: false, type: "actions",
+                    getActions: (params: any) => [
+                        <GridActionsCellItem
+                            icon={<DeleteIcon />}
+                            onClick={handleDeleteLabel(params.row)}
+                            label="Delete"
+                            showInMenu={false}
+                        />
+                    ]
                 };
             } else {
                 return { field: element.type, headerName: element.name, width: element.width }

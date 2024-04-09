@@ -5,12 +5,10 @@
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\DB",
-    "\\src\\DB\\Interfaces",
-    "\\src\\DesignEditor\\Interfaces",
-    "\\src\\Init",
-    "\\src\\LocalStorage"
+    "\\src\\DB\\LocalStorage",
+    "\\src\\DB\\Remote",
+    "\\src\\DesignEditor\\Interfaces"
   ],
-  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\FilterNavContainer.tsx",
+  "SelectedNode": "\\src\\content",
   "PreviewInSolutionExplorer": false
 }
