@@ -15,6 +15,7 @@ import { getLabels } from '../DB/LocalStorage/Labels';
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
+    const [qrCode, setQrCode] = useState<Boolean>(false);
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
         setCatalog({ ...updatedCatalog });
     };
@@ -53,21 +54,28 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
             setDesign(fetchedDesigns[0]);
         }
     }, []);
-
+   
     return (
         <>
             {/* Render PDF component if catalog and design are available */}
-            { catalog && design && <PDF selectedCatalog={catalog} design={design} />}
-            <Grid container spacing={1} style={{ maxWidth: '100%', height: '75vh' }}>
-                <Grid item xs={12}>
-                    <InfoBar catalog={catalog} design={design} setDesign={setDesign} />
+            {catalog && design && <PDF selectedCatalog={catalog} design={design} qrCode={qrCode } />}
+            <Grid container spacing={0} style={{ maxWidth: '100%', marginBottom:'10vh', overflow:'auto' }}>
+                <Grid container xs={12}>
+                    <Grid item xs={6}>
+                        <InfoBar catalog={catalog} design={design} setDesign={setDesign} />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <PdfUI catalog={catalog} design={design} setDesign={setDesign} qrCode={qrCode} setQrCode={setQrCode } />
+                    </Grid>
+                    <Grid item xs={6} justifyContent='left'>
+                        <SearchBar addLabel={addLabelLocally } />
+                    </Grid>
+                   
                 </Grid>
-                <Grid item xs={12}>
-                    <SearchBar addLabel={addLabelLocally } />
-                </Grid>
+                
                 <Grid item xs={6}>
                     <LabelTable catalog={catalog} updateCatalog={updateCatalog} />
-                Grid</Grid>
+                </Grid>
                 {/* Render LabelPreview component if design is available */}
                 {design && (
                     <Grid item xs={6} style={{ maxHeight: '100%', maxWidth: '100%', overflow: 'auto' }}>
@@ -95,11 +103,34 @@ const SearchBar = ({ addLabel }: {addLabel:(label:any)=>void}) => {
         />
     );
 };
+const PdfUI = ({ catalog, design, setDesign, qrCode, setQrCode }:
+    {
+        catalog: IloadedCatalog,
+        design: Design | null,
+        setDesign: (design: Design) => void,
+        qrCode: Boolean,
+        setQrCode: (bool:Boolean) => void
+    }) => {
+    const [enableStates, updateStates] = useContext(enableStatesContext);
+    return (
+        <Grid container>
+        <Grid item>
+            <DesignSelector design={design} setDesign={setDesign} />
+        </Grid>
+         <Grid item>
+                {/* Create PDF and show popovers */}
+                <Button onClick={() => updateStates('createPDF', true)}>Create PDF</Button>
+                <Button onClick={() => setQrCode(!qrCode)}>
+                    {qrCode ? 'Hide QR Code' : 'Show QR Code'}
+                </Button>
+            </Grid>
+        </Grid>
+    );
+};
 const InfoBar = ({ catalog, design, setDesign}:
     {
         catalog: IloadedCatalog; design: Design | null; setDesign: (design: Design) => void }) => {
-    const [enableStates, updateStates] = useContext(enableStatesContext);
-
+ 
     return (
         <Grid container columnSpacing={1}>
             <Grid item>
@@ -114,13 +145,8 @@ const InfoBar = ({ catalog, design, setDesign}:
                 <InputLabel>Size</InputLabel>
                 <Input value={catalog.size} disabled />
             </Grid>
-            <Grid item>
-                <DesignSelector design={design} setDesign={setDesign} />
-            </Grid>
-            <Grid item>
-                {/* Create PDF and show popovers */}
-                <Button onClick={()=>updateStates('createPDF',true)}>Create PDF</Button>
-            </Grid>
+           
+           
         </Grid>
     );
 };

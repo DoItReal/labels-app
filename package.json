@@ -18,6 +18,8 @@
     "@types/node": "^16.18.39",
     "lodash": "^4.17.21",
     "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.3",
+    "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.5",
@@ -56,6 +58,7 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@google-cloud/translate": "^8.0.1",
     "@types/lodash": "^4.17.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.18",
     "@types/react-dom": "^18.2.7",
     "gh-pages": "^6.0.0"

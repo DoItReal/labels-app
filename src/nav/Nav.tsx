@@ -28,11 +28,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [user, setUser, logout]:[user:Iuser,setUser:(arg:Iuser)=>void,logout:()=>void] = useContext(userContext);
     const navigate = useNavigate();
-    const createPDF = () => {
-        let k = "createPDF";
-        updateStates(k, true);
-        updateStates("updatePDF", true);
-    }
+    
     const pages = [
         {
             name: 'Home',
@@ -58,13 +54,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                 navigate('./editor');
             }
         },
-        {
-        name: 'Create PDF',
-        key:'CreatePDF',
-            handleClick: () => {
-                handleCloseNavMenu(); createPDF()
-            }
-    },
+        /*
         {
         name: 'Pricing',
         key: 'Pricing',
@@ -75,6 +65,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
         key:'Blog',
             handleClick: () => { handleCloseNavMenu() }
         }
+        */
     ];
     const settings = [
         {
@@ -122,7 +113,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
             <Container sx={{
                 minWidth: '100%',
                 justifyContent: 'flex-start',
-                maxHeight: '10%'
+                
             } }>
                 <Toolbar disableGutters variant="dense">
                     <AdbIcon sx={{

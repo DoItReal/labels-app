@@ -6,6 +6,7 @@ export interface CanvasProps {
     design: Design;
     blocks: UnifiedBlock[];
     label: labelDataType;
+    qrCode?: Boolean;
 }
 export interface ItextQueue {
     context: CanvasRenderingContext2D;

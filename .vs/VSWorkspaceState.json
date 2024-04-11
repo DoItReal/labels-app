@@ -2,13 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\Catalogs",
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\DB\\LocalStorage",
-    "\\src\\DB\\Remote",
-    "\\src\\DesignEditor\\Interfaces"
+    "\\src\\DB\\SessionStorage",
+    "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\content",
+  "SelectedNode": "\\src\\App.tsx",
   "PreviewInSolutionExplorer": false
 }

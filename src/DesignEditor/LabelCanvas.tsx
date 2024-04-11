@@ -44,16 +44,15 @@ import { textParametersMap, getImageById } from './Editor'; // Import the Design
 import { png } from '../labels';
 import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
 import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue, isTextQueueArray } from './Interfaces/LabelCanvasInterfaces';
+import { generateQRCodeCanvas as QRcode } from '../UI/QRcode';
 
-
-const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
+const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) => {
     const [dataUrl, setDataUrl] = useState<string|null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
-
     // eslint-disable-next-line
-    const drawBlocks = () => {
+    const drawBlocks = async () => {
         //check if canvas and context exists
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -71,9 +70,18 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
             return queue.push(generateQueueElement(block, context));
         });
         drawBorder(context);
+       
         drawBackground(context);
+       
         drawQueue(queue);
         context.restore();
+        try {
+            if (qrCode) await drawQRCode(context);
+        } catch (error) {
+            console.error('Failed to generate QR Code:', error);
+        }
+        
+       
     };
     //TO ADD block.multiline that can be true or false and to render the text on multiple lines or on single one!
     
@@ -96,6 +104,22 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
             drawBackgroundColor(context, design.canvas.background);
         }
     }
+    const drawQRCode = async (context: CanvasRenderingContext2D) => {
+        try {
+            const qrCodeCanvas = await QRcode(label._id);
+            if (!qrCodeCanvas) {
+                return;
+            }
+            const qrCodeSize = 200; // Adjust the size as needed
+            const qrCodePosition = { x: 20, y: 20 }; // Adjust the position as needed
+                    context.save()
+                    context.drawImage(qrCodeCanvas, qrCodePosition.x, qrCodePosition.y, qrCodeSize, qrCodeSize);
+                    context.restore();
+              
+        } catch (error) {
+            console.error('Failed to generate QR Code:', error);
+        }
+    };
     const drawBackgroundImage = (context: CanvasRenderingContext2D, image: HTMLImageElement) => {
         if(!design.canvas.background || !isImagePointer(design.canvas.background)) return;
         context.save();
@@ -391,17 +415,22 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label }) => {
         }
    
     };
-    const getDataURL = () => {
-        drawBlocks();
-        if (canvasRef.current)
-            return  canvasRef.current.toDataURL();
-        else
+    const getDataURL = async () => {
+        await drawBlocks(); // Wait for drawBlocks to complete
+        if (canvasRef.current) {
+            return canvasRef.current.toDataURL();
+        } else {
             return null;
+        }
     };
     useEffect(() => {
-        drawBlocks();
-        setDataUrl(getDataURL());
-    }, [design, blocks, drawBlocks]);
+        const fetchData = async () => {
+            await drawBlocks();
+            setDataUrl(await getDataURL());
+        };
+
+        fetchData();
+    }, [design, blocks, drawBlocks, qrCode]);
     return (
         <canvas
             id={"canvas$"+label._id}

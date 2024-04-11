@@ -13,8 +13,7 @@ import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { PDF } from './PDF';
 import { createRoot } from 'react-dom/client';
 import ReactDOM from 'react-dom';
-
-export default function PdfViewer({ selectedCatalog, design }: {selectedCatalog:IloadedCatalog, design: Design }) {
+export default function PdfViewer({ selectedCatalog, design, qrCode }: {selectedCatalog:IloadedCatalog, design: Design, qrCode:Boolean }) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [dataURLs, setDataURLs] = useState<Map<string, number>>(new Map());
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -35,7 +34,7 @@ export default function PdfViewer({ selectedCatalog, design }: {selectedCatalog:
                     canvas.height = design.canvas.dim.height;
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
-                        const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} />;
+                        const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} qrCode={qrCode } />;
                         const root = createRoot(tempDiv);
                         root.render(labelCanvas);
                         await new Promise((resolve) => setTimeout(resolve, 0));
@@ -68,7 +67,7 @@ export default function PdfViewer({ selectedCatalog, design }: {selectedCatalog:
                 }
             });
         };
-    }, [selectedCatalog, design]);
+    }, [enableStates, selectedCatalog, design, qrCode]);
 
     const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
         event.stopPropagation();

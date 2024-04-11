@@ -163,7 +163,7 @@ const Catalogs: React.FC = () => {
     
     return (
         <>
-        <Grid container>
+            <Grid container >
             <Grid item xs={menuCollapsed ? 1 : 3}>
                 {/* Button to toggle menu */}
                 <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >

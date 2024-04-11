@@ -11,7 +11,7 @@ import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-d
 import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
 import { Theme, ThemeProvider } from '@emotion/react';
-import { Container, createTheme, CssBaseline } from '@mui/material';
+import { Container, createTheme, CssBaseline, Grid } from '@mui/material';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
 import Playground from './Designs/index';
@@ -48,24 +48,19 @@ function App() {
         darkMode ? setTheme(defaultTheme) : setTheme(darkTheme);
         setDarkMode(!darkMode);
     }
-
+    const navHeight = '4rem'; // Adjust as per your navigation bar height
+    const footerHeight = '4em'; // Assuming the footer is 10% of viewport height
     return (
         <userContext.Provider value={[user, setUser, logout]}>
             <enableStatesContext.Provider value={[enableStates,updateStates]}>
         <ThemeProvider theme={theme} >
                     <CssBaseline />     
-                    <Container disableGutters
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100vh',
-                            minWidth: '100%',
-                            m: 0,
-                    p: 0,
-                }}
-            >
-        <HashRouter basename="/">               
-                            <Nav toggleMode={toggleMode} /> 
+                    <Grid container direction="column" style={{ minHeight: '100vh', overflow: 'hidden' }}>
+                        <HashRouter basename="/">    
+                            <Grid item style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
+                                <Nav toggleMode={toggleMode} /> 
+                            </Grid>
+                            <Grid item style={{ marginTop: navHeight, marginBottom: footerHeight, maxHeight: `calc(100vh - ${navHeight} - ${footerHeight})`, overflow: 'auto' }}>
                         <Routes>
                     <Route path="/" element={
                                 <RequireAuth user={user}>
@@ -90,10 +85,13 @@ function App() {
                         <Route path="/login" element={<LoginUI />} />
                                 <Route path="/register" element={<SignUp />} />
          
-                        </Routes>
+                                </Routes>
+                        </Grid>
                 </HashRouter>
-                <StickyFooter />
-            </Container>
+                        <Grid item style={{ position: 'fixed', bottom: 0, left: 0, right: 0, textAlign: 'center', zIndex: 1000 }}>
+                            <StickyFooter />
+                        </Grid>
+            </Grid>
                 </ThemeProvider>
             </enableStatesContext.Provider>
         </userContext.Provider>
