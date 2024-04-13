@@ -17,56 +17,26 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [dataURLs, setDataURLs] = useState<Map<string, number>>(new Map());
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const [pdfKey, setPdfKey] = useState<number>(0);
     const classes = useStyles();
     const id = enableStates.get('createPDF') ? 'PDFPopover' : undefined;
+    const updatePdf = () => {
+        setPdfKey(prevKey => prevKey + 1);
+    };
     useEffect(() => {
         if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design) {
             return;
         }
-        const renderLabelsToDataUrls = async () => {
-            const newData = new Map();
-            await Promise.all(
-                selectedCatalog.labels.map(async (label) => {
-                    const tempDiv = document.createElement('div');
-                    const canvas = document.createElement('canvas');
-                    canvas.width = design.canvas.dim.width;
-                    canvas.height = design.canvas.dim.height;
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) {
-                        const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} qrCode={qrCode } />;
-                        const root = createRoot(tempDiv);
-                        root.render(labelCanvas);
-                        await new Promise((resolve) => setTimeout(resolve, 0));
-                        const sourceCanvas = tempDiv.querySelector('canvas') as HTMLCanvasElement | null;
-                        if (sourceCanvas) {
-                            ctx.drawImage(sourceCanvas, 0, 0);
-                            const dataURL = canvas.toDataURL();
-                            const count = label.count; // Retrieve the count from the label
-                            if (newData.has(dataURL)) {
-                                newData.set(dataURL, newData.get(dataURL)! + count); // Add the count to existing dataURL count
-                            } else {
-                                newData.set(dataURL, count); // Set the count for the new dataURL
-                            }
-                        } else {
-                            console.error("Failed to find a canvas element in the temporary div. Has to optimize LabelCanvas");
-                        }
-                    }
-                })
-            );
-            setDataURLs(structuredClone(newData));
-            setIsLoading(false);
+       const fetchData = async () => {
+           const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(selectedCatalog, design, qrCode);
+           setDataURLs(structuredClone(newData));
+           setIsLoading(false);
+           return unmountMountedComponents;
         };
 
-        renderLabelsToDataUrls();
+        fetchData();
 
-        return () => {
-            labelRefs.current.forEach((ref) => {
-                if (ref && ref.firstChild) {
-                    ReactDOM.unmountComponentAtNode(ref);
-                }
-            });
-        };
+       
     }, [enableStates, selectedCatalog, design, qrCode]);
 
     const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
@@ -93,7 +63,7 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
                         <IconButton
                             size="small"
                             title="Refresh"
-                            onClick={update}
+                            onClick={updatePdf}
                             sx={{
                                 backgroundColor: 'info.main',
                                 border: '1px solid black',
@@ -129,7 +99,7 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
                                 <CircularProgress />
                             </div>
                         ) : (
-                            <PDF imageURLs={dataURLs} />
+                                <PDF key={pdfKey} imageURLs={dataURLs} />
                         )}
                     </Box>
                 </Container>
@@ -146,3 +116,44 @@ const useStyles = makeStyles((theme: Theme) => ({
         position: 'absolute'
     },
 }));
+const renderLabelsToDataUrls = async (selectedCatalog: IloadedCatalog, design: Design, qrCode: Boolean) => {
+    const newData = new Map();
+    const mountedComponents: {root:any,tempDiv:HTMLDivElement}[] = [];
+    await Promise.all(
+        selectedCatalog.labels.map(async (label) => {
+            const tempDiv = document.createElement('div');
+            const canvas = document.createElement('canvas');
+            canvas.width = design.canvas.dim.width;
+            canvas.height = design.canvas.dim.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} qrCode={qrCode} />;
+                const root = createRoot(tempDiv);
+                root.render(labelCanvas);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+                const sourceCanvas = tempDiv.querySelector('canvas') as HTMLCanvasElement | null;
+                if (sourceCanvas) {
+                    ctx.drawImage(sourceCanvas, 0, 0);
+                    const dataURL = canvas.toDataURL();
+                    const count = label.count; // Retrieve the count from the label
+                    if (newData.has(dataURL)) {
+                        newData.set(dataURL, newData.get(dataURL)! + count); // Add the count to existing dataURL count
+                    } else {
+                        newData.set(dataURL, count); // Set the count for the new dataURL
+                    }
+                } else {
+                    console.error("Failed to find a canvas element in the temporary div. Has to optimize LabelCanvas");
+                }
+                mountedComponents.push({ root, tempDiv });
+            }
+        })
+    );
+    const unmountMountedComponents = () => {
+        mountedComponents.forEach(({ root, tempDiv }) => {
+            root.unmount();
+            ReactDOM.unmountComponentAtNode(tempDiv);
+        });
+    };
+
+    return { newData, unmountMountedComponents };
+};

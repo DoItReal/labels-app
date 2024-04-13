@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as PDFLib from 'pdf-lib';
 
 export const PDF = ({ imageURLs }: { imageURLs: Map<string, number> }) => {
@@ -9,8 +9,11 @@ export const PDF = ({ imageURLs }: { imageURLs: Map<string, number> }) => {
         if (imageURLs.size < 1) return;
         createPDF(imageURLs, setPdf);
     }
-    generate();
+    useEffect(() => {
+        generate();
 
+    }, [imageURLs]);
+   
     return (
 
         <iframe title='PDF Labels' src={pdf} style={{ width: '100%', height: '100%' }}></iframe>

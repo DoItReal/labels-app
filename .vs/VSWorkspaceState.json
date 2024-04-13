@@ -3,12 +3,13 @@
     "",
     "\\src",
     "\\src\\Catalogs",
-    "\\src\\content",
-    "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
-    "\\src\\DB\\SessionStorage",
+    "\\src\\DesignEditor",
+    "\\src\\DesignEditor\\Interfaces",
+    "\\src\\nav",
+    "\\src\\PDF",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\App.tsx",
+  "SelectedNode": "\\src\\PDF\\PDF.tsx",
   "PreviewInSolutionExplorer": false
 }
