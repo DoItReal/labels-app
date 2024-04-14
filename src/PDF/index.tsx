@@ -24,11 +24,14 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
         setPdfKey(prevKey => prevKey + 1);
     };
     useEffect(() => {
-        if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design) {
+        if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design || !enableStates.get('createPDF')) {
             return;
         }
        const fetchData = async () => {
+           const startTime = performance.now();
            const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(selectedCatalog, design, qrCode);
+           const endTime = performance.now();
+           console.log(`Time taken to render labels to data URLs: ${endTime - startTime} ms`);
            setDataURLs(structuredClone(newData));
            setIsLoading(false);
            return unmountMountedComponents;
@@ -130,7 +133,7 @@ const renderLabelsToDataUrls = async (selectedCatalog: IloadedCatalog, design: D
                 const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} qrCode={qrCode} />;
                 const root = createRoot(tempDiv);
                 root.render(labelCanvas);
-                await new Promise((resolve) => setTimeout(resolve, 0));
+                await new Promise((resolve) => setTimeout(resolve, 100));
                 const sourceCanvas = tempDiv.querySelector('canvas') as HTMLCanvasElement | null;
                 if (sourceCanvas) {
                     ctx.drawImage(sourceCanvas, 0, 0);

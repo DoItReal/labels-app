@@ -3,13 +3,12 @@
     "",
     "\\src",
     "\\src\\Catalogs",
-    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\DesignEditor",
     "\\src\\DesignEditor\\Interfaces",
     "\\src\\nav",
     "\\src\\PDF",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\PDF\\PDF.tsx",
+  "SelectedNode": "\\src\\Catalogs\\PreviewLabels.tsx",
   "PreviewInSolutionExplorer": false
 }

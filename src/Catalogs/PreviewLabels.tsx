@@ -42,7 +42,7 @@ const PreviewLabels = ({ catalog, design }: Props) => {
                         const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} />;
                         const root = createRoot(tempDiv);
                         root.render(labelCanvas);
-                        await new Promise((resolve) => setTimeout(resolve, 0));
+                        await new Promise((resolve) => setTimeout(resolve, 100));
                         const sourceCanvas = tempDiv.querySelector('canvas') as HTMLCanvasElement | null;
                         if (sourceCanvas) {
                             ctx.drawImage(sourceCanvas, 0, 0);
