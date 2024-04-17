@@ -23,7 +23,7 @@ export function Alert({ severity, variant = "filled", title, handleClose = () =>
                 bottom: 0,
                 marginBottom:'1px',
                 width: '100%',
-                zIndex:100
+                zIndex:10000
             }} >
                 <AlertTitle>{title}</AlertTitle>
                 {children}

@@ -79,7 +79,7 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                 {/* Render LabelPreview component if design is available */}
                 {design && (
                     <Grid item xs={6} style={{ maxHeight: '100%', maxWidth: '100%', overflow: 'auto' }}>
-                        <LabelPreview catalog={catalog} design={design} />
+                        <LabelPreview catalog={catalog} design={design} qrCode={qrCode} />
                     </Grid>
                 )}
             </Grid>

@@ -105,15 +105,21 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         }
     }
     const drawQRCode = async (context: CanvasRenderingContext2D) => {
+        const allergenBlock = blocks.find((block) => 'type' in block && block.type === 'allergens');
+        if(!allergenBlock) return;
         try {
             const qrCodeCanvas = await QRcode(label._id);
             if (!qrCodeCanvas) {
                 return;
             }
-            const qrCodeSize = 200; // Adjust the size as needed
-            const qrCodePosition = { x: 20, y: 20 }; // Adjust the position as needed
+            const qrCodeSize = allergenBlock.dimensions.width > 80 ? allergenBlock.dimensions.width * dimensions.width / 100 : 19 * dimensions.width / 100; // Adjust the size as needed
+           
+            const qrCodePosition = {
+                x:  (dimensions.width - qrCodeSize - border),
+                y: allergenBlock.position.y + border }; // Adjust the position as needed
                     context.save()
-                    context.drawImage(qrCodeCanvas, qrCodePosition.x, qrCodePosition.y, qrCodeSize, qrCodeSize);
+                    context.translate(qrCodePosition.x, qrCodePosition.y);
+                    context.drawImage(qrCodeCanvas, 0, 0, qrCodeSize, qrCodeSize);
                     context.restore();
               
         } catch (error) {
@@ -274,8 +280,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                 return totalWidth;
             };
             const imgCalibrate = (arr: number[]) => {
-                const width = block.dimensions.width * dimensions.width / 100;
-                const height = block.dimensions.height * dimensions.height / 100;
+                const { width, height } = getHeightWidth();
                 let textSize = parseInt(block.font);
 
                 while (textSize > 0) {
@@ -290,17 +295,32 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
 
                 return textSize;
             };
+            const getHeightWidth = () => {
+                if (qrCode) {
+                    if (block.dimensions.width > 80) {
+                        const width = (block.dimensions.width * 0.79) * dimensions.width / 100;
+                        const height = block.dimensions.height * dimensions.width / 100;
+                        return { width, height };
+                    } else {
+                        const width = block.dimensions.width * dimensions.width / 100;
+                        const height = block.dimensions.height * dimensions.height / 100;
+                        return { width, height };
+                    }
+                } else {
+                    const width = block.dimensions.width * dimensions.width / 100;
+                    const height = block.dimensions.height * dimensions.height / 100;
+                    return { width, height };
+                }
+            }
             const imgCenter = (length: number, textSize: number) => {
-                const width = block.dimensions.width * dimensions.width / 100;
-                const height = block.dimensions.height * dimensions.height / 100;
+                const {width, height } = getHeightWidth();
                 const realWidth = width + padding;
                 const realHeight = height + padding;
-
+                
              //const totalTextWidth = context.measureText(arr.join('')).width + arr.length * textSize ;
                 const totalTextWidth = measureTotalLength(arr, textSize, textSize / 2, textSize);
                 const dx = (realWidth - totalTextWidth) / 2;
                 const dy = (realHeight - textSize) / 2; // Adjust dy to vertically center the text
-
                 return { x: dx, y: dy };
             };
             let textSize = imgCalibrate(imageURLs);
@@ -312,7 +332,8 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
             for (let i = 0; i < imageURLs.length; i++) {
                 context.font = textSize + "px " + block.font.split(' ')[1];
                 context.fillStyle = "blue";
-                const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
+
+                const realPosition = { x: qrCode ? border : block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
                 renderQueue.push({ context, image: imageURLs[i], x: dx, y: dy, fontSize: textSize, position: realPosition, color: block.color });
                 dx += textSize * 2;
             }

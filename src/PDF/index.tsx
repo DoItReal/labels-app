@@ -27,7 +27,8 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
         if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design || !enableStates.get('createPDF')) {
             return;
         }
-       const fetchData = async () => {
+        const fetchData = async () => {
+            setIsLoading(true);
            const startTime = performance.now();
            const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(selectedCatalog, design, qrCode);
            const endTime = performance.now();
@@ -45,10 +46,6 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
     const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
         event.stopPropagation();
         updateStates('createPDF', false);
-    };
-
-    const update = () => {
-        updateStates('updatePDF', true);
     };
 
     if (!enableStates.get('createPDF')) return null;
@@ -119,6 +116,15 @@ const useStyles = makeStyles((theme: Theme) => ({
         position: 'absolute'
     },
 }));
+/*
+    Used to render labels to data URLs.
+    @param selectedCatalog - The selected catalog
+    @param design: Design - The selected design
+    @param qrCode: Boolean - Whether to render QR codes
+    @returns 1.A map of data URLs and their counts
+             2.A function to unmount mounted components
+
+*/
 const renderLabelsToDataUrls = async (selectedCatalog: IloadedCatalog, design: Design, qrCode: Boolean) => {
     const newData = new Map();
     const mountedComponents: {root:any,tempDiv:HTMLDivElement}[] = [];
