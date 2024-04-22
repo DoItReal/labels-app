@@ -13,7 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import {  Box, Stack } from '@mui/material';
 import { Alert } from '../../../components/Alert';
 import { useState } from 'react';
-import { SaveLabel } from '../SaveLabel/index';
+import { SaveLabel } from '../../../CreateNewLabel/index';
 import { filterCategoryContext } from './index';
 import Preview from '../../../UI/Preview';
 
@@ -64,8 +64,7 @@ dataMap.set('allergens', 'Allergens');
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
-function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { rows: any, columns: any,rowSelectionModel:GridRowSelectionModel, setRowSelectionModel: (arg: GridRowSelectionModel)=>void }) {
-    
+function DataTable({ rows, columns,rowSelectionModel, setRowSelectionModel }: { rows: labelTableLabel[], columns: any,rowSelectionModel:GridRowSelectionModel, setRowSelectionModel: (arg: GridRowSelectionModel)=>void }) {
    // if (dbData === undefined || dbData.length === 0) return null;
   
    // React.useEffect(() => console.log(rowSelectionModel));
@@ -123,7 +122,7 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, 
         setRowSelectionModel(element);
         //to add it to DataGrid - Selected
     }
-    const getColsRows = (data: any): [rows: any, columns: any] => {
+    const getColsRows = (data: labelDataType[]): [rows: labelTableLabel[], columns: any] => {
         if (data === undefined || data.length === 0) return [[], []];
         const row = getRows(data);
         const colUnfilteredData = dataColUnfiltered(keys(row));
@@ -140,7 +139,7 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, 
         try {
             await deleteLabel(row);
             const time = 5000;
-            setError(<Alert severity="success" handleClose={() => setError(null)}><strong>Label: </strong> {row.bg} <strong>sucessfuly deleted!</strong></Alert>);
+            setError(<Alert severity="success" handleClose={() => setError(null)}><strong>Label: </strong> {row.translations[0].name} <strong>sucessfuly deleted!</strong></Alert>);
             setTimeout(() => setError(null), time);
         } catch (error) {
             const time = 5000;
@@ -222,13 +221,22 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, 
         </>
     )
 }
-
-const getRows = (data: any[]) => data.map(el => {
-    el.id = structuredClone(el._id); el.actions = {}; return el;
+interface labelTableLabel extends labelDataType {
+    id: string,
+    actions: {}
+}
+const getRows = (data: labelDataType[]): labelTableLabel[] => data.map(el => {
+    // Modify the object to include the translations as rows
+    const translationObject = Object.fromEntries(
+        el.translations.map((translation, element) => [el.translations[element].lang, el.translations[element].name])
+    );
+    return { ...el, id: el._id, actions: {}, ...translationObject };
 });
-const keys = (rows: any[]) => Object.keys(rows[0]);
+const keys = (rows: labelTableLabel[]) => {
+    return Object.keys(rows[0]);
+};
 const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
-    if (dataMap.get(key))
+     if (dataMap.get(key))
         return { name: dataMap.get(key), type: key, width: 150 }
     return null;
 }).filter(isNotNullOrUndefined);

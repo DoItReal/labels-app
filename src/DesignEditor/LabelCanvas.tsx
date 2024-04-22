@@ -45,6 +45,7 @@ import { png } from '../labels';
 import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
 import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue, isTextQueueArray } from './Interfaces/LabelCanvasInterfaces';
 import { generateQRCodeCanvas as QRcode } from '../UI/QRcode';
+import { isLabelDataType } from '../DB/Interfaces/Labels';
 
 const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) => {
     const [dataUrl, setDataUrl] = useState<string|null>(null);
@@ -414,8 +415,9 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         
         if ('textParameter' in block) {
             text = textParametersMap.get(block.textParameter) || '';
-            if (block.textParameter !== '' && label.hasOwnProperty(block.textParameter)) {
-                text = label[block.textParameter];
+            if (block.textParameter !== '' && isLabelDataType(label) ) {
+                const translation = label.translations.find(entry => entry.lang === block.textParameter); 
+                text = translation ? translation.name : '';
               
             } else {
                 text = '';

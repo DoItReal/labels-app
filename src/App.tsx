@@ -16,9 +16,7 @@ import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
 import Playground from './Designs/index';
 import Catalogs from './Catalogs';
-import { initDB } from './Init/InitializeDB';
 
-initDB();
 
 export interface IenableStates {
     enableStates: Map<string, boolean>,

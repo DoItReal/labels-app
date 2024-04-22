@@ -2,11 +2,11 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { LabelContent } from './LabelContent';
 import './index.css';
 import './saveLabel.css';
-import { labelDataType } from '../../../DB/Interfaces/Labels';
+import { MealTranslation, labelDataType } from '../DB/Interfaces/Labels';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
-import { IcontentProps } from '../../InterfacesContent';
+import { IcontentProps } from '../content/InterfacesContent';
 import React from 'react';
-import { Box, Container, IconButton, Paper, Popover } from '@mui/material';
+import { Box, IconButton, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@emotion/react';
 import CloseIcon from '@mui/icons-material/Close';
@@ -16,17 +16,19 @@ export interface IsaveLabelInput {
     filterCategory: string[], setFilterCategory: Dispatch<SetStateAction<string[]>>,
     handleSubmit: (evt: React.FormEvent) => void,
     type:string,
-    translation: { bg: string, en: string, de: string, rus: string }, setTranslation: Dispatch<SetStateAction<{ bg: string, en: string, de: string, rus: string }>>
+    translation: MealTranslation[],
+    setTranslation: Dispatch<SetStateAction<MealTranslation[]>>
 }
 export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFormClose }: IcontentProps) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
     const [filterCategory, setFilterCategory] = useState<string[]>([]);
-    const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: '', en: '', de: '', rus: '' });
+    const [translation, setTranslation] = useState<MealTranslation[]>([{lang: 'bg', name: '', description: ''}, { lang: 'en', name: '', description: '' }, { lang: 'de', name: '', description: '' }, { lang: 'rus', name: '', description: '' }
+    ]);
     const firstInit = useRef(false);
     const clear = () => {
         setCurrentAllergens([]);
         setFilterCategory([]);
-        setTranslation({ bg: '', en: '', de: '', rus: '' });
+        setTranslation([{ lang: 'bg', name: '', description: '' }, { lang: 'en', name: '', description: '' }, { lang: 'de', name: '', description: '' }, { lang: 'rus', name: '', description: '' }]);
     };
     const classes = useStyles();
     const id = enableLabelForm ? 'createLabelPopover' : undefined;
@@ -39,10 +41,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
         var label = {
             allergens: currentAllergens,
             category: filterCategory,
-            bg: translation.bg,
-            en: translation.en,
-            de: translation.de,
-            rus: translation.rus,
+            translation:translation,
 	    owner:''
         };
         if (await handleCreateLabel(label))
@@ -62,7 +61,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
         close();
     }
     const handleKeyDown = (event:globalThis.KeyboardEvent):any => {
-        if (event.keyCode === 27) {
+        if (event.keyCode === 27) { //esc
             event.preventDefault();
             close();
         }
@@ -114,10 +113,10 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
 export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boolean, handleClose: () => void, label: labelDataType, handleSubmit:(arg:labelDataType)=>void }) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>(label.allergens);
     const [filterCategory, setFilterCategory] = useState<string[]>(label.category);
-    const [translation, setTranslation] = useState<{ bg: string, en: string, de: string, rus: string }>({ bg: label.bg, en: label.en, de: label.de, rus: label.rus });
+    const [translation, setTranslation] = useState<MealTranslation[]>(label.translations);
     const firstInit = useRef(false);
     useEffect(() => {
-        setTranslation({ bg: label.bg, en: label.en, de: label.de, rus: label.rus });
+        setTranslation(label.translations);
     },[label]);
   
     const saveLabel = (event: React.FormEvent) => {
@@ -126,10 +125,7 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
             _id: label._id,
             allergens: currentAllergens,
             category: filterCategory,
-            bg: translation.bg,
-            en: translation.en,
-            de: translation.de,
-            rus: translation.rus,
+            translations: translation,
 	    owner: label.owner
         };
         handleSubmit(editedLabel);
@@ -138,7 +134,7 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
 
     const handleKeyDown = (event: globalThis.KeyboardEvent): any => {
         console.log(event.keyCode);
-        if (event.keyCode === 27) {
+        if (event.keyCode === 27) { //esc
             event.preventDefault();
             close();
         }
@@ -216,6 +212,8 @@ const useStyles = makeStyles((theme: Theme) => ({
         position: 'absolute',
         justifyContent: 'center',
         alignContent: 'center',
+        top: '0',
+        left: '0',
         scale: 0.8,
         zIndex:1000
     },

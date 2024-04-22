@@ -2,12 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
-    "\\src\\DesignEditor",
-    "\\src\\DesignEditor\\Interfaces",
-    "\\src\\nav",
-    "\\src\\PDF",
-    "\\src\\UI"
+    "\\src\\DB",
+    "\\src\\DB\\Interfaces",
+    "\\src\\DB\\Remote",
+    "\\src\\DB\\SessionStorage",
+    "\\src\\Init"
   ],
   "PreviewInSolutionExplorer": false
 }

@@ -1,6 +1,6 @@
 import { Image } from "./ImageUpload";
-
-const address = "http://localhost:8080/";
+import { address } from '../DB/Remote/server';
+//const address = "http://localhost:8080/";
 
 export const saveNewImage = (image: Image) => {
     console.log(image);

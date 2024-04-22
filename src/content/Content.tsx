@@ -1,6 +1,6 @@
 import { ErrorUI } from '../Error';
 import LeftSide from './LeftSide/index';
-import { CreateLabel } from './LeftSide/SaveLabel';
+import { CreateLabel } from '../CreateNewLabel/index';
 import { useState, useContext } from 'react';
 import { labelDataType } from '../DB/Interfaces/Labels';
 import {createNewLabelDB, deleteLabelDB, editLabelDB } from '../DB/Remote/Labels';

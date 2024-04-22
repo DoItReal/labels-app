@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Editor.tsx
  * @description This file contains the implementation of the Design Editor component.
  * The Design Editor component is responsible for rendering the UI and handling user interactions
@@ -182,10 +182,12 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
         _id: '-1',
         allergens: [1,2,3],
         category: ['Soup'],
-        bg: 'Taratorrrrrrrrr rrrrrr rrrrrrrrr rrrrrrrrr',
-        en: 'Taratorrrrrrrrrrrr EN',
-        de: 'Taratorrrrrr DE',
-        rus: 'Taratorrr RUS',
+        translations: [
+            { lang: 'bg', name: 'Таратор', description: 'Таратор е българска студена супа, приготвена от кисело мляко, краставици, чесън, орехи и вода.' },
+            { lang: 'en', name: 'Tarator', description: 'Tarator is a Bulgarian cold soup made from yoghurt, cucumbers, garlic, walnuts and water.' },
+            { lang: 'de', name: 'Tarator', description: 'Tarator ist eine bulgarische kalte Suppe aus Joghurt, Gurken, Knoblauch, Walnüssen und Wasser.' },
+            { lang: 'rus', name: 'Таратор', description: 'Таратор - это болгарский холодный суп из йогурта, огурцов, чеснока, грецких орехов и воды.' }
+        ],
         owner: ''
     }
     return (

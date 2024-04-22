@@ -9,6 +9,7 @@ import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
 import { getLabels, getLocalLabelById } from '../DB/LocalStorage/Labels';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { labelDataType } from '../DB/Interfaces/Labels';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -20,9 +21,12 @@ dataMap.set('allergens', 'Allergens');
 dataMap.set('count', 'Count');
 dataMap.set('actions', 'Actions');
  
-
+/*
 const getRows = (data: any[]) => {
-   return data.map(el => {
+    return data.map(el => {
+        const translationObject = Object.fromEntries(
+            el.translations.map((translation, element) => [el.translations[element].lang, el.translations[element].name])
+        );
        el.id = structuredClone(el._id);
        el.actions = {
            name: 'Actions',
@@ -31,7 +35,14 @@ const getRows = (data: any[]) => {
        };
        return el;
     })
-};
+};*/
+const getRows = (data: labelDataType[]) => data.map(el => {
+    // Modify the object to include the translations as rows
+    const translationObject = Object.fromEntries(
+        el.translations.map((translation, element) => [el.translations[element].lang, el.translations[element].name])
+    );
+    return { ...el, id: el._id, ...translationObject, actions: { name: 'Actions', type: 'actions', width: 50 } };
+});
 const keys = (rows: any[]) => Object.keys(rows[0]);
 const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
     if (dataMap.get(key))
@@ -163,7 +174,11 @@ const SearchBar = ({ addLabel }: { addLabel: (label: any) => void }) => {
             disablePortal
             id="combo-box-demo"
             options={labels}
-            getOptionLabel={(option) => option.bg} // Display 'bg' attribute in autocomplete
+            getOptionLabel={(option) => {
+                const opt = option.translations.find(el => el.lang === 'bg');
+                return opt ? opt.name : '';
+            } // Display 'bg' attribute in autocomplete
+            }
             renderInput={(params) => <TextField {...params} label="Insert Label" />}
             onChange={(event, value) => {
                 addLabel(value); // This will be the selected object containing both 'bg' and '_id'

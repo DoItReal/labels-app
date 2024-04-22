@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './login.css';
-
+import { address } from '../DB/Remote/server';
 
 export interface Iuser {
     username: string, email: string, token: string
@@ -10,8 +10,7 @@ export async function loginUser(credentials: { email: string, password: string }
 	var headers = new Headers();
 	headers.append('Content-Type', 'application/json');
 	headers.append('Accept', 'application/json');    
-    return fetch('http://localhost:8080/auth/login', {
-        // return fetch('https://labels-service-392708.lm.r.appspot.com/auth/login', {
+    return fetch(address +'auth/login', {
         method: 'POST',
         mode: 'cors',
         credentials: 'include',

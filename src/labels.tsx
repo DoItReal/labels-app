@@ -1,3 +1,4 @@
+import { MealTranslation } from './DB/Interfaces/Labels';
 import { PNGs } from './pngs';
 export var png = new PNGs();
 export class Label {
@@ -30,8 +31,8 @@ export class Label {
         this.category = [];
         this.generated = false;
     }
-    setContent(allergens: Array<number>, name: translation) {
-        this.content.setContent(allergens, name);
+    setContent(allergens: Array<number>, translation:MealTranslation[]) {
+        this.content.setContent(allergens, translation);
     }
     addCategory(cat: string) {
         if (!this.category.includes(cat)) this.category.push(cat);
@@ -52,7 +53,8 @@ export class Label {
     generate() {
         if (this.generated) return this.canvas;
         let arr = this.content.allergens;
-        let rows = [this.content.name.bg, this.content.name.en, this.content.name.de, this.content.name.rus];
+        let rows = this.content.translation.map((translation) => translation.name);
+
         this.ctx.save();
 
         //border
@@ -144,36 +146,26 @@ export class Label {
 }
 
 
-
-
-type translation = {
-    bg: string;
-    en: string;
-    de: string;
-    rus: string;
-}
-
 interface labelContent {
     allergens: Array<number>,
-    name:translation
+    translation:MealTranslation[]
 }
 class LabelContent implements labelContent{
     allergens: Array<number>;
-    name: translation;
+    translation: MealTranslation[];
     //   pngFiles: string[];
     // pngs: Array<HTMLImageElement> = [];
     constructor() {
         this.allergens = [];
-        this.name = {
-            bg: '',
-            en: '',
-            de: '',
-            rus: ''
-};
+        this.translation = [{ lang: 'bg', name: '', description: '' },
+            { lang: 'en', name: '', description: '' },
+            { lang: 'de', name: '', description: '' },
+            { lang: 'rus', name: '', description: ''}
+        ]
     }
-    setContent(allergens: Array<number>, name: translation) {
+    setContent(allergens: Array<number>, translation: MealTranslation[]) {
         this.allergens = allergens;
-        this.name = name;
+        this.translation = translation;
     }
 }
 

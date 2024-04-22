@@ -94,7 +94,11 @@ const SearchBar = ({ addLabel }: {addLabel:(label:any)=>void}) => {
             disablePortal
             id="combo-box-demo"
             options={labels}
-            getOptionLabel={(option) => option.bg} // Display 'bg' attribute in autocomplete
+            getOptionLabel={(option) => {
+                const opt = option.translations.find(el => el.lang === 'bg');
+                return opt ? opt.name : '';
+            }
+            } // Display 'bg' attribute in autocomplete
             renderInput={(params) => <TextField {...params} label="Insert Label" />}
             onChange={(event, value) => {
                 addLabel(value); // This will be the selected object containing both 'bg' and '_id'

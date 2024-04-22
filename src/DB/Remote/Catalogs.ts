@@ -14,7 +14,7 @@
           ==> deleteCatalogsLocally
 */
 import { Icatalog, IloadedCatalog, isCatalog, isCatalogArray } from '../Interfaces/Catalogs';
-const address = 'http://localhost:8080/';
+import { address } from './server';
 
 //DB API MongoDB
 //fetches catalogs from server and returns a promise of type Icatalog[]
@@ -28,18 +28,20 @@ export const fetchCatalogs = () => {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const catalogsStr = xhr.responseText;
-                const catalogs = catalogsStr ? JSON.parse(catalogsStr) as Icatalog[] : [];
-                //check if catalogs is not '{}' and is of type Icatalogs
-           //     console.log(catalogs)
-           //     console.log(isCatalogArray(catalogs))
-                if (isCatalogArray(catalogs)) {
-                    
-                    resolve(catalogs);
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    const catalogsStr = xhr.responseText;
+                    const catalogs = catalogsStr ? JSON.parse(catalogsStr) as Icatalog[] : [];
+                    //check if catalogs is not '{}' and is of type Icatalogs
+                    //     console.log(catalogs)
+                    //     console.log(isCatalogArray(catalogs))
+                    if (isCatalogArray(catalogs)) {
+
+                        resolve(catalogs);
+                    }
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in fetching Catalogs'));
                 }
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in fetching Catalogs'));
             }
         };
         xhr.send();
@@ -60,10 +62,12 @@ export const createCatalogDB  = (catalog: IloadedCatalog) => {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(JSON.parse(xhr.responseText));
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in saving Catalog'));
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    resolve(JSON.parse(xhr.responseText));
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in saving Catalog'));
+                }
             }
         };
         xhr.send(JSON.stringify(modifiedCatalog));
@@ -100,10 +104,12 @@ export const deleteCatalogDB = (id: string) => {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve();
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in deleting Catalog'));
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    resolve();
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in deleting Catalog'));
+                }
             }
         };
         xhr.send();

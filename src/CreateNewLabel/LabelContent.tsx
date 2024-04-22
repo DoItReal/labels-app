@@ -1,78 +1,76 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { Category } from '../../UI/CategoryUI';
-import { Allergens } from "../../UI/AllergensUI";
+import { Category } from '../content/UI/CategoryUI';
+import { Allergens } from "../content/UI/AllergensUI";
 import './labelContent.css';
-import { Label } from '../../../labels';
+import { Label } from '../labels';
 import { IsaveLabelInput } from './index';
-import { translate } from '../../../tools/translate';
+import { translate } from '../tools/translate';
 import TranslateButtonSVG from '@mui/icons-material/Translate';
 import { Box, Container, FormControl, IconButton, Input, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
+import { MealTranslation } from "../DB/Interfaces/Labels";
 
 
-export function LabelContent({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) {
+export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) => {
     const [preview, setPreview] = useState<any>(null);
 
-    const  handleTranslate = async (text:string) => {
+    const handleTranslate = async (text: string, lang:string) => {
         let tmp = { ...translation };
+        await Promise.all(tmp.map(async (el: MealTranslation) => {
+            const langCode = el.lang;
+            if (langCode === lang) return el;
+            if (el.name === '') {
+                try {
+                    let translation = await translate(text, langCode);
+                    el.name = translation.replace(/["]/g, '');
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            return el;
+        }));
 
-        if (tmp.bg === '') {
-            try {
-                let translation = await translate(text, 'bg');
-                tmp.bg = translation.replace(/["]/g, '');
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        if (tmp.en === '') {
-            try {
-                let translation = await translate(text, 'en');
-                tmp.en = translation.replace(/["]/g, '');
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        if (tmp.de === '') {
-            try {
-                let translation = await translate(text, 'de');
-                tmp.de = translation.replace(/["]/g, '');
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        if (tmp.rus === '') {
-            try {
-                let translation =  await translate(text, 'ru');
-                tmp.rus = translation.replace(/["]/g, '');
-            } catch (error) {
-                console.log(error);
-            }
-        }
         inputChange(tmp);
-    }
+    };
     const setBG = (e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
-        let tmp = { ...translation };
-        tmp.bg = e.target.value;
+        let tmp = [ ...translation ];
+        tmp.map((el: MealTranslation) => {
+            if (el.lang === 'bg') {
+                el.name = e.target.value;
+            }
+        });
         inputChange(tmp);
     };
     const setEN = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let tmp = { ...translation };
-        tmp.en = e.target.value;
+        let tmp = [...translation];
+        tmp.map((el: MealTranslation) => {
+            if (el.lang === 'en') {
+                el.name = e.target.value;
+            }
+        });
         inputChange(tmp);
     };
     const setDE = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let tmp = { ...translation };
-        tmp.de = e.target.value;
+        let tmp = [...translation];
+        tmp.map((el: MealTranslation) => {
+            if (el.lang === 'de') {
+                el.name = e.target.value;
+            }
+        });
         inputChange(tmp);
     };
     const setRUS = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let tmp = { ...translation };
-        tmp.rus = e.target.value;
+        let tmp = [...translation];
+        tmp.map((el: MealTranslation) => {
+            if (el.lang === 'rus') {
+                el.name = e.target.value;
+            }
+        });
         inputChange(tmp);
     };
 
 
-    const inputChange = (newTranslation: { bg: string, en: string, de: string, rus: string }) => {
+    const inputChange = (newTranslation: MealTranslation[]) => {
         setTranslation(newTranslation);
     };
     
@@ -80,9 +78,9 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
         let width = 720;
         let height = 920;
         let signsInPage = 8;
-        let sign = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
-        sign.setContent(currentAllergens, { bg: translation.bg, en: translation.en, de: translation.de, rus: translation.rus });
-        let canvas = sign.generate();
+        let label = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
+        label.setContent(currentAllergens, translation);
+        let canvas = label.generate();
         setPreview(<img alt="Label preview" src={canvas.toDataURL('image/jpeg')}></img>);
     }, [translation, currentAllergens]);
 
@@ -143,7 +141,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                 fullWidth
                                 id="label_bg"
                                 className="bulgarian"
-                                value={translation.bg}
+                                value={translation.find((el) => el.lang === 'bg')?.name || ''}
                                 onChange={e => setBG(e)}
                                 sx={{
                                     fontSize: '1.4rem', fontWeight: 'bold'
@@ -154,7 +152,12 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                             size="large"
                                             title="Translate"
                                             aria-label="toggle translation"
-                                            onClick={() => handleTranslate(translation.bg)}
+                                            onClick={() => {
+                                                const transl = translation.find((el) => el.lang === 'bg');
+                                                if (transl && transl.name !== '')
+                                                handleTranslate(transl.name, 'bg');
+                                            }
+                                            }
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
                                                 event.preventDefault();
                                             }
@@ -187,7 +190,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                  fullWidth
                                 id="label_en"
                                 className="english"
-                                value={translation.en}
+                                value={translation.find((el) => el.lang === 'en')?.name || ''}
                                 onChange={e => setEN(e)}
                                 sx={{ 
                                     fontSize: '1.4rem', fontWeight:'bold'
@@ -198,7 +201,12 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                         size="large"
                                         title="Translate"
                                         aria-label="toggle translation"
-                                        onClick={() => handleTranslate(translation.en)}
+                                        onClick={() => {
+                                            const transl = translation.find((el) => el.lang === 'en');
+                                            if (transl && transl.name !== '')
+                                                handleTranslate(transl.name, 'en');
+                                        }
+                                        }
                                         onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
                                             event.preventDefault();
                                         }
@@ -231,7 +239,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                 fullWidth
                                 id="label_de"
                                 className="deutsch"
-                                value={translation.de}
+                                value={translation.find((el) => el.lang === 'de')?.name || ''}
                                 onChange={e => setDE(e)}
                                 sx={{
                                     fontSize: '1.4rem', fontWeight: 'bold'
@@ -243,7 +251,12 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                             size="large"
                                             title="Translate"
                                             aria-label="toggle translation"
-                                            onClick={() => handleTranslate(translation.de)}
+                                            onClick={() => {
+                                                const transl = translation.find((el) => el.lang === 'de');
+                                                if (transl && transl.name !== '')
+                                                    handleTranslate(transl.name, 'de');
+                                            }
+                                            }
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
                                                 event.preventDefault();
                                             }
@@ -276,7 +289,7 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                 fullWidth
                                 id="label_rus"
                                 className="russian"
-                                value={translation.rus}
+                                value={translation.find((el) => el.lang === 'rus')?.name || ''}
                                 onChange={e => setRUS(e)}
                                 sx={{
                                     fontSize: '1.4rem', fontWeight: 'bold'
@@ -287,7 +300,12 @@ export function LabelContent({ currentAllergens, setCurrentAllergens, filterCate
                                             size="large"
                                             title="Translate"
                                             aria-label="toggle translation"
-                                            onClick={() => handleTranslate(translation.rus)}
+                                            onClick={() => {
+                                                const transl = translation.find((el) => el.lang === 'rus');
+                                                if (transl && transl.name !== '')
+                                                    handleTranslate(transl.name, 'rus');
+                                            }
+                                            }
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
                                                 event.preventDefault();
                                             }

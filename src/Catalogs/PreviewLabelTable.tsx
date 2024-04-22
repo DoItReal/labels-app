@@ -8,6 +8,7 @@ import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEdi
 import { isNotNullOrUndefined } from '../tools/helpers';
 import { addSelectedLabel } from '../DB/SessionStorage/Catalogs';
 import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { labelDataType } from '../DB/Interfaces/Labels';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -19,11 +20,13 @@ dataMap.set('allergens', 'Allergens');
 dataMap.set('count', 'Count');
 
 
-const getRows = (data: any[]) => {
-    return data.map(el => {
-        el.id = structuredClone(el._id); el.actions = {}; return el;
-    })
-};
+const getRows = (data: labelDataType[]) => data.map(el => {
+    // Modify the object to include the translations as rows
+    const translationObject = Object.fromEntries(
+        el.translations.map((translation, element) => [el.translations[element].lang, el.translations[element].name])
+    );
+    return { ...el, id: el._id, actions: {}, ...translationObject };
+});
 const keys = (rows: any[]) => Object.keys(rows[0]);
 const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
     if (dataMap.get(key))

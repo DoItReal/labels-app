@@ -9,6 +9,9 @@ import { Iuser, loginUser } from '../Login/Login';
 import { Alert } from '../components/Alert';
 import { Copyright } from './Copyright';
 import { userContext } from '../App';
+import { initDB } from '../Init/InitializeDB';
+
+
 export function LoginUI() {
   
     const [user, setUser]:[user:Iuser,setUser:(arg:Iuser)=>void] = useContext(userContext);
@@ -26,6 +29,7 @@ export function LoginUI() {
             setTimeout(() => {
                 setError(null);
                 setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
+                initDB();
             }, time);
 
 

@@ -1,5 +1,5 @@
 import { NewDesign, Design} from "../Interfaces/Designs";
-const address = "http://localhost:8080/";
+import { address } from "./server";
 export const createNewDesign = (design: NewDesign) => {
     return (new Promise<Design>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
@@ -9,10 +9,12 @@ export const createNewDesign = (design: NewDesign) => {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(JSON.parse(xhr.responseText));
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in saving new Design'));
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    resolve(JSON.parse(xhr.responseText));
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in saving new Design'));
+                }
             }
         };
         xhr.send(JSON.stringify(design));
@@ -27,10 +29,12 @@ export const updateDesign = (design: Design) => {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(design);
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in saving new Design'));
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    resolve(design);
+                } else {
+                    reject(new Error('Error in saving new Design'));
+                }
             }
         };
         xhr.send(JSON.stringify(design));
@@ -43,10 +47,12 @@ export function fetchDesigns() {
         xhr.open("GET", address + 'designs', true);
         xhr.withCredentials = true;
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(JSON.parse(xhr.responseText));
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in fetching Designs'));
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    resolve(JSON.parse(xhr.responseText));
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in fetching Designs'));
+                }
             }
         };
         xhr.onerror = () => reject(new Error('Error in fetching Designs'));
@@ -64,10 +70,12 @@ export const deleteDesign = (designId: string) => {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(designId);
-            } else if (xhr.status !== 200) {
-                reject(new Error('Error in deleting Design'));
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 304) {
+                    resolve(designId);
+                } else if (xhr.status !== 200) {
+                    reject(new Error('Error in deleting Design'));
+                }
             }
         };
         xhr.send();
