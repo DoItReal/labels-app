@@ -1,7 +1,7 @@
 {
   "name": "labels-app",
   "version": "0.1.0",
-  "homepage": "https://doitreal.github.io/labels-app",
+  "homepage": "https://doitreal.github.io",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.1",

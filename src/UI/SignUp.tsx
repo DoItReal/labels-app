@@ -16,7 +16,9 @@ import { Iuser, loginUser } from '../Login/Login';
 import { Link, Navigate } from 'react-router-dom';
 import { Copyright } from './Copyright';
 import { userContext } from '../App';
-
+import Terms from '../Terms/index';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 export default function SignUp() {
     const [user, setUser]: [user: Iuser, setUser: (arg: Iuser) => void] = useContext(userContext);
@@ -26,8 +28,22 @@ export default function SignUp() {
     const [emailR, setEmailR] = useState('');
     const [password, setPassword] = useState('');
     const [passwordR, setPasswordR] = useState('');
+    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+    const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
+    const [isTermsScrolledToBottom, setIsTermsScrolledToBottom] = useState(false);
+    
     const error = useRef<unknown>(null);
-
+    
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsTermsAccepted(event.target.checked);
+     };
+    const handleShowTerms = () => {
+        setIsTermsDialogOpen(true);
+    };
+  
+    const handleCloseTermsDialog = () => {
+        setIsTermsDialogOpen(false);
+    };
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (username.length < 5) { // to check if the username exists
@@ -174,6 +190,19 @@ export default function SignUp() {
                                 autoComplete="new-password"
                             />
                         </Grid>
+                        <Grid container alignItems="center">
+                              <Grid xs={8}>
+                                <FormControlLabel
+                                  control={<Checkbox checked={isTermsAccepted} onChange={handleCheckboxChange} value="acceptTerms" color="primary" />}
+                                  label="I accept the Terms of Service and Privacy Policy."
+                                />
+                              </Grid>
+                              <Grid xs={4}>
+                                <Button onClick={handleShowTerms} color="primary" variant="outlined" size="small">
+                                  <InfoOutlinedIcon fontSize="small" />
+                                </Button>
+                              </Grid>
+                        </Grid>
                             <Grid xs={12}>
                                 <FormControlLabel
                                     control={<Checkbox value="allowExtraEmails" color="primary" />}
@@ -183,6 +212,7 @@ export default function SignUp() {
                         </Grid>
                         <Button
                             type="submit"
+                            disabled={!isTermsAccepted}
                             fullWidth
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
@@ -205,7 +235,58 @@ export default function SignUp() {
                         </Grid>
                     </Box>
                 </Box>
+                <TermsDialog open={isTermsDialogOpen} onClose={handleCloseTermsDialog} onAccept={()=>setIsTermsAccepted(true)} setIsTermsAccepted={setIsTermsAccepted} isTermsScrolledToBottom={isTermsScrolledToBottom} setIsTermsScrolledToBottom={setIsTermsScrolledToBottom} />
                 <Copyright sx={{ mt: 5 }} />
             </Container>
     );
 }
+
+interface TermsDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onAccept: () => void;
+  setIsTermsAccepted: (value: boolean) => void;
+  setIsTermsScrolledToBottom: (isScrolled: boolean) => void;
+  isTermsScrolledToBottom: boolean;
+}
+
+const TermsDialog: React.FC<TermsDialogProps> = ({
+  open,
+  onClose,
+  onAccept,
+  setIsTermsAccepted,
+  setIsTermsScrolledToBottom,
+  isTermsScrolledToBottom
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleAcceptTerms = () => {
+    onAccept();
+    onClose();
+  };
+
+  const handleScroll = () => {
+    if (contentRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+      const isScrolledToBottom = scrollTop + clientHeight === scrollHeight;
+      setIsTermsScrolledToBottom(isScrolledToBottom);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Terms of Service and Privacy Policy</DialogTitle>
+      <DialogContent dividers onScroll={handleScroll} ref={contentRef} style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <Terms />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleAcceptTerms} color="primary" variant="contained" disabled={!isTermsScrolledToBottom}>
+          Accept Terms
+        </Button>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};

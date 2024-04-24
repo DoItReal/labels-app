@@ -41,7 +41,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
         var label = {
             allergens: currentAllergens,
             category: filterCategory,
-            translation:translation,
+            translations:translation,
 	    owner:''
         };
         if (await handleCreateLabel(label))

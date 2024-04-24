@@ -2,11 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\DB",
     "\\src\\DB\\Interfaces",
     "\\src\\DB\\Remote",
     "\\src\\DB\\SessionStorage",
-    "\\src\\Init"
+    "\\src\\nav",
+    "\\src\\UI"
   ],
   "PreviewInSolutionExplorer": false
 }

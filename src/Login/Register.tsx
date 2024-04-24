@@ -3,7 +3,6 @@ export async function registerUser(credentials: { email: string, password: strin
     return (new Promise<void>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("POST", address + "auth/register");
-      //  xhr.open("POST", "https://labels-service-392708.lm.r.appspot.com/auth/register");
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
 

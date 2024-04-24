@@ -11,11 +11,13 @@ import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-d
 import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
 import { Theme, ThemeProvider } from '@emotion/react';
-import { Container, createTheme, CssBaseline, Grid } from '@mui/material';
+import { createTheme, CssBaseline, Grid } from '@mui/material';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
 import Playground from './Designs/index';
 import Catalogs from './Catalogs';
+import EmailVerification from './Login/EmailVerification';
+import Terms from './Terms/index';
 
 
 export interface IenableStates {
@@ -59,7 +61,11 @@ function App() {
                                 <Nav toggleMode={toggleMode} /> 
                             </Grid>
                             <Grid item style={{ marginTop: navHeight, marginBottom: footerHeight, maxHeight: `calc(100vh - ${navHeight} - ${footerHeight})`, overflow: 'auto' }}>
-                        <Routes>
+                                <Routes>
+                                    <Route path="/verificate/:verificationHash" element={
+                                        <EmailVerification />
+                                    }  />
+                                     <Route path="/terms" element={<Terms />} />
                     <Route path="/" element={
                                 <RequireAuth user={user}>
                                                 <Content />        
@@ -82,7 +88,7 @@ function App() {
                                 } />
                         <Route path="/login" element={<LoginUI />} />
                                 <Route path="/register" element={<SignUp />} />
-         
+                                    <Route path="*" element={<Navigate to="/404" />} />
                                 </Routes>
                         </Grid>
                 </HashRouter>
