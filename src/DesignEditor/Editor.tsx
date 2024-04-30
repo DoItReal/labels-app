@@ -1,10 +1,8 @@
-﻿/**
- * @file Editor.tsx
+﻿/** @file Editor.tsx
  * @description This file contains the implementation of the Design Editor component.
  * The Design Editor component is responsible for rendering the UI and handling user interactions
  * for designing labels.
  */
-
 import React, { useState } from 'react';
 import { Container, Grid } from '@mui/material';
 import DesignUI from './EditorUI';
@@ -37,7 +35,7 @@ export const loadImages = async (): Promise<Iimage[]> => {
     const imagesDB = await fetchImages();
     await sessionStorage.setItem('images', imagesDB);
     
-    const uploadedImagesString = sessionStorage.getItem('images');
+    const uploadedImagesString = imagesDB;
     const uploadedImages: ImageURL[] = uploadedImagesString ? JSON.parse(uploadedImagesString) as ImageURL[] : dummyImageURLs;
     //const uploadedImages = dummyImageURLs;
     for (const item of uploadedImages) {
@@ -93,7 +91,7 @@ export const textParametersMap = new Map([
     ['bg', 'Bulgarian'],
     ['en', 'English'],
     ['de', 'Deutsch'],
-    ['rus', 'Russian'],
+    ['ru', 'Russian'],
 ]);
 
 //!* TO DO Get allergensMap from API
@@ -112,7 +110,7 @@ const initDesign = {
             { id: 2, position: { x: 10, y: 23 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'blue', textParameter: 'bg' },
             { id: 3, position: { x: 10, y: 41 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'green', textParameter: 'en' },
             { id: 4, position: { x: 10, y: 59 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'de' },
-            { id: 5, position: { x: 10, y: 77 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'rus' }
+            { id: 5, position: { x: 10, y: 77 }, dimensions: { width: 80, height: 15 }, font: '20px Arial', color: 'red', textParameter: 'ru' }
         ]
 } as Design;
 // dummyTextBlock is a dummy textFieldBlock object used for filling the design.block with dummy data if no design is found in the session storage.
@@ -186,7 +184,7 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
             { lang: 'bg', name: 'Таратор', description: 'Таратор е българска студена супа, приготвена от кисело мляко, краставици, чесън, орехи и вода.' },
             { lang: 'en', name: 'Tarator', description: 'Tarator is a Bulgarian cold soup made from yoghurt, cucumbers, garlic, walnuts and water.' },
             { lang: 'de', name: 'Tarator', description: 'Tarator ist eine bulgarische kalte Suppe aus Joghurt, Gurken, Knoblauch, Walnüssen und Wasser.' },
-            { lang: 'rus', name: 'Таратор', description: 'Таратор - это болгарский холодный суп из йогурта, огурцов, чеснока, грецких орехов и воды.' }
+            { lang: 'ru', name: 'Таратор', description: 'Таратор - это болгарский холодный суп из йогурта, огурцов, чеснока, грецких орехов и воды.' }
         ],
         owner: ''
     }

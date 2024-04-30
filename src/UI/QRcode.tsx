@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 
-const address = 'http://localhost:3000/labels-app/';
+const address = 'https://qr.ez-labels.com/label/';
 
 export const generateQRCodeDataURL = async (id: string) => {
     const text = `${address}${id}`;

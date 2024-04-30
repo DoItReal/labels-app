@@ -20,6 +20,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { deepOrange } from '@mui/material/colors';
 
 
 export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) {
@@ -234,7 +235,7 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                     <Box sx={{ flexGrow: 0 }}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                <Avatar alt={user.username} sx={{ bgcolor: deepOrange[500] }}> {user.username[0] }</Avatar>
                             </IconButton>
                         </Tooltip>
                         <Menu

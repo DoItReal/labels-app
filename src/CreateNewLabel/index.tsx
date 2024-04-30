@@ -22,13 +22,13 @@ export interface IsaveLabelInput {
 export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFormClose }: IcontentProps) {
     const [currentAllergens, setCurrentAllergens] = useState<number[]>([]);
     const [filterCategory, setFilterCategory] = useState<string[]>([]);
-    const [translation, setTranslation] = useState<MealTranslation[]>([{lang: 'bg', name: '', description: ''}, { lang: 'en', name: '', description: '' }, { lang: 'de', name: '', description: '' }, { lang: 'rus', name: '', description: '' }
+    const [translation, setTranslation] = useState<MealTranslation[]>([{lang: 'bg', name: '', description: ''}, { lang: 'en', name: '', description: '' }, { lang: 'de', name: '', description: '' }, { lang: 'ru', name: '', description: '' }
     ]);
     const firstInit = useRef(false);
     const clear = () => {
         setCurrentAllergens([]);
         setFilterCategory([]);
-        setTranslation([{ lang: 'bg', name: '', description: '' }, { lang: 'en', name: '', description: '' }, { lang: 'de', name: '', description: '' }, { lang: 'rus', name: '', description: '' }]);
+        setTranslation([{ lang: 'bg', name: '', description: '' }, { lang: 'en', name: '', description: '' }, { lang: 'de', name: '', description: '' }, { lang: 'ru', name: '', description: '' }]);
     };
     const classes = useStyles();
     const id = enableLabelForm ? 'createLabelPopover' : undefined;

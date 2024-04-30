@@ -14,8 +14,9 @@ import { MealTranslation } from "../DB/Interfaces/Labels";
 export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) => {
     const [preview, setPreview] = useState<any>(null);
 
-    const handleTranslate = async (text: string, lang:string) => {
-        let tmp = { ...translation };
+    const handleTranslate = async (text: string, lang: string) => {
+        console.log(translation);
+        let tmp = [ ...translation ];
         await Promise.all(tmp.map(async (el: MealTranslation) => {
             const langCode = el.lang;
             if (langCode === lang) return el;
@@ -62,7 +63,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
     const setRUS = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         let tmp = [...translation];
         tmp.map((el: MealTranslation) => {
-            if (el.lang === 'rus') {
+            if (el.lang === 'ru') {
                 el.name = e.target.value;
             }
         });
@@ -154,8 +155,9 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                                             aria-label="toggle translation"
                                             onClick={() => {
                                                 const transl = translation.find((el) => el.lang === 'bg');
-                                                if (transl && transl.name !== '')
-                                                handleTranslate(transl.name, 'bg');
+                                                if (transl && transl.name !== '') {
+                                                    handleTranslate(transl.name, 'bg');
+                                                }
                                             }
                                             }
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -287,9 +289,9 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                             <InputLabel color='info' htmlFor="label_rus" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>Russian</InputLabel>
                             <OutlinedInput
                                 fullWidth
-                                id="label_rus"
+                                id="label_ru"
                                 className="russian"
-                                value={translation.find((el) => el.lang === 'rus')?.name || ''}
+                                value={translation.find((el) => el.lang === 'ru')?.name || ''}
                                 onChange={e => setRUS(e)}
                                 sx={{
                                     fontSize: '1.4rem', fontWeight: 'bold'
@@ -301,9 +303,9 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                                             title="Translate"
                                             aria-label="toggle translation"
                                             onClick={() => {
-                                                const transl = translation.find((el) => el.lang === 'rus');
+                                                const transl = translation.find((el) => el.lang === 'ru');
                                                 if (transl && transl.name !== '')
-                                                    handleTranslate(transl.name, 'rus');
+                                                    handleTranslate(transl.name, 'ru');
                                             }
                                             }
                                             onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {

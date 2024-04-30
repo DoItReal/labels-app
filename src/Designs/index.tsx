@@ -37,7 +37,7 @@ const Designs: React.FC = () => {
     const [designs, setDesigns] = useState<Design[]>([]);
     const [editingDesignId, setEditingDesignId] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
-    const [newDesignName, setNewDesignName] = useState('');
+    const [newDesignName, setNewDesignName] = useState('New Design');
     const [renamingDesignId, setRenamingDesignId] = useState<string | null>(null);
     const [renamingDesignName, setRenamingDesignName] = useState('');
     const [menuCollapsed, setMenuCollapsed] = useState(false);
