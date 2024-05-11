@@ -55,6 +55,14 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                 navigate('./editor');
             }
         },
+        {
+            name: 'Config',
+            key: 'Configuration',
+            handleClick: () => {
+                handleCloseNavMenu();
+                navigate('./config');
+            }
+        }
         /*
         {
         name: 'Pricing',

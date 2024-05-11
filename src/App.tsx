@@ -18,6 +18,7 @@ import Playground from './Designs/index';
 import Catalogs from './Catalogs';
 import EmailVerification from './Login/EmailVerification';
 import Terms from './Terms/index';
+import Configuration from './Config/index';
 
 
 export interface IenableStates {
@@ -62,30 +63,35 @@ function App() {
                             </Grid>
                             <Grid item style={{ marginTop: navHeight, marginBottom: footerHeight, maxHeight: `calc(100vh - ${navHeight} - ${footerHeight})`, overflow: 'auto' }}>
                                 <Routes>
-                                    <Route path="/verificate/:verificationHash" element={
-                                        <EmailVerification />
-                                    }  />
-                                     <Route path="/terms" element={<Terms />} />
-                    <Route path="/" element={
-                                <RequireAuth user={user}>
-                                                <Content />        
-                        </RequireAuth>
+                        <Route path="/verificate/:verificationHash" element={
+                            <EmailVerification />
+                        }  />
+                        <Route path="/terms" element={<Terms />} />
+                        <Route path="/" element={
+                                    <RequireAuth user={user}>
+                                                    <Content />        
+                            </RequireAuth>
                     } />
                         <Route path="/home" element={
                                 <RequireAuth user={user}>
                                                 <Content />        
                         </RequireAuth>
                     } />
-                                <Route path="/editor" element={
-                                    <RequireAuth user={user}>
-                                        <Playground />
-                                    </RequireAuth>
-                                } />
-                                <Route path="/catalogs" element={
-                                    <RequireAuth user={user}>
-                                        <Catalogs />
-                                    </RequireAuth>
-                                } />
+                        <Route path="/editor" element={
+                            <RequireAuth user={user}>
+                                <Playground />
+                            </RequireAuth>
+                        } />
+                        <Route path="/catalogs" element={
+                            <RequireAuth user={user}>
+                                <Catalogs />
+                            </RequireAuth>
+                        } />
+                        <Route path="/config" element={
+                            <RequireAuth user={user}>
+                                <Configuration />
+                            </RequireAuth>
+                        } />
                         <Route path="/login" element={<LoginUI />} />
                                 <Route path="/register" element={<SignUp />} />
                                     <Route path="*" element={<Navigate to="/404" />} />

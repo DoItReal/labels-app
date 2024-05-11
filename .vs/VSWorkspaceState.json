@@ -2,7 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs"
+    "\\src\\Catalogs",
+    "\\src\\UI"
   ],
+  "SelectedNode": "\\src\\pngs.ts",
   "PreviewInSolutionExplorer": false
 }
