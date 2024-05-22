@@ -1,6 +1,9 @@
 import { isLabelDataType, labelDataType } from "../../DB/Interfaces/Labels";
 
-
+/** IloadedLabel: 
+ * {... labelDataType, 
+ *          count:number}   *new attribute*
+ */
 export interface IloadedLabel extends labelDataType {
     count: number
 };
@@ -10,6 +13,10 @@ export const isIloadedLabel = (label: any): label is IloadedLabel => {
 export const isIloadedLabelArray = (labels: any[]): labels is IloadedLabel[] => {
     return labels.every(isIloadedLabel);
 }
+/** IcatalogLabelPointer:
+ *  _id: string;
+ *  count: number;
+ */
 export interface IcatalogLabelPointer {
     _id: string;
     count: number;
@@ -20,6 +27,17 @@ export const isCatalogLabelPointer = (label: any): label is IcatalogLabelPointer
 export const isCatalogLabelPointerArray = (labels: any[]): labels is IcatalogLabelPointer[] => {
     return labels.every(isCatalogLabelPointer);
 }
+/** Icatalog:
+ *  _id: string;
+ *  name: string;
+ *  owner: string;
+ *  labels: IcatalogLabelPointer[];
+ *  volume: number;
+ *  size: number;
+ *  date: string;
+ *  lastUpdated: string;
+ *  updates: number
+ */
 export interface Icatalog {
     _id: string;
     name: string;
@@ -47,6 +65,10 @@ export const isCatalogArray = (catalogs: any[]): catalogs is Icatalog[] => {
     
     return catalogs.every(isCatalog);
 }
+/** IloadedCatalog:
+ *  {... Icatalog,
+ *      labels: IloadedLabel[]}
+ */
 export interface IloadedCatalog extends Icatalog {
     labels: IloadedLabel[]
 }
@@ -64,6 +86,9 @@ export const isLoadedCatalog = (catalog: any): catalog is IloadedCatalog => {
 
 }
 
+/** Icatalogs:
+ *  {[key: string]: Icatalog}
+ */
 export interface Icatalogs {
     [key: string]: Icatalog;
 }

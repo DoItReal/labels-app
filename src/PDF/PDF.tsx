@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import * as PDFLib from 'pdf-lib';
+import { Design } from "../DB/Interfaces/Designs";
+import { truncate } from "fs/promises";
 
-export const PDF = ({ imageURLs }: { imageURLs: Map<string, number> }) => {
+export const PDF = ({ imageURLs, design }: { imageURLs: Map<string, number>, design: Design }) => {
     const [pdf, setPdf] = useState('');
 
     const generate = () => {
         if (pdf) return;
         if (imageURLs.size < 1) return;
-        createPDF(imageURLs, setPdf);
+        createPDF(imageURLs, setPdf, design);
     }
     useEffect(() => {
         generate();
@@ -24,8 +26,10 @@ export const PDF = ({ imageURLs }: { imageURLs: Map<string, number> }) => {
 
 // Function to transform an array of ReactCanvas components to an array of DataURLs
 
-async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => void) {
-
+async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => void, design:Design) {
+    const [A4width, A4height] = PDFLib.PageSizes.A4;
+    const labelsPerPage = Math.floor(A4height / design.canvas.dim.height)*2;
+   // console.log('A4Height:', A4height, '  DesignHeight:', design.canvas.dim.height, '  LabelsPerPage:', labelsPerPage);
     //creates new PDF Document
     const doc = await PDFLib.PDFDocument.create();
     //adds page to just created PDF Document
@@ -51,21 +55,23 @@ async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => v
         });
         return chunks;
     }
+
     const labelsData = getAllLabels(labels);
-    for (let i = 0; i < labelsData.length; i += 8) {
-        chunks.push(labelsData.slice(i, i + 8));
+    for (let i = 0; i < labelsData.length; i += labelsPerPage) {
+        chunks.push(labelsData.slice(i, i + labelsPerPage));
     }
 
-    // Generate pages for each chunk of entries
+    /* Generate pages for each chunk of entries */
     for (const chunk of chunks) {
         const page = doc.addPage(PDFLib.PageSizes.A4);
 
         const tmpWidth = page.getSize().width;
         const tmpHeight = page.getSize().height;
-        const width = tmpWidth - 10;
+        const width = tmpWidth -10;
         const height = tmpHeight - 10;
-        let y = height - 5;
-        let x = 0;
+        const offsetX = (tmpWidth - 2 * (design.canvas.dim.width + 5)) / 2;
+        let y = height - 10;
+        let x = offsetX;
 
         // Print each label on the page
         for (const label of chunk) {
@@ -80,16 +86,17 @@ async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => v
             //used for debugging
             // console.log(jpgImage);
             //draws just created JPEG image to the page
+            console.log(offsetX);
             page.drawImage(jpgImage, {
-                x: x + 5,
-                y: y - height / 4,
-                width: width / 2 - 5,
-                height: height / 4 - 10
+                x: x, //2px padding for easier cutting of the labels
+                y: y - design.canvas.dim.height,
+                width: design.canvas.dim.width, // the original width of the label 
+                height: design.canvas.dim.height // the original height of the label
             });
-            if (x > 0) {
-                x = 0;
-                y -= (height - 10) / 4;
-            } else x = x + width / 2 + 5;
+            if (x > offsetX) {
+                x = offsetX;
+                y -= design.canvas.dim.height + 2 ;
+            } else x = x + design.canvas.dim.width+2;
         }
 
     }

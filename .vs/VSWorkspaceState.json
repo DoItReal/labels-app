@@ -3,8 +3,11 @@
     "",
     "\\src",
     "\\src\\Catalogs",
-    "\\src\\UI"
+    "\\src\\DB",
+    "\\src\\DB\\Interfaces",
+    "\\src\\DB\\SessionStorage",
+    "\\src\\PDF"
   ],
-  "SelectedNode": "\\src\\pngs.ts",
+  "SelectedNode": "\\src\\Catalogs\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

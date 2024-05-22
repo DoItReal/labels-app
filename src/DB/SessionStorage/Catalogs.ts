@@ -49,10 +49,24 @@ export const getCatalogs = () => {
     }
     return null;
 }
-//creates a new catalog
+
+/**
+  *      {
+ *          _id:string,
+ *          name:string,
+ *          owner:string,
+ *          labels: IloadedLabel[],
+ *          volume:number,
+ *          size: number,
+ *          date: Date,
+ *          lastUpdated: Date,
+ *          updates:number 
+ * }
+ * @param labels: IloadedLabel[]
+ */
 export const newCatalog: (labels: IloadedLabel[]) => IloadedCatalog = (labels = []) => {
     return {
-        _id: '1',
+        _id: 'newCatalog1',
         name: 'New Catalog',
         owner: 'admin',
         labels,

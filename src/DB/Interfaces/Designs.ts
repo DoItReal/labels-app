@@ -19,7 +19,7 @@ export const isDimensions = (obj: any): obj is Dimensions => {
     );
 }
 //TO DO get textParameters based on DB INPUT or from API
-export const textParameters = ['bg', 'en', 'de', 'rus'] as const;
+export const textParameters = ['bg', 'en', 'de', 'ru'] as const;
 export type TtextParameter = typeof textParameters[number] | '';
 export type TimageParameter = 'image' | 'allergens';
 export type TypeBlock = {

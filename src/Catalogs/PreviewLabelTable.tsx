@@ -55,7 +55,7 @@ export default function DataTableStates({ catalog, updateCatalog }:
     const handleCountChange = (newValue: number, rowId: string) => {
         // Update the count value in the catalog.labels array
         const updatedLabels = catalog.labels.map((label: any) => {
-            if (label.id === rowId) {
+            if (label._id === rowId) {
                 return { ...label, count: newValue };
             }
             return label;
@@ -83,7 +83,7 @@ export default function DataTableStates({ catalog, updateCatalog }:
                         if (!hasError) {
                             const lbl = { ...params.row };
                             lbl.count = params.props.value;
-                            handleCountChange(params.props.value, lbl.id);
+                            handleCountChange(params.props.value, lbl._id);
                             addSelectedLabel(lbl);
                         }
                         return { ...params.props, error: hasError };

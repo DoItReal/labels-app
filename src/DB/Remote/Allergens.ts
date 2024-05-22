@@ -79,7 +79,7 @@ export const editAllergenDB = (editedAllergen: any) => {
         xhr.open("PATCH", address + 'allergens/' + _id);
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
-
+        xhr.withCredentials = true;
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 // update Local Storage Data

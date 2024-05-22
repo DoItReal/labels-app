@@ -99,7 +99,7 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
                                 <CircularProgress />
                             </div>
                         ) : (
-                                <PDF key={pdfKey} imageURLs={dataURLs} />
+                                <PDF key={pdfKey} imageURLs={dataURLs} design={design } />
                         )}
                     </Box>
                 </Container>

@@ -1,6 +1,7 @@
 export interface Iallergen {
     name: string;
     imageDataURL: string;
+    description: string;
 }
 export const isIallergen = (arg: any): arg is Iallergen => {
     return arg.name !== undefined &&

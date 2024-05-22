@@ -8,7 +8,7 @@ import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
 import CatalogEditor from '../Catalogs/CatalogEditor';
-import { addSelectedLabel, getSelectedCatalog, saveSelectedCatalog } from '../DB/SessionStorage/Catalogs';
+import { addSelectedLabel, getSelectedCatalog, saveSelectedCatalog } from '../DB/SessionStorage/TempCatalogs';
 import { IloadedCatalog, IloadedLabel, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { IcontentProps } from './InterfacesContent';
 
@@ -18,7 +18,6 @@ export default function ContentStates() {
     const [error, setError] = useState<JSX.Element | null>(null);
     const [dbData, setDbData] = useState<labelDataType[]>([]);
     const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog | null>(getSelectedCatalog());
-   // const [loadedCatalog, setLoadedCatalog] = useState<IloadedCatalog>({});
     const [enableStates, setEnableStates] = useContext(enableStatesContext);
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const enableLabelForm = enableStates.get('labelForm');
@@ -48,7 +47,10 @@ export default function ContentStates() {
         //fetch updated catalog and set it to loadedCatalog
         setLoadedCatalog(getSelectedCatalog());
     };
-    //add 1 label to selected
+    /** add 1 label to selectedCatalog (sessionStorage)
+     * @param label label to add
+     * @returns void
+     * */
     const addNewLabel = (label: labelDataType) => {
         addSelectedLabel(label);
         setLoadedCatalog(getSelectedCatalog());

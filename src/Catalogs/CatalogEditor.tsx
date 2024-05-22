@@ -1,15 +1,17 @@
-import { Autocomplete, Box, Button, Grid, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
+import { Autocomplete, Badge, Box, Button, Chip, Grid, IconButton, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { isNotNullOrUndefined } from '../tools/helpers';
-import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels } from '../DB/SessionStorage/Catalogs';
-import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels, loadedCatalogToCatalog, editCatalogLocally } from '../DB/SessionStorage/Catalogs';
+import { IloadedCatalog, isCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { saveSelectedCatalog as saveTempCatalog } from '../DB/SessionStorage/TempCatalogs';
 import { createCatalogDB, updateCatalogDB } from '../DB/Remote/Catalogs';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
 import { getLabels, getLocalLabelById } from '../DB/LocalStorage/Labels';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { labelDataType } from '../DB/Interfaces/Labels';
+import SendIcon from '@mui/icons-material/Send';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -76,13 +78,23 @@ export default function DataTableStates({ catalog,setCatalog}:
         setCatalog(updatedCatalog);
         try {
             // If the catalog is new, create it in the database
-            if (updatedCatalog._id === '1') {
+            if (updatedCatalog._id === 'newCatalog1') {
                 const newCatalog = await createCatalogDB(updatedCatalog);
-                if(isLoadedCatalog(newCatalog)) setCatalog(newCatalog);
+                if (!newCatalog) return;
+
+                if (isLoadedCatalog(newCatalog)) {
+                    setCatalog(newCatalog);
+                } else {
+                    const updated = { ...catalog, _id: newCatalog._id };
+                    setCatalog(updated);
+                    editCatalogLocally(updated);
+                }
             }
-            else
-            // Otherwise, update the existing catalog
-            await updateCatalogDB(updatedCatalog);
+            else {
+                // Otherwise, update the existing catalog
+                await updateCatalogDB(updatedCatalog);
+                editCatalogLocally(updatedCatalog);
+            }
         } catch (e) {
             console.error(e);
         }
@@ -90,12 +102,13 @@ export default function DataTableStates({ catalog,setCatalog}:
     const handleCountChange = (newValue: number, rowId: string) => {
         // Update the count value in the catalog.labels array
         const updatedLabels = catalog.labels.map((label: any) => {
-            if (label.id === rowId) {
+            if (label._id === rowId) {
                 return { ...label, count: newValue };
             }
             return label;
         });
-        updateCatalog({ ...catalog, labels: updatedLabels });
+        console.log(updatedLabels)
+        updateCatalog({ ...catalog, labels: [...updatedLabels] });
     };
     const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
         // If the catalog is not loaded or there are no labels, return empty arrays
@@ -166,36 +179,87 @@ export default function DataTableStates({ catalog,setCatalog}:
         <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
     )
 }
-const SearchBar = ({ addLabel }: { addLabel: (label: any) => void }) => {
+const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
+    const [selectedLabels, setSelectedLabels] = useState<any[]>([]);
     const labels = getLabels();
 
-    return (
-        <Autocomplete
-            disablePortal
-            id="combo-box-demo"
-            options={labels}
-            getOptionLabel={(option) => {
-                const opt = option.translations.find(el => el.lang === 'bg');
-                return opt ? opt.name : '';
-            } // Display 'bg' attribute in autocomplete
+    const handleAddLabels = (labelsArr: any[]) => {
+       // const updatedSelectedLabels = [...selectedLabels];
+        if (selectedLabels.length === 0) {
+            setSelectedLabels(labelsArr);
+            return;
+        }
+        const labelCountMap = new Map<string, number>(); // Map to store label counts
+
+        labelsArr.forEach(label => {
+            const labelId = label._id;
+            labelCountMap.set(labelId, (labelCountMap.get(labelId) || 0) + 1);
+        });
+
+        const updatedSelectedLabels = labelsArr.filter((label) => {
+            const labelId = label._id;
+            const labelCount = labelCountMap.get(labelId) || 0;
+
+            if (labelCount >= 1) {
+                let count = labelCount % 2 === 0 ? 0 : 1;
+                labelCountMap.set(labelId, count); // Decrease count by 1
+                return labelCount % 2 === 0 ? false : true; // Keep label in selectedLabels
             }
-            renderInput={(params) => <TextField {...params} label="Insert Label" />}
-            onChange={(event, value) => {
-                addLabel(value); // This will be the selected object containing both 'bg' and '_id'
-                // Do something with selected value, like updating state
-            }}
-        />
+
+            return false; // Remove label from selectedLabels
+        });
+        
+        setSelectedLabels(updatedSelectedLabels);  
+    };
+    const handleSubmit = () => {
+        addLabels(selectedLabels);
+    }
+    return (
+        <Grid container>
+            <Grid item xs={8 }>
+        <Autocomplete
+                    multiple
+                    id="combo-box-demo"
+                    options={labels}
+                    limitTags={5}
+                    getOptionLabel={(option) => {
+                        const opt = option.translations.find((el: any) => el.lang === 'bg');
+                        return opt ? opt.name : '';
+                    }}
+                    renderInput={(params) => <TextField {...params} label="Select Label/s" />}
+                    value={selectedLabels}
+                    onChange={(event, value) => handleAddLabels(value)}
+                />
+            </Grid>
+            <Grid item xs={1}>
+                <IconButton onClick={handleSubmit }>
+                <Badge badgeContent={selectedLabels.length} color="primary">
+                    <SendIcon />
+                </Badge>
+                </IconButton>
+            </Grid>
+      </Grid>
     );
 };
+
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
-    const addLabel = (label: any) => {
-        const isLabelFound = catalog.labels.some((l) => l._id === label._id);
+    var updatedCatalog = { ...catalog };
+    const addLabels = (labels: any[]) => {
+        labels.forEach(label => {
+            updatedCatalog = addLabel(updatedCatalog, label);
+        });
+       // saveSelectedCatalog(structuredClone(updatedCatalog));
+        updateCatalog(structuredClone(updatedCatalog));
+    }
+    const addLabel = (tmpCatalog:IloadedCatalog,label: any) => {
+        var updatedCatalog = tmpCatalog;
+        const isLabelFound = updatedCatalog.labels.some((l) => l._id === label._id);
         //if label is found increment the count
         if (isLabelFound) {
-            const newLabels = catalog.labels.map(lbl => {
+            const newLabels = updatedCatalog.labels.map(lbl => {
                 if (lbl._id === label._id) {
                     return {
                         ...lbl,
@@ -203,33 +267,36 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
                     }
                 } else return lbl;
             });
-            //save the updated catalog to local storage
-            saveSelectedCatalog(structuredClone({ ...catalog, size: catalog.size + 1, labels: newLabels }));
+
             //update the catalog in the state
-            updateCatalog(({ ...catalog, size: catalog.size + 1, labels: newLabels }));
+            updatedCatalog = (({ ...updatedCatalog, size: updatedCatalog.size + 1, labels: newLabels }));
+           // return updatedCatalog;
         }
         //else add label to selected catalog
         else {
             const newCatalog = {
-                ...catalog, labels: [...catalog.labels, { ...label, count: 1 }]
+                ...updatedCatalog, labels: [...updatedCatalog.labels, { ...label, count: 1 }]
             };
             newCatalog.volume += 1;
             newCatalog.size += 1;
             if (isLoadedCatalog(newCatalog)) {
-                //save the updated catalog to local storage
-                saveSelectedCatalog(newCatalog);
                 //update the catalog in the state
-                updateCatalog(newCatalog);
+                updatedCatalog = newCatalog;
+             //   return newCatalog;
             }
         }
+        return updatedCatalog;
     }
+
+
+
     return (
         <Grid container>
             <Grid item xs={12 } >
                 <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
             </Grid>
             <Grid item xs={12} >
-                <SearchBar addLabel = {addLabel} />
+                <SearchBar addLabels = {addLabels} />
             </Grid>
         <Box height={1} sx={{
             position: 'relative',

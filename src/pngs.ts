@@ -25,6 +25,7 @@ export class PNGs {
         for (let i = 0; i < this.URLs.length; i++) {
             let tmp = new Image();
             tmp.onload = () => this.images.push(tmp);
+            tmp.style.borderRadius = '50%';
             tmp.src = this.URLs[i];
         }
     }

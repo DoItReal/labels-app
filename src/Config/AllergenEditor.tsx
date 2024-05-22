@@ -21,7 +21,10 @@ const AllergenEditor = ({ allergen, setAllergen }: {allergen: IallergensMap | un
             <ul>
                 {allergen.allergens.map((a, index) => (
                     <li key={index}>{a.name}
-                        <img src={a.imageDataURL}></img></li>
+                        <img src={a.imageDataURL}></img>
+                        {a.description}
+                    </li>
+
                 ))}
             </ul>
 

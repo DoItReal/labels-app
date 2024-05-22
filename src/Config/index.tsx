@@ -108,7 +108,8 @@ const ConfigView = () => {
             name: newAllergensName,
             allergens: Array.from(allAllergensNames, ([id, name]) => ({
                 name,
-                imageDataURL: ''  // Placeholder for imageDataUrl
+                imageDataURL: '',  // Placeholder for imageDataUrl
+                description: '',  // Placeholder for description
             }))     
         };
         const newSavedAllergen = await createNewAllergenDB(newAllergen);
