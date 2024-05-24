@@ -2,12 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
-    "\\src\\DB",
-    "\\src\\DB\\Interfaces",
-    "\\src\\DB\\SessionStorage",
-    "\\src\\PDF"
+    "\\src\\Catalogs"
   ],
-  "SelectedNode": "\\src\\Catalogs\\index.tsx",
+  "SelectedNode": "\\src\\Catalogs\\CatalogPreview.tsx",
   "PreviewInSolutionExplorer": false
 }

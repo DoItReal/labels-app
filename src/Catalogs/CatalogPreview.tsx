@@ -12,14 +12,20 @@ import { enableStatesContext } from '../App';
 import { formatDate } from '../tools/helpers';
 import PDF from '../PDF/index';
 import { getLabels } from '../DB/LocalStorage/Labels';
+import {SearchBar as SearchBarTest} from './CatalogEditor'; 
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
     const [qrCode, setQrCode] = useState<Boolean>(false);
+    /** updates the catalog in the state */
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
         setCatalog({ ...updatedCatalog });
     };
-    const addLabelLocally = (label: any) => {
+    /**
+     * Adds a label to the selected catalog and returns the updated catalog
+     */
+    const addLabelLocally = (catalog: IloadedCatalog, label: any) => {
+        var tmpCatalog = { ...catalog };
         const isLabelFound = catalog.labels.some((l) => l._id === label._id);
         //if label is found increment the count
         if (isLabelFound) {
@@ -32,7 +38,7 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                 } else return lbl;
             });
             //update the catalog in the state
-            updateCatalog(({ ...catalog, size: catalog.size + 1, labels: newLabels }));
+            tmpCatalog = (({ ...catalog, size: catalog.size + 1, labels: newLabels }));
         }
         //else add label to selected catalog
         else {
@@ -43,9 +49,20 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
             newCatalog.size += 1;
             if (isLoadedCatalog(newCatalog)) {
                 //update the catalog in the state
-                updateCatalog(newCatalog);
+                tmpCatalog = (newCatalog);
             }
         }
+        return tmpCatalog;
+    }
+
+
+    const addLabelsLocally = (labels: any[]) => {
+        var updatedCatalog = { ...catalog };
+            labels.forEach(label => {
+                updatedCatalog = addLabelLocally(updatedCatalog, label);
+            });
+            // saveSelectedCatalog(structuredClone(updatedCatalog));
+            updateCatalog(structuredClone(updatedCatalog));
     }
     useEffect(() => {
         // Fetch designs from session storage on component mount
@@ -68,7 +85,7 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                         <PdfUI catalog={catalog} design={design} setDesign={setDesign} qrCode={qrCode} setQrCode={setQrCode } />
                     </Grid>
                     <Grid item xs={6} justifyContent='left'>
-                        <SearchBar addLabel={addLabelLocally } />
+                        <SearchBarTest addLabels={addLabelsLocally } />
                     </Grid>
                    
                 </Grid>
@@ -86,27 +103,9 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
         </>
     );
 }
-const SearchBar = ({ addLabel }: {addLabel:(label:any)=>void}) => {
-    const labels = getLabels();
-
-    return (
-        <Autocomplete
-            disablePortal
-            id="combo-box-demo"
-            options={labels}
-            getOptionLabel={(option) => {
-                const opt = option.translations.find(el => el.lang === 'bg');
-                return opt ? opt.name : '';
-            }
-            } // Display 'bg' attribute in autocomplete
-            renderInput={(params) => <TextField {...params} label="Insert Label" />}
-            onChange={(event, value) => {
-                addLabel(value); // This will be the selected object containing both 'bg' and '_id'
-                // Do something with selected value, like updating state
-            }}
-        />
-    );
-};
+/**
+ * To add option to select: 1 sided or 2 sided Print
+ */
 const PdfUI = ({ catalog, design, setDesign, qrCode, setQrCode }:
     {
         catalog: IloadedCatalog,

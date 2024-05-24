@@ -23,21 +23,7 @@ dataMap.set('allergens', 'Allergens');
 dataMap.set('count', 'Count');
 dataMap.set('actions', 'Actions');
  
-/*
-const getRows = (data: any[]) => {
-    return data.map(el => {
-        const translationObject = Object.fromEntries(
-            el.translations.map((translation, element) => [el.translations[element].lang, el.translations[element].name])
-        );
-       el.id = structuredClone(el._id);
-       el.actions = {
-           name: 'Actions',
-           type: 'actions',
-           width: 100
-       };
-       return el;
-    })
-};*/
+
 const getRows = (data: labelDataType[]) => data.map(el => {
     // Modify the object to include the translations as rows
     const translationObject = Object.fromEntries(
@@ -51,9 +37,6 @@ const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
         return { name: dataMap.get(key), type: key, width: 150 }
     return null;
 }).filter(isNotNullOrUndefined);
-
-
-
 function NameEditInputCell(props: GridRenderEditCellParams) {
     const { error } = props;
 
@@ -63,7 +46,6 @@ function NameEditInputCell(props: GridRenderEditCellParams) {
         </Tooltip>
     );
 }
-
 function renderEditName(params: GridRenderEditCellParams) {
     return <NameEditInputCell {...params} />;
 }
@@ -179,7 +161,7 @@ export default function DataTableStates({ catalog,setCatalog}:
         <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
     )
 }
-const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
+export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
     const [selectedLabels, setSelectedLabels] = useState<any[]>([]);
     const labels = getLabels();
 
@@ -222,6 +204,7 @@ const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
                     id="combo-box-demo"
                     options={labels}
                     limitTags={5}
+                    disableCloseOnSelect
                     getOptionLabel={(option) => {
                         const opt = option.translations.find((el: any) => el.lang === 'bg');
                         return opt ? opt.name : '';
@@ -229,6 +212,14 @@ const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
                     renderInput={(params) => <TextField {...params} label="Select Label/s" />}
                     value={selectedLabels}
                     onChange={(event, value) => handleAddLabels(value)}
+                    renderOption={(props, option, { selected }) => (
+                        <li {...props} style={{
+                            backgroundColor: selectedLabels.some(label => label._id === option._id) ? 'lightblue' : 'inherit',
+                            border: selectedLabels.some(label => label._id === option._id) ? '1px dotted black' : 'inherit',
+                        }}>
+                                {option.translations.find((el: any) => el.lang === 'bg')?.name}
+                        </li>
+                    )}
                 />
             </Grid>
             <Grid item xs={1}>
@@ -247,6 +238,9 @@ const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" ju
 </Stack>);
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
     var updatedCatalog = { ...catalog };
+    /**
+     * adds labels to catalog and updates the catalog in the state
+     */
     const addLabels = (labels: any[]) => {
         labels.forEach(label => {
             updatedCatalog = addLabel(updatedCatalog, label);
@@ -254,6 +248,9 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
        // saveSelectedCatalog(structuredClone(updatedCatalog));
         updateCatalog(structuredClone(updatedCatalog));
     }
+    /**
+     * adds label to catalog and return the Updated Catalog  
+     */
     const addLabel = (tmpCatalog:IloadedCatalog,label: any) => {
         var updatedCatalog = tmpCatalog;
         const isLabelFound = updatedCatalog.labels.some((l) => l._id === label._id);
