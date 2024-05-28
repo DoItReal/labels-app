@@ -13,7 +13,7 @@ import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { PDF } from './PDF';
 import { createRoot } from 'react-dom/client';
 import ReactDOM from 'react-dom';
-export default function PdfViewer({ selectedCatalog, design, qrCode }: {selectedCatalog:IloadedCatalog, design: Design, qrCode:Boolean }) {
+export default function PdfViewer({ selectedCatalog, design, qrCode, twoSided }: {selectedCatalog:IloadedCatalog, design: Design, qrCode:Boolean, twoSided:boolean }) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [dataURLs, setDataURLs] = useState<Map<string, number>>(new Map());
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -99,7 +99,7 @@ export default function PdfViewer({ selectedCatalog, design, qrCode }: {selected
                                 <CircularProgress />
                             </div>
                         ) : (
-                                <PDF key={pdfKey} imageURLs={dataURLs} design={design } />
+                                <PDF key={pdfKey} imageURLs={dataURLs} design={design} twoSided={twoSided } />
                         )}
                     </Box>
                 </Container>

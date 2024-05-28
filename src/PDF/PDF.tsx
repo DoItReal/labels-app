@@ -3,13 +3,13 @@ import * as PDFLib from 'pdf-lib';
 import { Design } from "../DB/Interfaces/Designs";
 import { truncate } from "fs/promises";
 
-export const PDF = ({ imageURLs, design }: { imageURLs: Map<string, number>, design: Design }) => {
+export const PDF = ({ imageURLs, design, twoSided }: { imageURLs: Map<string, number>, design: Design, twoSided:boolean }) => {
     const [pdf, setPdf] = useState('');
 
     const generate = () => {
         if (pdf) return;
         if (imageURLs.size < 1) return;
-        createPDF(imageURLs, setPdf, design);
+        createPDF(imageURLs, setPdf, design, twoSided);
     }
     useEffect(() => {
         generate();
@@ -26,7 +26,7 @@ export const PDF = ({ imageURLs, design }: { imageURLs: Map<string, number>, des
 
 // Function to transform an array of ReactCanvas components to an array of DataURLs
 
-async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => void, design:Design) {
+async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => void, design:Design, twoSided:boolean = true) {
     const [A4width, A4height] = PDFLib.PageSizes.A4;
     const labelsPerPage = Math.floor(A4height / design.canvas.dim.height)*2;
    // console.log('A4Height:', A4height, '  DesignHeight:', design.canvas.dim.height, '  LabelsPerPage:', labelsPerPage);
@@ -45,6 +45,9 @@ async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => v
     // const labelsURLs = transformToDataUrl(catalog);
     const chunks = [];
 
+    /**
+     * Get all labels from the labelsMap and return an array of labels ($chunks)
+     */
     const getAllLabels = (labelsMap: Map<string, number>) => {
         const chunks: string[] = [];
         const labels = Array.from(labelsMap.entries());
@@ -55,8 +58,11 @@ async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => v
         });
         return chunks;
     }
-
+    /**
+     * Split the labels into chunks of labelsPerPage
+     */
     const labelsData = getAllLabels(labels);
+
     for (let i = 0; i < labelsData.length; i += labelsPerPage) {
         chunks.push(labelsData.slice(i, i + labelsPerPage));
     }
@@ -93,10 +99,41 @@ async function createPDF(labels: Map<string, number>, setPdf: (arg: string) => v
                 width: design.canvas.dim.width, // the original width of the label 
                 height: design.canvas.dim.height // the original height of the label
             });
+
             if (x > offsetX) {
                 x = offsetX;
                 y -= design.canvas.dim.height + 2 ;
             } else x = x + design.canvas.dim.width+2;
+        }
+
+        if (twoSided) {
+            const page = doc.addPage(PDFLib.PageSizes.A4);
+            let y = height - 10;
+            let x = offsetX + design.canvas.dim.width + 2;
+            for (const label of chunk) {
+                // label.width = width / 2;
+                //  label.height = height / 4;
+                //  console.log(label);
+                //  const cnv = document.getElementById('canvas$' + label._id);
+                //    if (cnv && cnv.getAttribute('data-url')) console.log(cnv.getAttribute('data-url'));
+                var jpgImage = await doc.embedPng(label);
+                //  const jpgImage = await doc.embedJpg(label);
+
+                //used for debugging
+                // console.log(jpgImage);
+                //draws just created JPEG image to the page
+                console.log(offsetX);
+                page.drawImage(jpgImage, {
+                    x: x, //2px padding for easier cutting of the labels
+                    y: y - design.canvas.dim.height,
+                    width: design.canvas.dim.width, // the original width of the label 
+                    height: design.canvas.dim.height // the original height of the label
+                });
+                if (x < offsetX + design.canvas.dim.width + 2) {
+                    x = offsetX + design.canvas.dim.width + 2;
+                    y -= design.canvas.dim.height + 2;
+                } else x = offsetX;
+            }
         }
 
     }

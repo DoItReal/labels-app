@@ -17,6 +17,7 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
     const [qrCode, setQrCode] = useState<Boolean>(false);
+    const [twoSided, setTwoSided] = useState<boolean>(false);
     /** updates the catalog in the state */
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
         setCatalog({ ...updatedCatalog });
@@ -75,14 +76,14 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
     return (
         <>
             {/* Render PDF component if catalog and design are available */}
-            {catalog && design && <PDF selectedCatalog={catalog} design={design} qrCode={qrCode } />}
+            {catalog && design && <PDF selectedCatalog={catalog} design={design} qrCode={qrCode} twoSided={twoSided} />}
             <Grid container spacing={0} style={{ maxWidth: '100%', marginBottom:'10vh', overflow:'auto' }}>
                 <Grid container xs={12}>
                     <Grid item xs={6}>
                         <InfoBar catalog={catalog} design={design} setDesign={setDesign} />
                     </Grid>
                     <Grid item xs={6}>
-                        <PdfUI catalog={catalog} design={design} setDesign={setDesign} qrCode={qrCode} setQrCode={setQrCode } />
+                        <PdfUI catalog={catalog} design={design} setDesign={setDesign} qrCode={qrCode} setQrCode={setQrCode} twoSided={twoSided} setTwoSided={setTwoSided} />
                     </Grid>
                     <Grid item xs={6} justifyContent='left'>
                         <SearchBarTest addLabels={addLabelsLocally } />
@@ -106,13 +107,15 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
 /**
  * To add option to select: 1 sided or 2 sided Print
  */
-const PdfUI = ({ catalog, design, setDesign, qrCode, setQrCode }:
+const PdfUI = ({ catalog, design, setDesign, qrCode, setQrCode, twoSided, setTwoSided }:
     {
         catalog: IloadedCatalog,
         design: Design | null,
         setDesign: (design: Design) => void,
         qrCode: Boolean,
-        setQrCode: (bool:Boolean) => void
+        setQrCode: (bool: Boolean) => void,
+        twoSided: boolean,
+        setTwoSided: (bool: boolean) => void
     }) => {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     return (
@@ -127,6 +130,11 @@ const PdfUI = ({ catalog, design, setDesign, qrCode, setQrCode }:
                     {qrCode ? 'Hide QR Code' : 'Show QR Code'}
                 </Button>
             </Grid>
+            <Grid item>
+                <Button onClick={() => setTwoSided(!twoSided)}>
+                    {twoSided ? '1 Sided Print' : '2 Sided Print'}
+                </Button>
+                </Grid>
         </Grid>
     );
 };
