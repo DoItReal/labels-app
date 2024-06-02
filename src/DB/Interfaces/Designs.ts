@@ -59,8 +59,9 @@ export interface ImagePointer {
     _id: string;
     name: string;
     size: number;
-    transperancy: number;
+    transparency: number;
 }
+//to edit it to transparency
 export function isImagePointer(obj: any): obj is ImagePointer { //return true if obj is an ImagePointer
     return (
         obj &&                                              // Check if obj is not null or undefined
@@ -87,20 +88,6 @@ export function isImageURL(obj: any): obj is ImageURL {
     );
 }
 
-export interface Iimage {
-    _id: string;
-    name: string;
-    image: HTMLImageElement;
-    size: number;
-}
-export function isIimage(obj: any): obj is Iimage {
-    return (
-        typeof obj._id === 'string' &&
-        typeof obj.name === 'string' &&
-        obj.image instanceof HTMLImageElement &&
-        typeof obj.size === 'number'
-    );
-}
 
 export interface imageFieldBlock extends TypeBlock {
     type: 'image';
@@ -117,6 +104,7 @@ export interface imagePointerBlock extends TypeBlock {
     image: ImagePointer;
 }
 export function isImagePointerBlock(obj: any): obj is imagePointerBlock {
+    
     return (
         isImagePointer(obj.image) && isTypeBlock(obj) && obj.type === 'image'
     );
@@ -182,6 +170,7 @@ export interface Design {
     blocks: UnifiedBlock[];
 }
 export function isDesign(obj: any): obj is Design {
+   
     return (
         typeof obj._id === 'string' &&
         typeof obj.name === 'string' &&

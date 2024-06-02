@@ -40,18 +40,22 @@
 */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { textParametersMap, getImageById } from './Editor'; // Import the Design type
+import { getImageById } from '../DB/LocalStorage/Images'; // Import the Design type
+import { textParametersMap } from './Editor';
 import { png } from '../labels';
 import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
-import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue, isTextQueueArray } from './Interfaces/LabelCanvasInterfaces';
+import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue } from './Interfaces/LabelCanvasInterfaces';
 import { generateQRCodeCanvas as QRcode } from '../UI/QRcode';
 import { isLabelDataType } from '../DB/Interfaces/Labels';
 
 const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) => {
-    const [dataUrl, setDataUrl] = useState<string|null>(null);
+    const [dataUrl, setDataUrl] = useState<string | null>(null);
+    const queue = useRef<TqueueArray>([]); // [textQueue, allergenQueue, imageQueue]
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
+    const [images, setImages] = useState<HTMLImageElement[]>([]);
+    const drawed = useRef(false);
     // eslint-disable-next-line
     const drawBlocks = async () => {
         //check if canvas and context exists
@@ -60,21 +64,16 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         const context = canvas.getContext('2d');
         if (!context) return;
 
-        // declare the queue for the elements we are going to draw
-        const queue: any = [];
-
         context.save();
         //clear the canvas
         context.clearRect(0, 0, canvas.width, canvas.height);
         //for each block in the design we are going to generate the queue element and push it to the queue
-        blocks.forEach((block) => {
-            return queue.push(generateQueueElement(block, context));
-        });
+       
         drawBorder(context);
        
         drawBackground(context);
        
-        drawQueue(queue);
+        drawQueue(queue.current);
         context.restore();
         try {
             if (qrCode) await drawQRCode(context);
@@ -84,6 +83,18 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         
        
     };
+    const generateQueue = () => {
+        const queueTmp: TqueueArray = [];
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const context = canvas.getContext('2d');
+        if (!context) return;
+        blocks.forEach((block) => {
+            const queueElement = generateQueueElement(block, context);
+            if (queueElement) queueTmp.push(queueElement);
+        });
+        queue.current = queueTmp;
+    }
     //TO ADD block.multiline that can be true or false and to render the text on multiple lines or on single one!
     
     const drawBorder = (context:CanvasRenderingContext2D) => {
@@ -95,10 +106,10 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
     }
     //TO DO:// Add the possibility to set the background color of the block or to set the background image
 
-    const drawBackground = (context: CanvasRenderingContext2D) => {
+    const drawBackground =async (context: CanvasRenderingContext2D) => {
         if (design.canvas.background && isImagePointer(design.canvas.background)) {
             //const img = getImageById(design.canvas.background._id);
-            const img = getImageById(design.canvas.background._id);
+            const img =await getImageById(design.canvas.background._id);
             img && drawBackgroundImage(context, img);
         }
         else if (design.canvas.background && typeof (design.canvas.background) === 'string' && design.canvas.background !== '') {
@@ -131,7 +142,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         if(!design.canvas.background || !isImagePointer(design.canvas.background)) return;
         context.save();
         //set transperancy for the image
-        context.globalAlpha = design.canvas.background.transperancy;
+        context.globalAlpha = design.canvas.background.transparency;
         context.drawImage(image, 0, 0, dimensions.width, dimensions.height);
         context.restore();
     }
@@ -142,9 +153,10 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         context.restore();
     }
     const drawQueue = (queue: TqueueArray) => {
-
+     
+        if (queue.length === 0) return;
         queue.forEach((item) => {
-            if (isTextQueueArray(item) || isTextQueue(item)) {
+            if (isTextQueue(item)) {
                 drawTextQueue(item);
             } else if (isImageQueue(item)) {
                 drawImageQueue(item);
@@ -160,13 +172,13 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         let textSize = parseInt(block.font);
         context.font = block.font;
         const margin = 1;
-        const renderQueue: ItextQueue[] = [];
+        var queueHead: ItextQueue | null = null;
         const words = txt.split(' ');
 
         //converting to PX from %
         const width = block.dimensions.width * dimensions.width / 100;
         const height = block.dimensions.height * dimensions.height / 100;
-        const fitText = (): ItextQueue[] => {
+        const fitText = (): ItextQueue | null => {
             let lines: string[] = [];
             let line = '';
            
@@ -206,6 +218,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         }
         
         const centerText = (text: string | string[]) => {
+            let tmpHead = queueHead;
             const font = textSize + "px " + block.font.split(' ')[1];
             if (text.length === 1) text = text[0];
             //not sure if this is neccesary but in ANY CASE
@@ -213,7 +226,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                 const x = (width - context.measureText(text).width) / 2;
                 const y = (height - textSize) / 2;
                 const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
-                renderQueue.push({ context,text: text, x: x, y: y,font, position: realPosition, color:block.color });
+                queueHead = { context,text: text, x: x, y: y,font, position: realPosition, color:block.color };
             } else { //multiline case
                 text.forEach((txt, index) => {
                     const totalTextHeight = text.length * textSize * margin;
@@ -221,20 +234,28 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                     const x = (width - context.measureText(txt).width) / 2;
                     const y = startY + index * textSize;
                     const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
-                    renderQueue.push({ context, text: txt, x: x, y: y,font, position: realPosition, color:block.color });
+                    const newNode: ItextQueue = { context, text: txt, x: x, y: y, font, position: realPosition, color: block.color };
+                    if (queueHead === null) {
+                        queueHead = newNode;
+                        tmpHead = queueHead;
+                    } else {
+                        tmpHead!.next = newNode;
+                        tmpHead = newNode;
+                    }
                 });
             }
             context.restore();
-            return renderQueue;     
+            return queueHead;     
         }
 
         return fitText();
     }
-    const drawTextQueue = (renderQueue: ItextQueue[] | ItextQueue) => {
+    const drawTextQueue = (renderQueue: ItextQueue) => {
         const margin = 1.1;
         //if it is single queue
-        if (!Array.isArray(renderQueue) && isTextQueue(renderQueue)) {
-            const item = renderQueue;
+       /*
+       if (!Array.isArray(queueHead) && isTextQueue(queueHead)) {
+            const item = queueHead;
             item.context.save();
             item.context.fillStyle = item.color;
             item.context.font = item.font;
@@ -243,8 +264,9 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
             item.context.fillText(item.text, item.x, item.y * margin);
             item.context.restore();
         }//if it is array of queues
-        else if (Array.isArray(renderQueue)) {
-            renderQueue.forEach(item => {
+        */
+       do  {
+            let item = renderQueue;
                 item.context.save();
                 item.context.fillStyle = item.color;
                 item.context.font = item.font;
@@ -252,12 +274,11 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                 item.context.translate(item.position.x, item.position.y);
                 item.context.fillText(item.text, item.x, item.y * margin);
                 item.context.restore();
-            });
-        }
+        } while (renderQueue.next !== undefined && (renderQueue = renderQueue.next) !== undefined);
     }
 
     const generateAllergenQueue = (block: allergenFieldBlock, context: CanvasRenderingContext2D, imageURLs: number[]) => {
-        const renderQueue: IallergenQueue[] = [];
+        var queueHead: IallergenQueue | null = null;
         const generateQueue = (arr: number[]) => {
             const padding = 5; // padding from the border
             if (arr.length === 1 && arr[0] === 0) return; // ??? 
@@ -328,6 +349,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                 const dy = (realHeight - textSize) / 2; // Adjust dy to vertically center the text
                 return { x: dx, y: dy };
             };
+            let tmpHead = queueHead;
             let textSize = imgCalibrate(imageURLs);
            // console.log(textSize);
            // textSize *= 1;
@@ -339,16 +361,24 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                 context.fillStyle = "blue";
 
                 const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
-                renderQueue.push({ context, image: imageURLs[i], x: dx, y: dy, fontSize: textSize, position: realPosition, color: block.color });
+                const newNode = { context, image: imageURLs[i], x: dx, y: dy, fontSize: textSize, position: realPosition, color: block.color };
+                if (queueHead === null) {
+                    queueHead = newNode;
+                    tmpHead = queueHead;
+                } else if (tmpHead) {
+                    tmpHead.next = newNode;
+                    tmpHead = newNode;
+                }
+
                 dx += textSize * 2;
             }
-            return renderQueue;
+            return queueHead;
         }
         return generateQueue(imageURLs);
     };
-    const drawAllergenQueue = (renderQueue: IallergenQueue[] | IallergenQueue) => {
-        if (!Array.isArray(renderQueue) && isAllergenQueue(renderQueue)) {
-            const item = renderQueue;
+    const drawAllergenQueue = (renderQueue: IallergenQueue ) => {
+       /* if (!Array.isArray(queueHead) && isAllergenQueueArray(queueHead)) {
+            const item = queueHead;
             item.context.textBaseline = 'top';
             const textSize = item.fontSize;
             item.context.save();
@@ -361,59 +391,87 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
 
             item.context.restore();
         }
-        else if (Array.isArray(renderQueue)) {
-            renderQueue.forEach(item => {
-                item.context.textBaseline = 'top';
-                const textSize = item.fontSize;
-                item.context.save();
-                item.context.fillStyle = item.color;
-                item.context.translate(item.position.x, item.position.y);
-                item.context.fillText(String(item.image), item.x, item.y);
-                //Calculate size of the Number string and draw the image with offset
-                const metrics = item.context.measureText(String(item.image));
-                typeof (item.image) === 'number' && png.images[Number(item.image - 1)] && item.context.drawImage(png.images[Number(item.image - 1)], item.x + metrics.width, item.y, textSize, textSize);
+        else */ do {
+            let item = renderQueue;
+            item.context.textBaseline = 'top';
+            const textSize = item.fontSize;
+            item.context.save();
+            item.context.fillStyle = item.color;
+            item.context.translate(item.position.x, item.position.y);
+            item.context.fillText(String(item.image), item.x, item.y);
+            //Calculate size of the Number string and draw the image with offset
+            const metrics = item.context.measureText(String(item.image));
+            typeof (item.image) === 'number' && png.images[Number(item.image - 1)] && item.context.drawImage(png.images[Number(item.image - 1)], item.x + metrics.width, item.y, textSize, textSize);
 
-                item.context.restore();
-            });
-        }
+            item.context.restore();
+        } while (renderQueue.next !== undefined && (renderQueue = renderQueue.next) !== undefined);
+        
 
     }
 
     const generateImageQueue = (block: imageFieldBlock, context: CanvasRenderingContext2D) => {
-        const renderQueue: IimageQueue[] = [];
+        var queueHead: IimageQueue | null = null;
         const imgDimensions = {
             width: block.dimensions.width * dimensions.width / 100,
             height: block.dimensions.height * dimensions.height / 100
         }
-        const transperancy = block.image.transperancy;
+        // @ts-ignore
+        const transparency = block.image.transperancy;
         const realPosition = { x: block.position.x * dimensions.width / 100, y: block.position.y * dimensions.height / 100 };
-        renderQueue.push({ context,imageId: block.image._id,transperancy,dimensions:imgDimensions, position: realPosition })
-        return renderQueue;
+        queueHead = { context, imageId: block.image._id, transparency, dimensions: imgDimensions, position: realPosition };
+        return queueHead;
     }  
-    const drawImageQueue = async(renderQueue: IimageQueue[] | IimageQueue) => {
-        //if it is single queue
-        if (!Array.isArray(renderQueue) && isImageQueue(renderQueue)) {
-            const item = renderQueue;
-            const img: HTMLImageElement = getImageById(item.imageId);
-            item.context.save();
-            //set transperancy for the image 
-            
-            item.context.globalAlpha = item.transperancy/100;
-            item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
-            item.context.restore();
-        }//if it is array of queues
-        else if (Array.isArray(renderQueue)) {
-            renderQueue.forEach(item => {
-                const img: HTMLImageElement = getImageById(item.imageId);
-                item.context.save();
-                //set transperancy for the image 
-                item.context.globalAlpha = item.transperancy/100;
-                item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
-                item.context.restore();
-            });
-        }
-    }
+    const drawImageQueue = (renderQueue: IimageQueue | IimageQueue) => {
+        var queueHead: IimageQueue | undefined = renderQueue;
+        // Helper function to draw a single image
+        const drawImage = (item: IimageQueue) => {
+            return getImageById(item.imageId)
+                .then((img: HTMLImageElement | undefined) => {
+                    if (img === undefined) {
+                        console.log('Image is undefined');
+                        return;
+                    }
+                    item.context.save();
+                    // Set transparency for the image 
+                    item.context.globalAlpha = item.transparency / 100;
+                    item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
+                    item.context.restore();
+                })
+                .catch(error => {
+                    console.error('Error drawing image:', error);
+                });
+        };
+        // Check if queueHead is a single queue
+        while (isImageQueue(queueHead)) {
+          
+            const promise = drawImage(queueHead);
+            promise
+                .then(() => {
+                //    console.log('Image drawn');
+                })
+                .catch(error => {
+                //    console.error('Error drawing image:', error);
+                });
+            queueHead = queueHead.next;
+        } 
 
+    };
+
+   
+    const getImages = async () => {
+        const images: HTMLImageElement[] = [];
+        blocks.forEach(async (block) => {
+            if ('type' in block && block.type === 'image') {
+                const imageBlock = block as imageFieldBlock;
+                const img = await getImageById(imageBlock.image._id);
+                if (img) {
+                    images.push(img);
+                }
+            }
+        });
+        setImages(images);
+        return images;
+    }
     const generateQueueElement = (block: UnifiedBlock, context: CanvasRenderingContext2D) => {
         var text: string;
         
@@ -442,22 +500,32 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         }
    
     };
-    const getDataURL = async () => {
-        await drawBlocks(); // Wait for drawBlocks to complete
-        if (canvasRef.current) {
-            return canvasRef.current.toDataURL();
-        } else {
-            return null;
-        }
-    };
+  
     useEffect(() => {
+        if(drawed.current) return;
         const fetchData = async () => {
-            await drawBlocks();
-            setDataUrl(await getDataURL());
+          //  console.log('queue')
+            await generateQueue(); 
+         //   console.log('images')
+            await getImages();
+          //  console.log('draw')
+         //   await drawBlocks();
         };
 
         fetchData();
     }, [design, blocks, drawBlocks, qrCode]);
+    useEffect(() => {
+       
+        
+        const draw = async () => {
+            if (drawed.current && queue.current.length === 0 && images.length === 0) return;
+            await drawBlocks();
+            drawed.current = true;
+        }
+      //  console.log('images changed')
+        
+        draw();
+    }, [queue]);
     return (
         <canvas
             id={"canvas$"+label._id}
@@ -465,7 +533,6 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
             width={dimensions.width}
             height={dimensions.height}
             style={{ border: '1px solid #000', marginBottom: '10px' }}
-            data-url={dataUrl }
         ></canvas>
     );
 };

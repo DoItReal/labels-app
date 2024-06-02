@@ -1,14 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HandleType } from '../DB/Interfaces/Designs';
-import { saveNewImage } from './ImageDB';
+import { saveNewImage } from '../DB/Remote/Images';
+import { Image } from '../DB/Interfaces/Images';
 import { Button, Container, Dialog, DialogContent, Grid, Paper, TextField } from '@mui/material';
-export interface Image {
-    name: string;
-    DataUrl: string;
-    size: number;
-    uploadedAt: string;
-    owner: string;
-}
+
 const ImageUpload: React.FC = () => {
 
     const [imageName, setImageName] = useState('NewName');

@@ -25,7 +25,6 @@ const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
     const [labelData, setLabelData] = useState<Map<string, number>>(new Map());
     const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Loading state
-
     useLayoutEffect(() => {
         /**
          * Renders labels to data URLs.

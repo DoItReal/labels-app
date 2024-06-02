@@ -16,7 +16,7 @@ It is the UI of the editor
 
 */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, Grid } from '@mui/material';
 import { styled } from '@mui/system';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
@@ -26,9 +26,12 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import { createNewDesign, updateDesign } from '../DB/Remote/Designs';
 import { getLocalDesigns, setLocalDesigns, updateLocalDesign } from '../DB/LocalStorage/Designs';
-import { textParametersMap, images, dummyImageBlock, dummyImage } from './Editor';
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, Iimage, isIimage, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from '../DB/Interfaces/Designs';
+import { textParametersMap, dummyImageBlock} from './Editor';
+import { getDummyImage, getImagesLocally } from '../DB/LocalStorage/Images';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from '../DB/Interfaces/Designs';
+import { Iimage, isIimage } from '../DB/Interfaces/Images';
 import ImageUpload from './ImageUpload';
+
 interface DesignUIProps {
     design: Design;
     setDesign: (design: Design) => void;
@@ -525,6 +528,14 @@ setOpenDialog(prevOpenDialog => {
 };
 const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ design, handleBackgroundChange, openDialog, handleOpenDialog, handleCloseDialog }) => {
     const fullScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
+    const [dummyImage,setDummyImage] = useState<Iimage| null>(null);
+    const [images, setImages] = useState<Iimage[]>(getImagesLocally());
+    useEffect(() => {
+        const fetchDummyImage = async () => {
+            await getDummyImage().then(image => setDummyImage(image));
+        };
+    fetchDummyImage();
+    }, []);
     return (
         <div>
             <Button key={'buttonBackground'} onClick={() => handleOpenDialog('canvasBackground')}>Change Background</Button>
@@ -540,16 +551,16 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
                         <InputLabel>Image:</InputLabel>
 
                         <Select
-                            value={design && design.canvas.background && typeof design.canvas.background !== 'string' ? design.canvas.background._id : dummyImage._id}
+                            value={design && design.canvas.background && typeof design.canvas.background !== 'string' ? design.canvas.background._id : dummyImage? dummyImage._id : '0'}
                             onChange={(e) => {
                                 const img = images.find(image => image._id === e.target.value) || dummyImage;
                                 if (isIimage(img))
-                                    handleBackgroundChange({ _id: img._id, name: img.name, size: img.size, transperancy:1 } as ImagePointer);
+                                    handleBackgroundChange({ _id: img._id, name: img.name, size: img.size, transparency:1 } as ImagePointer);
                             }
                             }
                         >
                            
-                            <MenuItem key={dummyImage._id} value={dummyImage._id}>{dummyImage.name}</MenuItem>
+                            <MenuItem key={dummyImage? dummyImage._id: 'errorDummyImage'} value={dummyImage? dummyImage._id:''}>{dummyImage?dummyImage.name:'null'}</MenuItem>
                             {images.map(image => (
                                 <MenuItem key={image._id} value={image._id}> {image.name} </MenuItem>
                             ))
@@ -558,7 +569,7 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
                        <FormControl fullWidth>
 <TransperancySlider design={design} handleBackgroundChange={handleBackgroundChange} />
             </FormControl>
-                            {typeof design.canvas.background !== 'string' && <Typography>Transperancy: {design.canvas.background.transperancy} </Typography>}
+                            {typeof design.canvas.background !== 'string' && <Typography>Transperancy: {design.canvas.background.transparency} </Typography>}
                         
                     </FormControl></Grid>)}
 
@@ -571,7 +582,7 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
 const TransperancySlider: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void }> = ({ design, handleBackgroundChange }) => {
     const [transparency, setTransparency] = useState(
         typeof design.canvas.background !== 'string'
-            ? design.canvas.background.transperancy
+            ? design.canvas.background.transparency
             : 1
     );
 
@@ -580,7 +591,7 @@ const TransperancySlider: React.FC<{ design: Design, handleBackgroundChange: (ne
         typeof design.canvas.background !== 'string' &&
             handleBackgroundChange({
                 ...design.canvas.background,
-                transperancy: value,
+                transparency: value,
             });
         setTransparency(value); // Update the transparency state
     };
@@ -981,6 +992,8 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
     }
     //Critical to check if selectedBlock is imagePointerBlock
     if (!isImagePointerBlock(selectedBlock)) return null;
+    const images = getImagesLocally();
+    if (!Array.isArray(images)) return null;
     if (!images || images.length === 0) {
         console.log('no images');
         return null;
@@ -1013,9 +1026,9 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
                     </Select>
             </Grid>
             <Grid item width={3 / 3}>
-                <InputLabel>Transperancy: { selectedBlock.image.transperancy }% </InputLabel>
+                <InputLabel>Transperancy: {selectedBlock.image.transparency }% </InputLabel>
                 <Slider
-                    value={selectedBlock && selectedBlock.id > 0 && 'transperancy' in selectedBlock.image ? selectedBlock.image.transperancy : 0}
+                    value={selectedBlock && selectedBlock.id > 0 && 'transparency' in selectedBlock.image ? selectedBlock.image.transparency : 0}
                     min={0}
                     max={100}
                     onChange={(e, value) => handleTransperancyChange(value as number)}

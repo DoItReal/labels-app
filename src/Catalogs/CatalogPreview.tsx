@@ -72,7 +72,6 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
             setDesign(fetchedDesigns[0]);
         }
     }, []);
-   
     return (
         <>
             {/* Render PDF component if catalog and design are available */}
@@ -172,19 +171,26 @@ const DesignSelector = ({ design, setDesign }: { design: Design | null; setDesig
             setDesign(selectedDesign);
         }
     };
-
+    const initDesigns = () => {
+        const fetchedDesigns = getLocalDesigns();
+        if (fetchedDesigns && isDesignArray(fetchedDesigns)) {
+            
+            setDesigns(fetchedDesigns);
+            setDesign(fetchedDesigns[0]);
+        }
+    }
     useEffect(() => {
         // Fetch designs from session storage on component mount
         if (!designs || !isDesignArray(designs)) {
-            const fetchedDesigns = getLocalDesigns();
-            if (fetchedDesigns && isDesignArray(fetchedDesigns)) {
-                setDesigns(fetchedDesigns);
-                setDesign(fetchedDesigns[0]);
-            }
+            initDesigns();
         }
     }, []);
 
-    if (!designs || !isDesignArray(designs)) return null;
+    if (!designs || !isDesignArray(designs)) {
+        
+        initDesigns();
+        return null;
+    }
 
     return (
         <>

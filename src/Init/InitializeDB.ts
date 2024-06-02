@@ -6,7 +6,8 @@ import { fetchDesigns } from "../DB/Remote/Designs";
 import { setLocalDesigns } from "../DB/LocalStorage/Designs";
 import { setLocalAllergens } from "../DB/LocalStorage/Allergens";
 import { fetchAllergens } from "../DB/Remote/Allergens";
-
+import { fetchImages} from "../DB/Remote/Images";
+import { setLocalImages, initImages} from "../DB/LocalStorage/Images";
 export const initDB = async () => {
     //fetch Labels and set them to LocalStorage
     try {
@@ -17,6 +18,8 @@ export const initDB = async () => {
         fetchDesigns().then(designs => { setLocalDesigns(designs) });
         //fetch Allergens and set them to LocalStorage
         fetchAllergens().then(allergens => { setLocalAllergens(allergens) });
+        //fetch Images and set them to LocalStorage
+         await initImages();
     } catch (error) {
         console.error(error);
     }

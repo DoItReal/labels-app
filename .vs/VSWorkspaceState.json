@@ -2,8 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs"
+    "\\src\\DB",
+    "\\src\\DB\\Interfaces",
+    "\\src\\DB\\LocalStorage",
+    "\\src\\DB\\Remote",
+    "\\src\\DesignEditor",
+    "\\src\\DesignEditor\\Interfaces",
+    "\\src\\Init",
+    "\\src\\PDF"
   ],
-  "SelectedNode": "\\src\\Catalogs\\CatalogPreview.tsx",
+  "SelectedNode": "\\src\\DB\\Interfaces\\Designs.ts",
   "PreviewInSolutionExplorer": false
 }
