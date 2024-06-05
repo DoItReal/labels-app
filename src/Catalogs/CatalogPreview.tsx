@@ -76,8 +76,8 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
         <>
             {/* Render PDF component if catalog and design are available */}
             {catalog && design && <PDF selectedCatalog={catalog} design={design} qrCode={qrCode} twoSided={twoSided} />}
-            <Grid container spacing={0} style={{ maxWidth: '100%', marginBottom:'10vh', overflow:'auto' }}>
-                <Grid container xs={12}>
+            <Grid container spacing={0} style={{ maxWidth: '100%',height:'100%', marginBottom:'10vh', overflow:'auto' }}>
+                <Grid container>
                     <Grid item xs={6}>
                         <InfoBar catalog={catalog} design={design} setDesign={setDesign} />
                     </Grid>
@@ -90,12 +90,12 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                    
                 </Grid>
                 
-                <Grid item xs={6}>
+                <Grid item xs={6} sx={{overflow:'auto', maxHeight:'60vh'} }>
                     <LabelTable catalog={catalog} updateCatalog={updateCatalog} />
                 </Grid>
                 {/* Render LabelPreview component if design is available */}
                 {design && (
-                    <Grid item xs={6} style={{ maxHeight: '100%', maxWidth: '100%', overflow: 'auto' }}>
+                    <Grid item xs={6} style={{ maxHeight: '60vh', maxWidth: '100%', overflow: 'auto' }}>
                         <LabelPreview catalog={catalog} design={design} qrCode={qrCode} />
                     </Grid>
                 )}
@@ -181,14 +181,10 @@ const DesignSelector = ({ design, setDesign }: { design: Design | null; setDesig
     }
     useEffect(() => {
         // Fetch designs from session storage on component mount
-        if (!designs || !isDesignArray(designs)) {
-            initDesigns();
-        }
+        initDesigns();
     }, []);
 
-    if (!designs || !isDesignArray(designs)) {
-        
-        initDesigns();
+    if (!designs.length || !isDesignArray(designs)) {
         return null;
     }
 

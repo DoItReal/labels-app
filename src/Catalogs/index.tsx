@@ -175,8 +175,8 @@ const Catalogs: React.FC = () => {
     
     return (
         <>
-            <Grid container >
-            <Grid item xs={menuCollapsed ? 1 : 3}>
+            <Grid container style={{ maxHeight: '80vh', overflow: 'auto' }} >
+                <Grid item xs={menuCollapsed ? 1 : 3} style={{overflow:'auto',height:'80vh'} }>
                 {/* Button to toggle menu */}
                 <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >
                     {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
@@ -233,13 +233,13 @@ const Catalogs: React.FC = () => {
                 </>
 )}
             </Grid>
-                <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} >
+                <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} sx={{ overflow: 'hidden', maxHeight: '80vh' }} >
                 {editingCatalogId !== null && loadedCatalog ? (
-                    <CatalogEditor
+                            <CatalogEditor
                         key={'catalog/' + editingCatalogId}
                         catalog={ loadedCatalog }
                         setCatalog={ setCatalog }
-                    />
+                    /> 
                     ) : null}
                     {previewingCatalogId !== null && loadedCatalog ? (
                         <CatalogPreview
@@ -247,8 +247,7 @@ const Catalogs: React.FC = () => {
                             previewedCatalog={loadedCatalog}
                         />
                     ):null }
-            </Grid>
-    
+                </Grid>
             </Grid>
         </>
     );

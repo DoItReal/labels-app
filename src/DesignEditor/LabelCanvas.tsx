@@ -50,7 +50,7 @@ import { isLabelDataType } from '../DB/Interfaces/Labels';
 
 const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) => {
     const [dataUrl, setDataUrl] = useState<string | null>(null);
-    const queue = useRef<TqueueArray>([]); // [textQueue, allergenQueue, imageQueue]
+    const [queue, setQueue] = useState<TqueueArray>([]); // [textQueue, allergenQueue, imageQueue]
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
@@ -73,7 +73,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
        
         drawBackground(context);
        
-        drawQueue(queue.current);
+        drawQueue(queue);
         context.restore();
         try {
             if (qrCode) await drawQRCode(context);
@@ -93,7 +93,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
             const queueElement = generateQueueElement(block, context);
             if (queueElement) queueTmp.push(queueElement);
         });
-        queue.current = queueTmp;
+        setQueue([...queueTmp]);
     }
     //TO ADD block.multiline that can be true or false and to render the text on multiple lines or on single one!
     
@@ -502,28 +502,27 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
     };
   
     useEffect(() => {
-        if(drawed.current) return;
-        const fetchData = async () => {
-          //  console.log('queue')
-            await generateQueue(); 
-         //   console.log('images')
-            await getImages();
-          //  console.log('draw')
-         //   await drawBlocks();
-        };
+        const fetchQueue = async () => {
+            await generateQueue();
+        }
+        const fetchImages = async () => {
 
-        fetchData();
-    }, [design, blocks, drawBlocks, qrCode]);
+            await getImages();
+
+        };
+        if (drawed.current) { fetchQueue(); }
+        else {
+            fetchQueue().then(() => fetchImages());
+        }
+    }, [design, blocks, qrCode]);
     useEffect(() => {
        
         
         const draw = async () => {
-            if (drawed.current && queue.current.length === 0 && images.length === 0) return;
+            if (queue.length === 0 && images.length === 0) return;
             await drawBlocks();
             drawed.current = true;
         }
-      //  console.log('images changed')
-        
         draw();
     }, [queue]);
     return (

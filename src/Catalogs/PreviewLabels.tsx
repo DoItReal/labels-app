@@ -47,17 +47,17 @@ const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
 
     if (!design) return null;
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+        <div style={{ width: '100%',height:'100%', overflow: 'auto' }}>
             {isLoading ? ( // Show loading indicator while labels are being rendered
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                     <CircularProgress />
                 </div>
             ) : (
-                <Grid container spacing={1} style={{ maxWidth: '100%', maxHeight: '100%', overflowX: 'hidden' }}>
+                <Grid container spacing={1} style={{ maxWidth: '100%', overflowX: 'hidden',overflowY:'visible', border:'1px solid red' }}>
                     {Array.from(labelData.entries()).map(([dataURL, count], index) => (
                         <React.Fragment key={`${dataURL}-${index}`}>
                             {[...Array(count)].map((_, i) => ( // Render each label according to its count
-                                <Grid item xs={6} key={`${index}-${i}`}> {/* Each label takes half of the row */}
+                                <Grid item xs={3} key={`${index}-${i}`}> {/* Each label takes half of the row */}
                                     <img src={dataURL} alt={`Preview ${index}`} style={{ width: '100%', height: 'auto' }} />
                                 </Grid>
                             ))}

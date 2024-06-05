@@ -103,7 +103,9 @@ export default function DataTableStates({ catalog, updateCatalog }:
     const [rows, columns] = getColsRows(catalog);
 
     return (
+        <div style={{overflow:'auto', height:'100%'} }>
         <DataTable rows={rows} columns={columns} catalog={catalog} />
+        </div>
     )
 }
 
