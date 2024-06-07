@@ -149,10 +149,10 @@ const Catalogs: React.FC = () => {
         setCatalogs({ ...catalogs });
         // delete the catalog from the database
         deleteCatalogDB(catalogId);
-        //delete selectedCatalog if it is the one being deleted
+        //delete labels if it is the one being deleted
         const selectedCatalog = getSelectedCatalog();
         if (selectedCatalog && selectedCatalog._id === catalogId && catalogId !== '1') {
-            sessionStorage.removeItem('selectedCatalog');
+            sessionStorage.removeItem('labels');
         }
     };
 

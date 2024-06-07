@@ -2,14 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\DB",
+    "\\src\\Catalogs",
     "\\src\\DB\\Interfaces",
-    "\\src\\DB\\LocalStorage",
-    "\\src\\DB\\Remote",
-    "\\src\\DesignEditor",
-    "\\src\\DesignEditor\\Interfaces",
-    "\\src\\Init",
-    "\\src\\PDF"
+    "\\src\\DesignEditor"
   ],
+  "SelectedNode": "\\src\\DesignEditor\\LabelCanvas.tsx",
   "PreviewInSolutionExplorer": false
 }

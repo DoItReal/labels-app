@@ -9,11 +9,11 @@ import { Theme } from '@emotion/react';
 import CloseIcon from '@mui/icons-material/Close';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
 import { Design } from '../DB/Interfaces/Designs';
-import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { IloadedCatalog, isLoadedCatalog,IloadedLabel,isIloadedLabelArray } from '../DB/Interfaces/Catalogs';
 import { PDF } from './PDF';
 import { createRoot } from 'react-dom/client';
 import ReactDOM from 'react-dom';
-export default function PdfViewer({ selectedCatalog, design, qrCode, twoSided }: {selectedCatalog:IloadedCatalog, design: Design, qrCode:Boolean, twoSided:boolean }) {
+export default function PdfViewer({ labels, design, qrCode, twoSided }: {labels:IloadedLabel[], design: Design, qrCode:Boolean, twoSided:boolean }) {
     const [enableStates, updateStates] = useContext(enableStatesContext);
     const [dataURLs, setDataURLs] = useState<Map<string, number>>(new Map());
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -24,13 +24,13 @@ export default function PdfViewer({ selectedCatalog, design, qrCode, twoSided }:
         setPdfKey(prevKey => prevKey + 1);
     };
     useEffect(() => {
-        if (!selectedCatalog || !isLoadedCatalog(selectedCatalog) || selectedCatalog.labels.length === 0 || !design || !enableStates.get('createPDF')) {
+        if (!labels || !isIloadedLabelArray(labels) || labels.length === 0 || !design || !enableStates.get('createPDF')) {
             return;
         }
         const fetchData = async () => {
             setIsLoading(true);
            const startTime = performance.now();
-           const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(selectedCatalog, design, qrCode);
+           const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(labels, design, qrCode);
            const endTime = performance.now();
            console.log(`Time taken to render labels to data URLs: ${endTime - startTime} ms`);
            setDataURLs(structuredClone(newData));
@@ -41,7 +41,7 @@ export default function PdfViewer({ selectedCatalog, design, qrCode, twoSided }:
         fetchData();
 
        
-    }, [enableStates, selectedCatalog, design, qrCode]);
+    }, [enableStates, labels, design, qrCode]);
 
     const handleClose = (event: React.MouseEvent | React.TouchEvent) => {
         event.stopPropagation();
@@ -118,18 +118,18 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 /*
     Used to render labels to data URLs.
-    @param selectedCatalog - The selected catalog
+    @param labels - The selected catalog
     @param design: Design - The selected design
     @param qrCode: Boolean - Whether to render QR codes
     @returns 1.A map of data URLs and their counts
              2.A function to unmount mounted components
 
 */
-const renderLabelsToDataUrls = async (selectedCatalog: IloadedCatalog, design: Design, qrCode: Boolean) => {
+const renderLabelsToDataUrls = async (labels: IloadedLabel[], design: Design, qrCode: Boolean) => {
     const newData = new Map();
     const mountedComponents: {root:any,tempDiv:HTMLDivElement}[] = [];
     await Promise.all(
-        selectedCatalog.labels.map(async (label) => {
+        labels.map(async (label) => {
             const tempDiv = document.createElement('div');
             const canvas = document.createElement('canvas');
             canvas.width = design.canvas.dim.width;

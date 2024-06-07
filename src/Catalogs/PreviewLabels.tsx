@@ -2,7 +2,7 @@
  * Component for previewing labels based on a design and catalog.
  */
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { IloadedCatalog } from '../DB/Interfaces/Catalogs';
+import { IloadedCatalog, IloadedLabel } from '../DB/Interfaces/Catalogs';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
 import { Design } from '../DB/Interfaces/Designs';
 import { CircularProgress, Grid } from '@mui/material';
@@ -13,6 +13,7 @@ interface Props {
     design: Design;
     catalog: IloadedCatalog;
     qrCode: Boolean;
+    selectedRows: string[];
 }
 
 /**
@@ -21,7 +22,7 @@ interface Props {
  * @param design The design to be used for rendering labels.
  * @returns The PreviewLabels component.
  */
-const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
+const PreviewLabels = ({ catalog, design, qrCode, selectedRows }: Props) => {
     const [labelData, setLabelData] = useState<Map<string, number>>(new Map());
     const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -32,9 +33,10 @@ const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
         const fetchData = async () => {
             setIsLoading(true);
             const startTime = performance.now();
-            const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(catalog, design, qrCode);
+            const labels = catalog.labels.filter(label => selectedRows.includes(label._id));
+            const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(labels, design, qrCode);
             const endTime = performance.now();
-            console.log(`Time taken to render labels to data URLs: ${endTime - startTime} ms`);
+          //  console.log(`Time taken to render labels to data URLs: ${endTime - startTime} ms`);
             setLabelData(structuredClone(newData));
             setIsLoading(false);
             return unmountMountedComponents;
@@ -42,8 +44,7 @@ const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
 
         fetchData();
 
-    }, [catalog, design, setLabelData, labelRefs, qrCode]);
-
+    }, [catalog, design, setLabelData, labelRefs, qrCode, selectedRows]);
 
     if (!design) return null;
     return (
@@ -53,7 +54,7 @@ const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
                     <CircularProgress />
                 </div>
             ) : (
-                <Grid container spacing={1} style={{ maxWidth: '100%', overflowX: 'hidden',overflowY:'visible', border:'1px solid red' }}>
+                <Grid container spacing={1} style={{ maxWidth: '100%', overflowX: 'hidden',overflowY:'visible' }}>
                     {Array.from(labelData.entries()).map(([dataURL, count], index) => (
                         <React.Fragment key={`${dataURL}-${index}`}>
                             {[...Array(count)].map((_, i) => ( // Render each label according to its count
@@ -70,11 +71,11 @@ const PreviewLabels = ({ catalog, design, qrCode }: Props) => {
 
 export default PreviewLabels;
 
-const renderLabelsToDataUrls = async (selectedCatalog: IloadedCatalog, design: Design, qrCode: Boolean) => {
+const renderLabelsToDataUrls = async (labels: IloadedLabel[], design: Design, qrCode: Boolean) => {
     const newData = new Map();
     const mountedComponents: { root: any, tempDiv: HTMLDivElement }[] = [];
     await Promise.all(
-        selectedCatalog.labels.map(async (label) => {
+        labels.map(async (label) => {
             const tempDiv = document.createElement('div');
             const canvas = document.createElement('canvas');
             canvas.width = design.canvas.dim.width;

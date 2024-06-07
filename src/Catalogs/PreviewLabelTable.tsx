@@ -4,11 +4,12 @@
  */
 
 import { Box, Grid, Input, InputLabel, Stack, Tooltip } from '@mui/material';
-import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar, GridRow, GridRowSelectionModel } from '@mui/x-data-grid';
 import { isNotNullOrUndefined } from '../tools/helpers';
 import { addSelectedLabel } from '../DB/SessionStorage/Catalogs';
 import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { labelDataType } from '../DB/Interfaces/Labels';
+import React from 'react';
 
 // TODO: to save in db and fetch it
 const dataMap = new Map();
@@ -49,9 +50,20 @@ function NameEditInputCell(props: GridRenderEditCellParams) {
 function renderEditName(params: GridRenderEditCellParams) {
     return <NameEditInputCell {...params} />;
 }
-export default function DataTableStates({ catalog, updateCatalog }:
-    { catalog: IloadedCatalog, updateCatalog: (catalog:IloadedCatalog)=>void }) {
-   // const [catalog, setCatalog] = useState(catalog);
+export default function DataTableStates({ catalog, updateCatalog, setSelectedRows }:
+    {
+        catalog: IloadedCatalog,
+        updateCatalog: (catalog: IloadedCatalog) => void,
+        setSelectedRows: (arg: string[]) => void
+    }) {
+    const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
+
+    const handleSetRowSelectionModel = (element: GridRowSelectionModel) => {
+        //@ts-ignore
+        setSelectedRows(element);
+        setRowSelectionModel(element);
+        //to add it to DataGrid - Selected
+    }
     const handleCountChange = (newValue: number, rowId: string) => {
         // Update the count value in the catalog.labels array
         const updatedLabels = catalog.labels.map((label: any) => {
@@ -104,7 +116,7 @@ export default function DataTableStates({ catalog, updateCatalog }:
 
     return (
         <div style={{overflow:'auto', height:'100%'} }>
-        <DataTable rows={rows} columns={columns} catalog={catalog} />
+            <DataTable rows={rows} columns={columns} catalog={catalog} rowSelectionModel={rowSelectionModel} setRowSelectionModel={handleSetRowSelectionModel} />
         </div>
     )
 }
@@ -112,7 +124,7 @@ export default function DataTableStates({ catalog, updateCatalog }:
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
     No Labels Loaded
 </Stack>);
-function DataTable({ rows, columns, catalog }: { rows: any, columns: any, catalog: IloadedCatalog }) {
+function DataTable({ rows, columns, catalog, rowSelectionModel, setRowSelectionModel }: { rows: any, columns: any, catalog: IloadedCatalog, rowSelectionModel: GridRowSelectionModel, setRowSelectionModel: (arg: GridRowSelectionModel) => void }) {
 
     return (
                 <DataGrid
@@ -124,7 +136,10 @@ function DataTable({ rows, columns, catalog }: { rows: any, columns: any, catalo
                             paginationModel: { page: 0, pageSize: 15 },
                         },
                     }}
-                    pageSizeOptions={[10, 15, 25, 50, 100]}
+            pageSizeOptions={[10, 15, 25, 50, 100]}
+            onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}
+            rowSelectionModel={rowSelectionModel}
+            checkboxSelection
                     sx={{
                         height: 1,
                         width: 1,

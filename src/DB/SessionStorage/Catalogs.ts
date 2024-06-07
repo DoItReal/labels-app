@@ -138,13 +138,13 @@ const parseLabels = (labelPointers: IcatalogLabelPointer[]): Promise<IloadedLabe
 };
 //get selected catalog from local storage returns [IloadedCatalog] | null
 export const getSelectedCatalog = () => {
-    const catalog = sessionStorage.getItem('selectedCatalog');
+    const catalog = sessionStorage.getItem('labels');
     if (catalog !== null) {
         return JSON.parse(catalog) as IloadedCatalog;
     }
     return null;
 }
-//loads selected catalog from local storage and creates selectedCatalog in local storage if it does not exist
+//loads selected catalog from local storage and creates labels in local storage if it does not exist
 export const loadCatalog = async (id: string) => {
     if (id === dummyCatalog._id) {
        
@@ -157,7 +157,7 @@ export const loadCatalog = async (id: string) => {
         const selectedCatalog = catalogs[id];
 
         if (!selectedCatalog) {
-            sessionStorage.setItem('selectedCatalog', JSON.stringify({ ...dummyCatalog, labels: [] }));
+            sessionStorage.setItem('labels', JSON.stringify({ ...dummyCatalog, labels: [] }));
             return { ...dummyCatalog, labels: [] };
         }
         for (const labelPointer of selectedCatalog.labels) {
@@ -176,21 +176,21 @@ export const loadCatalog = async (id: string) => {
                 console.log(e);
             }
         }
-        sessionStorage.setItem('selectedCatalog', JSON.stringify({ ...selectedCatalog, labels: labelsArr }));
+        sessionStorage.setItem('labels', JSON.stringify({ ...selectedCatalog, labels: labelsArr }));
         return { ...selectedCatalog, labels: labelsArr };
 
     }
-    sessionStorage.setItem('selectedCatalog', JSON.stringify({ ...dummyCatalog, labels: [] }));
+    sessionStorage.setItem('labels', JSON.stringify({ ...dummyCatalog, labels: [] }));
     return { ...dummyCatalog, labels: [] };
 
 }
 //saves selected catalog to local storage
 export const saveSelectedCatalog = (catalog: IloadedCatalog) => {
-    sessionStorage.setItem('selectedCatalog', JSON.stringify(catalog));
+    sessionStorage.setItem('labels', JSON.stringify(catalog));
 }
-//removes selected catalog from selectedCatalog
+//removes selected catalog from labels
 export const deleteSelectedLabels = (label: labelDataType[] | null = null) => {
-    const catalogString = sessionStorage.getItem('selectedCatalog');
+    const catalogString = sessionStorage.getItem('labels');
     const catalog = catalogString ? JSON.parse(catalogString) as IloadedCatalog : null;
     if (catalog === null) return;
     //if label is null, remove all catalog from selected catalog
@@ -210,7 +210,7 @@ export const deleteSelectedLabels = (label: labelDataType[] | null = null) => {
         saveSelectedCatalog(newCatalog);
     }
 }
-//adds label to selectedCatalog
+//adds label to labels
 export const addSelectedLabel = (label: labelDataType) => {
     // fetch locally loadedCatalog from local storage 
     // if it does not exist it means no catalog is selected and we create a new catalog

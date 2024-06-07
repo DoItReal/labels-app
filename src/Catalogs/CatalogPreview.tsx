@@ -12,12 +12,19 @@ import { enableStatesContext } from '../App';
 import { formatDate } from '../tools/helpers';
 import PDF from '../PDF/index';
 import { getLabels } from '../DB/LocalStorage/Labels';
-import {SearchBar as SearchBarTest} from './CatalogEditor'; 
+import { SearchBar as SearchBarTest } from './CatalogEditor'; 
+import { GridRowSelectionModel } from '@mui/x-data-grid';
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
     const [qrCode, setQrCode] = useState<Boolean>(false);
     const [twoSided, setTwoSided] = useState<boolean>(false);
+    const [selectedRows, setSelectedRows] = useState<string[]>([]);
+    const [enableStates, updateStates] = useContext(enableStatesContext);
+
+    const selectLabelsById = (selectedLabels: GridRowSelectionModel) => {
+        console.log(selectedLabels);
+    }
     /** updates the catalog in the state */
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
         setCatalog({ ...updatedCatalog });
@@ -75,7 +82,7 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
     return (
         <>
             {/* Render PDF component if catalog and design are available */}
-            {catalog && design && <PDF selectedCatalog={catalog} design={design} qrCode={qrCode} twoSided={twoSided} />}
+            {enableStates.get('createPDF') && catalog && design && <PDF labels={catalog.labels.filter(label=>selectedRows.includes(label._id))} design={design} qrCode={qrCode} twoSided={twoSided} />}
             <Grid container spacing={0} style={{ maxWidth: '100%',height:'100%', marginBottom:'10vh', overflow:'auto' }}>
                 <Grid container>
                     <Grid item xs={6}>
@@ -91,12 +98,12 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                 </Grid>
                 
                 <Grid item xs={6} sx={{overflow:'auto', maxHeight:'60vh'} }>
-                    <LabelTable catalog={catalog} updateCatalog={updateCatalog} />
+                    <LabelTable catalog={catalog} updateCatalog={updateCatalog} setSelectedRows={setSelectedRows} />
                 </Grid>
                 {/* Render LabelPreview component if design is available */}
                 {design && (
                     <Grid item xs={6} style={{ maxHeight: '60vh', maxWidth: '100%', overflow: 'auto' }}>
-                        <LabelPreview catalog={catalog} design={design} qrCode={qrCode} />
+                        <LabelPreview catalog={catalog} design={design} qrCode={qrCode} selectedRows={selectedRows }  />
                     </Grid>
                 )}
             </Grid>
