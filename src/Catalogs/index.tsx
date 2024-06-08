@@ -233,7 +233,7 @@ const Catalogs: React.FC = () => {
                 </>
 )}
             </Grid>
-                <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} sx={{ overflow: 'hidden', maxHeight: '80vh' }} >
+                <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} sx={{overflow: 'hidden',maxHeight:'80vh'}} >
                 {editingCatalogId !== null && loadedCatalog ? (
                             <CatalogEditor
                         key={'catalog/' + editingCatalogId}

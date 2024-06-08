@@ -3,9 +3,11 @@
     "",
     "\\src",
     "\\src\\Catalogs",
-    "\\src\\DB\\Interfaces",
-    "\\src\\DesignEditor"
+    "\\src\\content",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\DB\\Interfaces"
   ],
-  "SelectedNode": "\\src\\DesignEditor\\LabelCanvas.tsx",
+  "SelectedNode": "\\src\\content\\LeftSide\\LabelsContainer\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

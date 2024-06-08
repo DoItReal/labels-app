@@ -2,7 +2,7 @@
  to allow the user to edit the count of the labels
  preview of the labels in the catalog
  */import React, { useState, useEffect, useContext } from 'react';
-import { Autocomplete, Button, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Button, Grid, Input, InputLabel, MenuItem, Select } from '@mui/material';
 import LabelTable from './PreviewLabelTable';
 import LabelPreview from './PreviewLabels';
 import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
@@ -11,9 +11,8 @@ import { Design, isDesign, isDesignArray } from '../DB/Interfaces/Designs';
 import { enableStatesContext } from '../App';
 import { formatDate } from '../tools/helpers';
 import PDF from '../PDF/index';
-import { getLabels } from '../DB/LocalStorage/Labels';
 import { SearchBar as SearchBarTest } from './CatalogEditor'; 
-import { GridRowSelectionModel } from '@mui/x-data-grid';
+
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
@@ -22,9 +21,6 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
     const [selectedRows, setSelectedRows] = useState<string[]>([]);
     const [enableStates, updateStates] = useContext(enableStatesContext);
 
-    const selectLabelsById = (selectedLabels: GridRowSelectionModel) => {
-        console.log(selectedLabels);
-    }
     /** updates the catalog in the state */
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
         setCatalog({ ...updatedCatalog });

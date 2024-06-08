@@ -1,13 +1,14 @@
-import { Autocomplete, Badge, Box, Button, Chip, Grid, IconButton, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
+import { Autocomplete, Badge, Box, Button, IconButton, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
 import { useState } from 'react';
 import { isNotNullOrUndefined } from '../tools/helpers';
 import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels, loadedCatalogToCatalog, editCatalogLocally } from '../DB/SessionStorage/Catalogs';
-import { IloadedCatalog, isCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
+import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { saveSelectedCatalog as saveTempCatalog } from '../DB/SessionStorage/TempCatalogs';
 import { createCatalogDB, updateCatalogDB } from '../DB/Remote/Catalogs';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
+import Grid from '@mui/material/Unstable_Grid2';
 import { getLabels, getLocalLabelById } from '../DB/LocalStorage/Labels';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { labelDataType } from '../DB/Interfaces/Labels';
@@ -105,10 +106,10 @@ export default function DataTableStates({ catalog,setCatalog}:
     }
     const handleDeleteLabel = (row: any) => () => {
         //remove the label from the catalog and setCatalog state
-        const newLabels = catalog.labels.filter((label: any) => label.id !== row.id);
+        const newLabels = catalog.labels.filter((label: any) => label._id !== row._id);
         const updatedCatalog = { ...catalog, size: catalog.size - 1, labels: newLabels };
         updateCatalog(updatedCatalog);
-        const label = getLocalLabelById(row.id);
+        const label = getLocalLabelById(row._id);
         if (label) {
             deleteSelectedLabels([label]);
             saveSelectedCatalog(updatedCatalog);
@@ -158,7 +159,9 @@ export default function DataTableStates({ catalog,setCatalog}:
     const [rows, columns] = getColsRows(catalog);
    
     return (
-        <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
+        <Box sx={{overflow:'auto', maxHeight:'100%'} }>
+            <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
+        </Box>
     )
 }
 export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
@@ -197,8 +200,9 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
         addLabels(selectedLabels);
     }
     return (
-        <Grid container>
-            <Grid item xs={8 }>
+        <Grid container sx={{ width: '100%', display:'flex', flexDirection:'center', flex:'center' }}>
+            <Grid xs={6} >
+            <Box>
         <Autocomplete
                     multiple
                     id="combo-box-demo"
@@ -220,14 +224,17 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
                                 {option.translations.find((el: any) => el.lang === 'bg')?.name}
                         </li>
                     )}
-                />
+                    />
+                </Box>
             </Grid>
-            <Grid item xs={1}>
+            <Grid xs={1}>
+            <Box>
                 <IconButton onClick={handleSubmit }>
                 <Badge badgeContent={selectedLabels.length} color="primary">
                     <SendIcon />
                 </Badge>
-                </IconButton>
+                    </IconButton>
+                </Box>
             </Grid>
       </Grid>
     );
@@ -288,13 +295,14 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
 
 
     return (
-        <Grid container>
-            <Grid item xs={12 } >
+        <Grid container >
+            <Grid xs={6} sm={8} md={10} lg={12} xl={12 }>
                 <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
             </Grid>
-            <Grid item xs={12} >
+            <Grid xs={12} sm={12} md={12} lg={12} xl={12 } >
                 <SearchBar addLabels = {addLabels} />
             </Grid>
+            <Grid xs={6} sm={8} md={10} lg={12} xl={12} >
         <Box height={1} sx={{
             position: 'relative',
             overflow: 'auto',
@@ -312,14 +320,15 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
                 pageSizeOptions={[10, 15, 25, 50, 100]}
                 sx={{
                     height: 1,
-                    width: 1,
+                    width: 1
                 }}
                 slots={{
                     noRowsOverlay: MyCustomNoRowsOverlay,
                     toolbar: GridToolbar
                 }}
             />
-            </Box>
+                </Box>
+            </Grid>
         </Grid>
     );
 }
@@ -333,21 +342,21 @@ const InfoBar = ({ catalog, updateCatalog, saveCatalog }: { catalog: IloadedCata
     }, 1000);
 
     return (
-        <Grid container spacing={1} style={{ maxWidth: '100%', height: '100%' }}>
-            <Grid item>
+        <Grid container spacing={1} style={{marginTop:5, minWidth: '100%', height: '100%' }}>
+            <Grid>
                 <InputLabel>Catalog Name</InputLabel>
                 <Input type='text' placeholder='Catalog Name' size='medium' value={name}
                     onChange={(e) => { setName(e.target.value); handleNameChange(e.target.value) }} />
                 </Grid>
-            <Grid item>
+            <Grid>
                 <InputLabel>Created At</InputLabel>
                 <Input value={formatDate(catalog.date)} disabled />
             </Grid>
-            <Grid item>
+            <Grid>
                 <InputLabel>Size</InputLabel>
                 <Input value={catalog.size} disabled />
             </Grid>
-            <Grid item>
+            <Grid>
                 <Button variant='contained' color='primary'
                     onClick={saveCatalog}>
                     Save

@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { enableStatesContext, userContext } from '../App';
+import { userContext } from '../App';
 import { Iuser } from '../Login/Login';
 import Logout from '@mui/icons-material/Logout';
 import { DarkModeUISwitch } from './ThemeMode';
@@ -26,7 +26,6 @@ import { deepOrange } from '@mui/material/colors';
 export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [enableStates, updateStates] = useContext(enableStatesContext);
     const [user, setUser, logout]:[user:Iuser,setUser:(arg:Iuser)=>void,logout:()=>void] = useContext(userContext);
     const navigate = useNavigate();
     
