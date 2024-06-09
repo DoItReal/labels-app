@@ -1,4 +1,4 @@
-import { useRef, ReactNode } from 'react';
+import { useRef, ReactNode, useEffect } from 'react';
 import { png } from '../../labels';
 import { Box, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
 
@@ -34,6 +34,7 @@ export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAl
     ]);
 
     const handleChange = (event: SelectChangeEvent<string[]>) => {
+        // creates new const ${value} from event.target.value
         const {
             target: { value },
         } = event;
@@ -42,21 +43,28 @@ export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAl
             allAllergensNames.forEach((val, key) => {
                 if (elem === val) {
                    let allergen = key;
-                    if (allergen !== null) Arr.push(allergen);
+                    if (allergen !== null && !Arr.includes(allergen)) {
+                        Arr.push(allergen);
+                    }
                 }
             });
         }
-        setCurrentAllergens(Arr);                         
+        setCurrentAllergens([...Arr]);                         
         currentValue.current = typeof value === 'string' ? value.split(',') : value
+        console.log(value)
     };
-
-    if (currentAllergens.length > 0 && !didMount.current) {
-        for (const allergen of currentAllergens) {
-            let val = allAllergensNames.get(allergen);
-            if(val) currentValue.current.push(val);
-        };
-        didMount.current = true;
-    } 
+    // if currentAllergens is not empty and didMount is false
+    useEffect(() => {
+        if (currentAllergens.length > 0 && !didMount.current) {
+            const uniqueValues = new Set(currentValue.current);
+            for (const allergen of currentAllergens) {
+                const val = allAllergensNames.get(allergen);
+                if (val) uniqueValues.add(val);
+            }
+            currentValue.current = Array.from(uniqueValues);
+            didMount.current = true;
+        }
+    }, [currentAllergens]);
    
     const MenuItems:ReactNode[] = [];
      allAllergensNames.forEach((value, key) => {

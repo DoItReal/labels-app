@@ -14,9 +14,10 @@ export default function StickyFooter() {
 
                 m: 0,
                 bottom: 0,
-                py: 2,
+                py: 1.5,
                 px: 0,
                 mt: 'auto',
+                borderTop: (theme) => `1px solid ${theme.palette.divider}`,
                 backgroundColor: (theme) =>
                     theme.palette.mode === 'light'
                         ? theme.palette.grey[200]

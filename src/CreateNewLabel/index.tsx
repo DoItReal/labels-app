@@ -85,7 +85,7 @@ export function CreateLabel({ handleCreateLabel, enableLabelForm, handleLabelFor
    
     return (
         enableLabelForm ?
-            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)} defaultPosition={{ x: window.innerWidth / 2, y: window.innerHeight / 8 } } >
+            <Draggable handle='.handle' onDrag={(e, data) => eventHandler(e, data)} defaultPosition={{ x: window.innerWidth *0.5, y: window.innerHeight*0.1 } } >
                 <Paper
                     elevation={5 }
                     id={id}

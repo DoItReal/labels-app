@@ -76,8 +76,8 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
     };
     
     useEffect(() => { 
-        let width = 720;
-        let height = 920;
+        let width = window.innerWidth / 2;    // 720;
+        let height = window.innerHeight*1.2;    // 920;
         let signsInPage = 8;
         let label = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
         label.setContent(currentAllergens, translation);
