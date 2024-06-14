@@ -133,7 +133,6 @@ export function SaveLabel({ open, handleClose, label,handleSubmit }: { open: boo
     };
 
     const handleKeyDown = (event: globalThis.KeyboardEvent): any => {
-        console.log(event.keyCode);
         if (event.keyCode === 27) { //esc
             event.preventDefault();
             close();

@@ -9,11 +9,29 @@ import TranslateButtonSVG from '@mui/icons-material/Translate';
 import { Box, Container, FormControl, IconButton, Input, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 import { MealTranslation } from "../DB/Interfaces/Labels";
+import { getFullLanguageName } from "../tools/langUtils";
 
 
 export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) => {
     const [preview, setPreview] = useState<any>(null);
-
+    const setNameValue = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lang: string) => {
+        let tmp = [...translation];
+        tmp.map((el: MealTranslation) => {
+            if (el.lang === lang) {
+                el.name = e.target.value;
+            }
+        });
+        setTranslation(tmp);
+    }
+    const setDescriptionValue = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lang: string) => {
+        let tmp = [...translation];
+        tmp.map((el: MealTranslation) => {
+            if (el.lang === lang) {
+                el.description = e.target.value;
+            }
+        });
+        setTranslation(tmp);
+    }
     const handleTranslate = async (text: string, lang: string) => {
         console.log(translation);
         let tmp = [ ...translation ];
@@ -31,48 +49,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
             return el;
         }));
 
-        inputChange(tmp);
-    };
-    const setBG = (e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
-        let tmp = [ ...translation ];
-        tmp.map((el: MealTranslation) => {
-            if (el.lang === 'bg') {
-                el.name = e.target.value;
-            }
-        });
-        inputChange(tmp);
-    };
-    const setEN = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let tmp = [...translation];
-        tmp.map((el: MealTranslation) => {
-            if (el.lang === 'en') {
-                el.name = e.target.value;
-            }
-        });
-        inputChange(tmp);
-    };
-    const setDE = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let tmp = [...translation];
-        tmp.map((el: MealTranslation) => {
-            if (el.lang === 'de') {
-                el.name = e.target.value;
-            }
-        });
-        inputChange(tmp);
-    };
-    const setRUS = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let tmp = [...translation];
-        tmp.map((el: MealTranslation) => {
-            if (el.lang === 'ru') {
-                el.name = e.target.value;
-            }
-        });
-        inputChange(tmp);
-    };
-
-
-    const inputChange = (newTranslation: MealTranslation[]) => {
-        setTranslation(newTranslation);
+        setTranslation(tmp);
     };
     
     useEffect(() => { 
@@ -133,204 +110,78 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                           <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} />
                         </Box>
                     </Grid>
-                    <Grid xs={12} sx={{
-                        display:'flex'
-                    }}>   
-                        <FormControl fullWidth variant="outlined" size="small" >
-                            <InputLabel color='info' htmlFor="label_bg" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>Bulgarian</InputLabel>
-                            <OutlinedInput
-                                fullWidth
-                                id="label_bg"
-                                className="bulgarian"
-                                value={translation.find((el) => el.lang === 'bg')?.name || ''}
-                                onChange={e => setBG(e)}
-                                sx={{
-                                    fontSize: '1.4rem', fontWeight: 'bold'
-                                }}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            size="large"
-                                            title="Translate"
-                                            aria-label="toggle translation"
-                                            onClick={() => {
-                                                const transl = translation.find((el) => el.lang === 'bg');
-                                                if (transl && transl.name !== '') {
-                                                    handleTranslate(transl.name, 'bg');
-                                                }
-                                            }
-                                            }
-                                            onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                event.preventDefault();
-                                            }
-                                            }
-                                            edge="end"
-                                            className="button-translate"
-                                        >
-                                            <Box height={1} width={1} sx={{
-                                                display: 'flex',
-                                                position: 'relative',
-                                                backgroundColor: "lightblue",
-                                                border: '1px solid blue',
-                                                borderRadius: '5px'
-                                            }} >
-                                                <TranslateButtonSVG fontSize="large"/>
-                                            </Box>
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                label="Bulgarian"
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} sx={{
-                        display: 'flex'
-                    }}>
-                        <FormControl fullWidth variant="outlined" size="small"  >
-                            <InputLabel color='info' htmlFor="label_en" sx={{ fontSize: '1.4rem', fontWeight:'bold'  }}>English</InputLabel>
-                            <OutlinedInput
-                                 fullWidth
-                                id="label_en"
-                                className="english"
-                                value={translation.find((el) => el.lang === 'en')?.name || ''}
-                                onChange={e => setEN(e)}
-                                sx={{ 
-                                    fontSize: '1.4rem', fontWeight:'bold'
-                                } }
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        size="large"
-                                        title="Translate"
-                                        aria-label="toggle translation"
-                                        onClick={() => {
-                                            const transl = translation.find((el) => el.lang === 'en');
-                                            if (transl && transl.name !== '')
-                                                handleTranslate(transl.name, 'en');
+
+                    {/* Translation section */ }
+                        {translation.map((transl: MealTranslation) => (
+                     
+                            <Grid container key={transl.lang + 'ID'} sx={{
+                                display: 'flex'
+                            }}>   
+                                <Grid xs={12} sx={{textAlign:'center'} }>
+                            <FormControl fullWidth variant="outlined" size="small" >
+                                    <InputLabel color='info' htmlFor={"label_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{getFullLanguageName(transl.lang) }</InputLabel>
+                                <OutlinedInput
+                                        fullWidth
+                                        id={"labelId_" + transl.lang}
+                                        className={getFullLanguageName(transl.lang).toLowerCase()}
+                                        value={transl.name || ''}
+                                        onChange={e => setNameValue(e, transl.lang)}
+                                        sx={{
+                                            fontSize: '1.4rem', fontWeight: 'bold'
+                                        }}
+                                        endAdornment={
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    size="large"
+                                                    title="Translate"
+                                                    aria-label="toggle translation"
+                                                    onClick={() => {
+                                                        handleTranslate(transl.name, transl.lang);
+                                                    }
+                                                    }
+                                                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                        event.preventDefault();
+                                                    }
+                                                    }
+                                                    edge="end"
+                                                    className="button-translate"
+                                                >
+                                                    <Box height={1} width={1} sx={{
+                                                        display: 'flex',
+                                                        position: 'relative',
+                                                        backgroundColor: "lightblue",
+                                                        border: '1px solid blue',
+                                                        borderRadius: '5px'
+                                                    }} >
+                                                        <TranslateButtonSVG fontSize="large" />
+                                                    </Box>
+                                                </IconButton>
+                                            </InputAdornment>
                                         }
-                                        }
-                                        onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                            event.preventDefault();
-                                        }
-                                        }
-                                        edge="end"
-                                        className="button-translate"
-                                    >
-                                        <Box height={1} width={1} sx={{
-                                            display: 'flex',
-                                            position: 'relative',
-                                            backgroundColor: "lightblue",
-                                            border: '1px solid blue',
-                                            borderRadius: '5px'
-                                        }} >
-                                        <TranslateButtonSVG fontSize="large" />
-                                        </Box>
-                                    </IconButton>
-                                </InputAdornment>
-                            }   
-                            label="English"
-                            />
-                            </FormControl>
-                        </Grid>
-                    <Grid xs={12} sx={{
-                        display: 'flex'
-                    }}>
-                        <FormControl fullWidth variant="outlined" size="small" >
-                            <InputLabel color='info' htmlFor="label_de" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>German</InputLabel>
-                            <OutlinedInput
-                                fullWidth
-                                id="label_de"
-                                className="deutsch"
-                                value={translation.find((el) => el.lang === 'de')?.name || ''}
-                                onChange={e => setDE(e)}
-                                sx={{
-                                    fontSize: '1.4rem', fontWeight: 'bold'
-                                }}
-                                
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            size="large"
-                                            title="Translate"
-                                            aria-label="toggle translation"
-                                            onClick={() => {
-                                                const transl = translation.find((el) => el.lang === 'de');
-                                                if (transl && transl.name !== '')
-                                                    handleTranslate(transl.name, 'de');
-                                            }
-                                            }
-                                            onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                event.preventDefault();
-                                            }
-                                            }
-                                            edge="end"
-                                            className="button-translate"
-                                        >
-                                            <Box height={1} width={1} sx={{
-                                                display: 'flex',
-                                                position: 'relative',
-                                                backgroundColor: "lightblue",
-                                                border: '1px solid blue',
-                                                borderRadius: '5px'
-                                            }} >
-                                                <TranslateButtonSVG fontSize="large" />
-                                            </Box>
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                label="Deutsch"
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} sx={{
-                        display: 'flex'
-                    }}>
-                        <FormControl fullWidth variant="outlined" size="small" >
-                            <InputLabel color='info' htmlFor="label_rus" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>Russian</InputLabel>
-                            <OutlinedInput
-                                fullWidth
-                                id="label_ru"
-                                className="russian"
-                                value={translation.find((el) => el.lang === 'ru')?.name || ''}
-                                onChange={e => setRUS(e)}
-                                sx={{
-                                    fontSize: '1.4rem', fontWeight: 'bold'
-                                }}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            size="large"
-                                            title="Translate"
-                                            aria-label="toggle translation"
-                                            onClick={() => {
-                                                const transl = translation.find((el) => el.lang === 'ru');
-                                                if (transl && transl.name !== '')
-                                                    handleTranslate(transl.name, 'ru');
-                                            }
-                                            }
-                                            onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                event.preventDefault();
-                                            }
-                                            }
-                                            edge="end"
-                                            className="button-translate"
-                                        >
-                                            <Box height={1} width={1} sx={{
-                                                display: 'flex',
-                                                position: 'relative',
-                                                backgroundColor: "lightblue",
-                                                border: '1px solid blue',
-                                                borderRadius: '5px'
-                                            }} >
-                                                <TranslateButtonSVG fontSize="large" />
-                                            </Box>
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                label="Russian"
-                            />
-                        </FormControl>
-                    </Grid>
+                                        label={getFullLanguageName(transl.lang)}
+                                    />
+                                    </FormControl>
+                                </Grid>
+                                <FormControl fullWidth variant="outlined" size="small">
+                                    <InputLabel color='info' htmlFor={"description_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
+                                        {getFullLanguageName(transl.lang) + " Description"}
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        fullWidth
+                                        id={"descriptionId_" + transl.lang}
+                                        className={getFullLanguageName(transl.lang).toLowerCase() + "-description"}
+                                        value={transl.description || ''}
+                                        onChange={e => setDescriptionValue(e, transl.lang)}
+                                        sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}
+                                        label={getFullLanguageName(transl.lang) + " Description"}
+                                    />
+                                </FormControl>
+                            </Grid>
+                    
+                        ) 
+                    )}
+                        {/* End of translation section */ }
+
                     <Grid xs={12} sx={{textAlign:'center'} }>
                         <button type="submit" className="submitButton">{type}</button>
                     </Grid>

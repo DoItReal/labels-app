@@ -5,9 +5,9 @@
     "\\src\\Catalogs",
     "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
+    "\\src\\content\\UI",
+    "\\src\\CreateNewLabel",
     "\\src\\nav"
   ],
-  "SelectedNode": "\\src\\Catalogs\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
