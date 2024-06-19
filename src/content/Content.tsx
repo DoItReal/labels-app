@@ -102,6 +102,7 @@ export default function ContentStates() {
             const index = findIndexByProperty(array, '_id', editedLabel._id);
             if (index === -1) return;
             array[index] = editedLabel;
+            console.log(editedLabel)
             setDbData(array);
             } catch (error) {
             console.log(error);

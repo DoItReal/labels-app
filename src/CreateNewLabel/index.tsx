@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { LabelContent } from './LabelContent';
-import './index.css';
 import './saveLabel.css';
 import { MealTranslation, labelDataType } from '../DB/Interfaces/Labels';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
@@ -211,9 +210,10 @@ const useStyles = makeStyles((theme: Theme) => ({
         position: 'absolute',
         justifyContent: 'center',
         alignContent: 'center',
+        width:'50%',
         top: '0',
         left: '0',
-        scale: 0.8,
-        zIndex:1000
+        scale:0.6,
+        zIndex:1
     },
 }));

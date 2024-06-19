@@ -49,7 +49,6 @@ import { generateQRCodeCanvas as QRcode } from '../UI/QRcode';
 import { isLabelDataType } from '../DB/Interfaces/Labels';
 
 const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) => {
-    const [dataUrl, setDataUrl] = useState<string | null>(null);
     const [queue, setQueue] = useState<TqueueArray>([]); // [textQueue, allergenQueue, imageQueue]
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;

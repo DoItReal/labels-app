@@ -2,12 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
     "\\src\\content",
     "\\src\\content\\LeftSide",
     "\\src\\content\\UI",
     "\\src\\CreateNewLabel",
-    "\\src\\nav"
+    "\\src\\DB\\Remote",
+    "\\src\\DesignEditor",
+    "\\src\\nav",
+    "\\src\\tools"
   ],
+  "SelectedNode": "\\src\\CreateNewLabel\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

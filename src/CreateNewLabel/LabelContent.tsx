@@ -1,16 +1,17 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Category } from '../content/UI/CategoryUI';
 import { Allergens } from "../content/UI/AllergensUI";
 import './labelContent.css';
-import { Label } from '../labels';
 import { IsaveLabelInput } from './index';
 import { translate } from '../tools/translate';
 import TranslateButtonSVG from '@mui/icons-material/Translate';
-import { Box, Container, FormControl, IconButton, Input, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
+import { Box, Container, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput} from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 import { MealTranslation } from "../DB/Interfaces/Labels";
 import { getFullLanguageName } from "../tools/langUtils";
-
+import { labelDataType } from '../DB/Interfaces/Labels';
+import LabelCanvas from '../DesignEditor/LabelCanvas';
+import { getLocalDesigns } from "../DB/LocalStorage/Designs";
 
 export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) => {
     const [preview, setPreview] = useState<any>(null);
@@ -53,17 +54,22 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
     };
     
     useEffect(() => { 
-        let width = window.innerWidth / 2;    // 720;
-        let height = window.innerHeight*1.2;    // 920;
-        let signsInPage = 8;
-        let label = new Label(width / 2 - 10, height / (signsInPage / 2) - 10);
-        label.setContent(currentAllergens, translation);
-        let canvas = label.generate();
-        setPreview(<img alt="Label preview" src={canvas.toDataURL('image/jpeg')}></img>);
+        const designs = getLocalDesigns();
+        if (!designs || designs.length < 1) return;
+        const design = designs[0];
+        const labelNew:labelDataType = {
+            _id: 'new',
+            allergens: currentAllergens,
+            category: filterCategory,
+            translations: translation,
+            owner: 'new',
+        };
+        const label = <LabelCanvas design={design} blocks={design.blocks} label={labelNew} />;
+        setPreview(label);
     }, [translation, currentAllergens]);
 
     return (
-        <Container maxWidth="sm" disableGutters >
+        <Container  disableGutters >
                 <Box component="form" onSubmit={handleSubmit }
                     sx={{
                         
@@ -78,9 +84,9 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        marginTop: '35px',
-                    }}>
-                            {preview ? <div className="preview">{preview}</div> : <div className="preview">'no preview loaded' </div>}
+                        marginTop: '50px',
+                    }}> {/* To rework this */ }
+                            {preview ? preview : 'no preview loaded'}
                             </Grid>
                         
                         <Grid xs={12} sx={{
@@ -118,64 +124,9 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                                 display: 'flex'
                             }}>   
                                 <Grid xs={12} sx={{textAlign:'center'} }>
-                            <FormControl fullWidth variant="outlined" size="small" >
-                                    <InputLabel color='info' htmlFor={"label_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{getFullLanguageName(transl.lang) }</InputLabel>
-                                <OutlinedInput
-                                        fullWidth
-                                        id={"labelId_" + transl.lang}
-                                        className={getFullLanguageName(transl.lang).toLowerCase()}
-                                        value={transl.name || ''}
-                                        onChange={e => setNameValue(e, transl.lang)}
-                                        sx={{
-                                            fontSize: '1.4rem', fontWeight: 'bold'
-                                        }}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    size="large"
-                                                    title="Translate"
-                                                    aria-label="toggle translation"
-                                                    onClick={() => {
-                                                        handleTranslate(transl.name, transl.lang);
-                                                    }
-                                                    }
-                                                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                        event.preventDefault();
-                                                    }
-                                                    }
-                                                    edge="end"
-                                                    className="button-translate"
-                                                >
-                                                    <Box height={1} width={1} sx={{
-                                                        display: 'flex',
-                                                        position: 'relative',
-                                                        backgroundColor: "lightblue",
-                                                        border: '1px solid blue',
-                                                        borderRadius: '5px'
-                                                    }} >
-                                                        <TranslateButtonSVG fontSize="large" />
-                                                    </Box>
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                        label={getFullLanguageName(transl.lang)}
-                                    />
-                                    </FormControl>
+                                    <LabelNameElement key={transl.lang + 'nameInput' } transl={transl} setNameValue={setNameValue} handleTranslate={handleTranslate } />
                                 </Grid>
-                                <FormControl fullWidth variant="outlined" size="small">
-                                    <InputLabel color='info' htmlFor={"description_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
-                                        {getFullLanguageName(transl.lang) + " Description"}
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        fullWidth
-                                        id={"descriptionId_" + transl.lang}
-                                        className={getFullLanguageName(transl.lang).toLowerCase() + "-description"}
-                                        value={transl.description || ''}
-                                        onChange={e => setDescriptionValue(e, transl.lang)}
-                                        sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}
-                                        label={getFullLanguageName(transl.lang) + " Description"}
-                                    />
-                                </FormControl>
+                                <DescriptionElement key={transl.lang + 'descriptionInput'} transl={transl} setDescriptionValue={setDescriptionValue} />
                             </Grid>
                     
                         ) 
@@ -189,4 +140,81 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
             </Box>
         </Container>        
         );
+}
+const LabelNameElement = ({ transl, setNameValue, handleTranslate }:
+     {
+          transl: MealTranslation,
+          setNameValue: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lang: string) => void,
+          handleTranslate: (text: string, lang: string) => void
+     }
+) => {
+return (<FormControl fullWidth variant="outlined" size="small" >
+    <InputLabel color='info' htmlFor={"label_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{getFullLanguageName(transl.lang)}</InputLabel>
+    <OutlinedInput
+        fullWidth
+        id={"labelId_" + transl.lang}
+        className={getFullLanguageName(transl.lang).toLowerCase()}
+        value={transl.name || ''}
+        onChange={e => setNameValue(e, transl.lang)}
+        sx={{
+            fontSize: '1.4rem', fontWeight: 'bold'
+        }}
+        endAdornment={
+            <InputAdornment position="end">
+                <IconButton
+                    size="large"
+                    title="Translate"
+                    aria-label="toggle translation"
+                    onClick={() => {
+                        handleTranslate(transl.name, transl.lang);
+                    }
+                    }
+                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                        event.preventDefault();
+                    }
+                    }
+                    edge="end"
+                    className="button-translate"
+                >
+                    <Box height={1} width={1} sx={{
+                        display: 'flex',
+                        position: 'relative',
+                        backgroundColor: "lightblue",
+                        border: '1px solid blue',
+                        borderRadius: '5px'
+                    }} >
+                        <TranslateButtonSVG fontSize="large" />
+                    </Box>
+                </IconButton>
+            </InputAdornment>
+        }
+        label={getFullLanguageName(transl.lang)}
+    />
+</FormControl>
+);
+}
+
+
+
+const DescriptionElement = ({ transl, setDescriptionValue }:
+    {
+        transl: MealTranslation,
+        setDescriptionValue: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,lang: string) => void
+    }) => {
+    return (
+        <FormControl fullWidth variant="outlined" size="small">
+            <InputLabel color='info' htmlFor={"description_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
+                {getFullLanguageName(transl.lang) + " Description"}
+            </InputLabel>
+            <OutlinedInput
+                fullWidth
+                id={"descriptionId_" + transl.lang}
+                className={getFullLanguageName(transl.lang).toLowerCase() + "-description"}
+                value={transl.description || ''}
+                onChange={e => setDescriptionValue(e, transl.lang)}
+                sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}
+                label={getFullLanguageName(transl.lang) + " Description"}
+            />
+        </FormControl>
+    );
 }

@@ -86,6 +86,7 @@ export const editLabelDB = (editedLabel: labelDataType) => {
         const { _id, ...label } = editedLabel;
         let xhr = new XMLHttpRequest();
         xhr.open("PATCH", address + 'signs/' + _id);
+        xhr.withCredentials = true;
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
 

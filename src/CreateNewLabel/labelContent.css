@@ -1,10 +1,3 @@
-.label {
-    display:flex;
-    align-items:center;
-    width:100%;
-    font-size:20px;
-    font-weight:bold;
-}
     .categoryHolder, .allergensHolder {
         margin-left:auto;
         margin-top:5px;
