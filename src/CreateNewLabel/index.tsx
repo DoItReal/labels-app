@@ -213,7 +213,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         width:'50%',
         top: '0',
         left: '0',
-        scale:0.6,
+        scale:0.7,
         zIndex:1
     },
 }));

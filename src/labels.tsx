@@ -1,6 +1,7 @@
 import { MealTranslation } from './DB/Interfaces/Labels';
 import { PNGs } from './pngs';
 export var png = new PNGs();
+/*
 export class Label {
     id: string | undefined;
     width: number;
@@ -168,6 +169,6 @@ class LabelContent implements labelContent{
         this.translation = translation;
     }
 }
-
+*/
 
 

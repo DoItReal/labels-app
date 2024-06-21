@@ -1,17 +1,18 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
 import { Category } from '../content/UI/CategoryUI';
 import { Allergens } from "../content/UI/AllergensUI";
 import './labelContent.css';
 import { IsaveLabelInput } from './index';
 import { translate } from '../tools/translate';
 import TranslateButtonSVG from '@mui/icons-material/Translate';
-import { Box, Container, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput} from "@mui/material";
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 import { MealTranslation } from "../DB/Interfaces/Labels";
 import { getFullLanguageName } from "../tools/langUtils";
 import { labelDataType } from '../DB/Interfaces/Labels';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
 import { getLocalDesigns } from "../DB/LocalStorage/Designs";
+import DescriptionIcon from '@mui/icons-material/Description';
 
 export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCategory, setFilterCategory, translation, setTranslation, handleSubmit, type }: IsaveLabelInput) => {
     const [preview, setPreview] = useState<any>(null);
@@ -52,6 +53,37 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
 
         setTranslation(tmp);
     };
+  /*  const handleDescriptionTranslate = async (text: string, lang: string) => {
+        let tmp = [ ...translation ];
+        await Promise.all(tmp.map(async (el: MealTranslation) => {
+            const langCode = el.lang;
+            if (langCode === lang) return el;
+            if (el.description === '') {
+                try {
+                    let translation = await translate(text, langCode);
+                    el.description = translation.replace(/["]/g, '');
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            return el;
+        }));
+        setTranslation(structuredClone(tmp));
+    }*/
+       const handleDescriptionTranslate = useCallback(async (text: string, lang: string) => {
+        const updatedTranslations = await Promise.all(translation.map(async el => {
+            if (el.lang !== lang && el.description === '') {
+                try {
+                    let translatedText = await translate(text, el.lang);
+                    return { ...el, description: translatedText.replace(/["]/g, '') };
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            return el;
+        }));
+        setTranslation(updatedTranslations);
+    }, [translation, setTranslation]);
     
     useEffect(() => { 
         const designs = getLocalDesigns();
@@ -123,10 +155,11 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                             <Grid container key={transl.lang + 'ID'} sx={{
                                 display: 'flex'
                             }}>   
-                                <Grid xs={12} sx={{textAlign:'center'} }>
+                                <Grid container sx={{textAlign:'center'} }>
                                     <LabelNameElement key={transl.lang + 'nameInput' } transl={transl} setNameValue={setNameValue} handleTranslate={handleTranslate } />
+                                    <DescriptionElement key={transl.lang + 'descriptionInput'} transl={transl} setDescriptionValue={setDescriptionValue} translate={handleDescriptionTranslate } />
                                 </Grid>
-                                <DescriptionElement key={transl.lang + 'descriptionInput'} transl={transl} setDescriptionValue={setDescriptionValue} />
+                               
                             </Grid>
                     
                         ) 
@@ -148,7 +181,9 @@ const LabelNameElement = ({ transl, setNameValue, handleTranslate }:
           handleTranslate: (text: string, lang: string) => void
      }
 ) => {
-return (<FormControl fullWidth variant="outlined" size="small" >
+    return (
+        <Grid xs={10}>
+        <FormControl fullWidth variant="outlined" size="small" >
     <InputLabel color='info' htmlFor={"label_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{getFullLanguageName(transl.lang)}</InputLabel>
     <OutlinedInput
         fullWidth
@@ -190,31 +225,104 @@ return (<FormControl fullWidth variant="outlined" size="small" >
         }
         label={getFullLanguageName(transl.lang)}
     />
-</FormControl>
+            </FormControl>
+        </Grid>
 );
 }
 
 
 
-const DescriptionElement = ({ transl, setDescriptionValue }:
+const DescriptionElement = ({ transl, setDescriptionValue, translate }:
     {
         transl: MealTranslation,
-        setDescriptionValue: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,lang: string) => void
+        setDescriptionValue: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lang: string) => void,
+        translate: (text: string, lang: string) => Promise<void>
     }) => {
+    const [open, setOpen] = useState(false);
+    const [currentDescription, setCurrentDescription] = useState(transl.description || '');
+
+    useEffect(() => {
+        setCurrentDescription(transl.description || '');
+    }, [transl.description]);
+
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSave = () => {
+        const mockEvent = {
+            target: { value: currentDescription }
+        } as ChangeEvent<HTMLInputElement>;
+        setDescriptionValue(mockEvent, transl.lang);
+        setOpen(false);
+    };
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setCurrentDescription(e.target.value);
+    };
+    const handleTranslate = async () => {
+        await translate(currentDescription, transl.lang);
+
+    }
+
     return (
-        <FormControl fullWidth variant="outlined" size="small">
-            <InputLabel color='info' htmlFor={"description_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
-                {getFullLanguageName(transl.lang) + " Description"}
-            </InputLabel>
-            <OutlinedInput
-                fullWidth
-                id={"descriptionId_" + transl.lang}
-                className={getFullLanguageName(transl.lang).toLowerCase() + "-description"}
-                value={transl.description || ''}
-                onChange={e => setDescriptionValue(e, transl.lang)}
-                sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}
-                label={getFullLanguageName(transl.lang) + " Description"}
-            />
-        </FormControl>
+        <Grid xs={2}>
+            <FormControl variant="outlined" size="small">
+                <IconButton
+                    size="large"
+                    title={"Description " +transl.lang }
+                    aria-label="toggle description"
+                    onClick={handleClickOpen}
+                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                        event.preventDefault();
+                    }
+                    }
+                    edge="end"
+                    className="button-description-open"
+                >
+                    <Box height={1} width={1} sx={{
+                        display: 'flex',
+                        position: 'relative',
+                        backgroundColor: "lightblue",
+                        border: '1px solid blue',
+                        borderRadius: '5px'
+                    }} >
+                        <DescriptionIcon fontSize="large" />
+                    </Box>
+                </IconButton>
+            </FormControl>
+            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">{getFullLanguageName(transl.lang) + " Description"}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id={"dialog-descriptionId_" + transl.lang}
+                        value={currentDescription}
+                        onChange={handleDescriptionChange}
+                        fullWidth
+                        multiline
+                        label={getFullLanguageName(transl.lang) + " Description"}
+                        variant="outlined"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
+
+                    <Button onClick={handleTranslate} color="primary">
+                        Translate
+                    </Button>
+                    <Button onClick={handleSave} color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Grid>
     );
 }

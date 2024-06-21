@@ -3,14 +3,14 @@
     "",
     "\\src",
     "\\src\\content",
-    "\\src\\content\\LeftSide",
     "\\src\\content\\UI",
     "\\src\\CreateNewLabel",
+    "\\src\\DB\\Interfaces",
     "\\src\\DB\\Remote",
     "\\src\\DesignEditor",
     "\\src\\nav",
     "\\src\\tools"
   ],
-  "SelectedNode": "\\src\\CreateNewLabel\\index.tsx",
+  "SelectedNode": "\\src\\CreateNewLabel\\saveLabel.css",
   "PreviewInSolutionExplorer": false
 }

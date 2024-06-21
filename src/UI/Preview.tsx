@@ -2,7 +2,6 @@ import React from "react";
 import { labelDataType } from "../DB/Interfaces/Labels";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
 import { Popover } from "@mui/material";
-import { Label } from "../labels";
 import { Theme } from '@emotion/react';
 import { makeStyles } from '@mui/styles';
 import LabelCanvas from '../DesignEditor/LabelCanvas';
