@@ -10,15 +10,13 @@ import Canvas from './EditorCanvas';
 import Label from './LabelCanvas';
 import { labelDataType } from '../DB/Interfaces/Labels';
 import {
-  ImageURL,
   textFieldBlock,
-  imageFieldBlock,
+  imagePointerBlock,
   allergenFieldBlock,
   UnifiedBlock,
-  Design
+  Design,
 } from '../DB/Interfaces/Designs';
 import { getLocalDesigns, setLocalDesigns } from '../DB/LocalStorage/Designs';
-import { Iimage } from '../DB/Interfaces/Images';
 
 /* dummyImageURLs is a list of dummy image URLs that are used to populate the image gallery if the image database is empty */
 
@@ -72,15 +70,15 @@ export const dummyAllergenBlock: allergenFieldBlock = {
     color: 'black',
     type: 'allergens'
 }
-// dummyImageBlock is a dummy imageFieldBlock object used for filling the design.block with dummy data if no design is found in the session storage.
-export const dummyImageBlock: imageFieldBlock = {
+// dummyImageBlock is a dummy imagePointerBlock object used for filling the design.block with dummy data if no design is found in the session storage.
+export const dummyImageBlock: imagePointerBlock = {
     id: -10,
     position: { x: 0, y: 0 },
     dimensions: { width: 0, height: 0 },
     font: '20px Arial',
     color: 'black',
     type: 'image',
-    image: { _id: '0', name: 'dummyImage', size: 1, transparency:1 }
+    image: { _id: '66465d026360dca42dd877ae', name: 'dummyImage', size: 1, transperancy:10 }
 }
 //DesignPlayground is a component that contains the main UI components of the Design Editor.
 //It contains the DesignUI, Canvas and Label components.
@@ -147,8 +145,6 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                         <DesignUI
                                 design={design}
                                 setDesign={setDesign}
-                                blocks={blocks}
-                                setBlocks={setBlocks}
                                 selectedBlock={selectedBlock}
                                 setSelectedBlock={setSelectedBlock}
                                 deleteSelectedBlock={ deleteSelectedBlock }
@@ -162,8 +158,8 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     <Canvas
                             dimensions={design.canvas.dim}
                             border={design.canvas.border}
-                            blocks={blocks}
-                            setBlocks={setBlocks}
+                            design={design}
+                            setDesign={setDesign}
                             selectedBlock={selectedBlock}
                             setSelectedBlock={setSelectedBlock}
                             deleteSelectedBlock={deleteSelectedBlock }

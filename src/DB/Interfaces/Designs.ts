@@ -45,7 +45,7 @@ export interface textFieldBlock extends TypeBlock {
     
 }
 
-export function istextFieldBlock(obj: any): obj is textFieldBlock {
+export function isTextFieldBlock(obj: any): obj is textFieldBlock {
     return typeof obj.textParameter === 'string' && isTypeBlock(obj);
 }
 
@@ -59,7 +59,7 @@ export interface ImagePointer {
     _id: string;
     name: string;
     size: number;
-    transparency: number;
+    transperancy: number;
 }
 //to edit it to transparency
 export function isImagePointer(obj: any): obj is ImagePointer { //return true if obj is an ImagePointer
@@ -73,28 +73,8 @@ export function isImagePointer(obj: any): obj is ImagePointer { //return true if
     );
 }
 
-export interface ImageURL {
-    _id: string;
-    name: string;
-    DataUrl: string;
-    size: number;
-}
-export function isImageURL(obj: any): obj is ImageURL {
-    return (
-        typeof obj._id === 'string' &&
-        typeof obj.name === 'string' &&
-        typeof obj.DataUrl === 'string' &&
-        typeof obj.size === 'number'
-    );
-}
 
-
-export interface imageFieldBlock extends TypeBlock {
-    type: 'image';
-    image: ImagePointer;
-}
-
-export function isImageFieldBlock(obj: any): obj is imageFieldBlock {
+export function isImageFieldBlock(obj: any): obj is imagePointerBlock {
 return (
         isImagePointer(obj.image) && isTypeBlock(obj) && obj.type === 'image'
     );
@@ -109,7 +89,8 @@ export function isImagePointerBlock(obj: any): obj is imagePointerBlock {
         isImagePointer(obj.image) && isTypeBlock(obj) && obj.type === 'image'
     );
 }
-export type UnifiedBlock = textFieldBlock | imageFieldBlock | allergenFieldBlock;
+export type UnifiedBlock = textFieldBlock | imagePointerBlock | allergenFieldBlock;
+//TO DO TESTS! And rework it
 export function isUnifiedBlock(obj: any): obj is UnifiedBlock {
     if (!obj || typeof obj !== 'object') {
         return false;
@@ -170,8 +151,7 @@ export interface Design {
     blocks: UnifiedBlock[];
 }
 export function isDesign(obj: any): obj is Design {
-   
-    return (
+    const flag:boolean = (
         typeof obj._id === 'string' &&
         typeof obj.name === 'string' &&
         typeof obj.owner === 'string' &&
@@ -179,6 +159,8 @@ export function isDesign(obj: any): obj is Design {
         Array.isArray(obj.blocks) &&
         obj.blocks.every((d: any) => isUnifiedBlock(d) /* Check UnifiedBlock properties here */) // Add conditions for UnifiedBlock if needed
     );
+    if (!flag) console.log('Err: The object is not design');
+    return flag;
 }
 export function isDesignArray(arr: any): arr is Design[] {
     return (Array.isArray(arr) && arr.length > 0 && arr.every((obj: any) => isDesign(obj)));

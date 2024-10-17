@@ -27,17 +27,15 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import { createNewDesign, updateDesign } from '../DB/Remote/Designs';
 import { getLocalDesigns, setLocalDesigns, updateLocalDesign } from '../DB/LocalStorage/Designs';
 import { textParametersMap, dummyImageBlock} from './Editor';
-import { getDummyImage, getImagesLocally } from '../DB/LocalStorage/Images';
-import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imageFieldBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, istextFieldBlock, isDesign } from '../DB/Interfaces/Designs';
-import { Iimage, isIimage } from '../DB/Interfaces/Images';
+import { getDummyImage, getImagesLocally, isImageURL, loadImages } from '../DB/LocalStorage/Images';
+import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imagePointerBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, isTextFieldBlock, isDesign, isImagePointer } from '../DB/Interfaces/Designs';
+import { Iimage, isIimage, isIimageArray, isImage } from '../DB/Interfaces/Images';
 import ImageUpload from './ImageUpload';
 
 interface DesignUIProps {
     design: Design;
     setDesign: (design: Design) => void;
-    blocks: UnifiedBlock[];
     selectedBlock: UnifiedBlock | null;
-    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
     setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
     deleteSelectedBlock: () => void;
 }
@@ -62,68 +60,71 @@ const StyledInputLabel = styled(InputLabel)`
 const DesignUI: React.FC<DesignUIProps> = ({
     design,
     setDesign,
-    blocks,
     selectedBlock,
-    setBlocks,
     setSelectedBlock,
     deleteSelectedBlock
 }) => {
     const handleBlockSelection = (blockId: number) => {
-        const selected = blocks.find((block) => block.id === blockId) || null;
+        const selected = design.blocks.find((block) => block.id === blockId) || null;
         if (selected !== null) {
             setSelectedBlock(selected);
         }
         else setSelectedBlock(null);
     };
     const handleSelectedImageParameter = (imageParameter: TimageParameter) => {
-        if (selectedBlock && 'type' in selectedBlock && 'id' in selectedBlock && !istextFieldBlock(selectedBlock) && (isImageFieldBlock(selectedBlock) || isAllergenFieldBlock(selectedBlock))) {
-                const block = selectedBlock;
-                setSelectedBlock(prevSelectedDesign => {
-                    if (prevSelectedDesign && prevSelectedDesign.id === block.id) {
+        if (selectedBlock && 'type' in selectedBlock && 'id' in selectedBlock && !isTextFieldBlock(selectedBlock) && (isImageFieldBlock(selectedBlock) || isAllergenFieldBlock(selectedBlock))) {
+                setSelectedBlock(prevSelectedBlock => {
+                    if (prevSelectedBlock && prevSelectedBlock.id === selectedBlock.id) {
                         if (imageParameter === 'image') {
                             return {
-                                ...prevSelectedDesign,
+                                ...prevSelectedBlock,
                                 type: imageParameter,
                                 image: dummyImageBlock.image,
                             }
                         } else {
                             return {
-                                ...prevSelectedDesign,
+                                ...prevSelectedBlock,
                                 type:imageParameter
                             }
                         }
                     }
-                    return prevSelectedDesign;
+                    return prevSelectedBlock;
                 });
-                setBlocks(prevDesigns =>
-                    prevDesigns.map(prevDesign => {
-                        if (prevDesign.id === block.id) {
-                            if (imageParameter === 'image') {
-                                return {
-                                    ...prevDesign,
-                                    type: imageParameter,
-                                    image: dummyImageBlock.image
-                                }
-                            } else {
-                                return {
-                                    ...prevDesign,
-                                    type:imageParameter
-                                }
-                            }                           
+            const updatedBlocks = design.blocks.map(block => {
+                if (block.id === selectedBlock.id) {
+                    if (imageParameter === 'image') {
+                        return {
+                            ...block,
+                            type: imageParameter,
+                            image: dummyImageBlock.image,
                         }
-                        return prevDesign;
-                    })
-                );
+                    }else
+                        return {
+                            ...block,
+                            type: imageParameter,
+                        }
+                } else
+                    return { ...block };
+            });
+            const updatedDesign = { ...design, blocks: updatedBlocks };
+            console.log(design)
+            console.log(updatedDesign)
+            if (isDesign(updatedDesign))
+            setDesign(updatedDesign);
         }
     };
     const handleTransperancyChange = (transperancy: number) => {
+        if (!isImagePointerBlock(selectedBlock)) {
+            console.log("Err: Selected Block is not ImagePointerBlock! Can't change transperancy!");
+            return;
+        }
         if (selectedBlock && 'type' in selectedBlock && selectedBlock.type === 'image' && 'id' in selectedBlock) {
-            const block = selectedBlock as imageFieldBlock;
+        //    const block = selectedBlock as imagePointerBlock;
 
             setSelectedBlock(prevSelectedBlock => {
-                if (prevSelectedBlock && prevSelectedBlock.id === block.id && 'image' in prevSelectedBlock) {
+                if (prevSelectedBlock && prevSelectedBlock.id === selectedBlock.id && 'image' in prevSelectedBlock) {
                     return {
-                        ...(prevSelectedBlock as imageFieldBlock), // Type assertion for prevSelectedBlock
+                        ...(prevSelectedBlock as imagePointerBlock), // Type assertion for prevSelectedBlock
                         image: {
                             ...prevSelectedBlock.image,
                             // Type assertion for prevSelectedBlock.image
@@ -133,83 +134,88 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 }
                 return prevSelectedBlock;
             });
-            setBlocks(prevBlocks =>
-                prevBlocks.map(prevBlock => {
-                    if (prevBlock.id === block.id && prevBlock.type === 'image' && 'image' in prevBlock) {
-                        const imageBlock = prevBlock as imageFieldBlock; // Type assertion for prevBlock
-                        const updatedImage = {
-                            ...(imageBlock.image || {}), // Type assertion for imageBlock.image
-                            transperancy,
-                        };
-                        return {
-                            ...imageBlock,
-                            image: updatedImage
-                        };
-                    }
-                    return prevBlock;
-                })
-            );
+          
+            const updatedBlocks = design.blocks.map(block => {
+                if (block.id === selectedBlock.id && isImagePointerBlock(block)) {
+                    return {
+                        ...block, image: { ...block.image, transperancy }
+};
+                } else
+                    return block;
+            });
+            const updatedDesign = { ...design, blocks: updatedBlocks };
+            console.log(updatedDesign)
+            if (isDesign(updatedDesign))
+                setDesign(updatedDesign);
+            else console.log("Err: updatedDesign is not Design type");
         }
-        const storedDesigns: Design[] | null = getLocalDesigns();
-        if (!storedDesigns) {
-            console.log('The fetched Design is null! Failed to update Local Designs!');
-            return;
-        }
-        for (let i = 0; i < storedDesigns.length; i++) {
-            if (storedDesigns[i]._id === design._id) {
-                storedDesigns[i].blocks = blocks;
-                setLocalDesigns(storedDesigns);
-                return;
-            }
-        }
-
+        //gets the stored designs in the Local Storage
+        /* const storedDesigns: Design[] | null = getLocalDesigns();
+         if (!storedDesigns) {
+             console.log('The fetched Design is null! Failed to update Local Designs!');
+             return;
+         }
+         //iterates through storedDesigns and saves the changes to the design in the localStorage 
+         for (let i = 0; i < storedDesigns.length; i++) {
+             if (storedDesigns[i]._id === design._id) {
+                 storedDesigns[i].blocks = design.blocks;
+                 setLocalDesigns(storedDesigns);
+                 return;
+             }
+         }*/
     };
 
 
     const handleSelectedImage = async (selectedImage: Iimage) => {
         if (selectedBlock && 'type' in selectedBlock && selectedBlock.type === 'image' && 'id' in selectedBlock) {
-            const block = selectedBlock as imageFieldBlock;
-
+            const block = selectedBlock as imagePointerBlock;
             setSelectedBlock(prevSelectedBlock => {
                 if (prevSelectedBlock && prevSelectedBlock.id === block.id && 'image' in prevSelectedBlock) {
                     return {
-                        ...(prevSelectedBlock as imageFieldBlock), // Type assertion for prevSelectedBlock
+                        ...(prevSelectedBlock as imagePointerBlock), // Type assertion for prevSelectedBlock
                         image: {
                             ...prevSelectedBlock.image,
-                             // Type assertion for prevSelectedBlock.image
+                            // Type assertion for prevSelectedBlock.image
                             _id: selectedImage._id,
-                            transperancy: 1,
+                            transperancy: prevSelectedBlock.image.transperancy,
                         }
                     };
                 }
                 return prevSelectedBlock;
             });
-            setBlocks(prevBlocks =>
-                prevBlocks.map(prevBlock => {
-                    if (prevBlock.id === block.id && prevBlock.type === 'image' && 'image' in prevBlock) {
-                        const imageBlock = prevBlock as imageFieldBlock; // Type assertion for prevBlock
+            const updatedBlocks = [
+                ...design.blocks.map(prevBlock => {
+                    if (prevBlock.id === block.id && isImagePointerBlock(prevBlock)) {
                         const updatedImage = {
-                            ...(imageBlock.image || {}), // Type assertion for imageBlock.image
+                            ...(prevBlock.image || {}),
                             _id: selectedImage._id,
-                            transperancy: 1,
+                            transperancy: prevBlock.image.transperancy,
                         };
                         return {
-                            ...imageBlock,
+                            ...prevBlock,
                             image: updatedImage
                         };
-                    }
-                    return prevBlock;
+                    } else
+                        return prevBlock;
                 })
-            );
+            ];
+            const updatedDesign = { ...design, blocks: updatedBlocks };
+            if (isDesign(updatedDesign))
+                setDesign(updatedDesign);
+            else {
+                console.log('Err: updatedDesign is not Design type!');
+            }
         }
+        //gets the stored Designs from Local Storage
         const storedDesigns: Design[] | null = getLocalDesigns();
         if (!storedDesigns) {
             console.log('The fetched Design is null! Failed to update Local Designs!');
             return;
         }
+        //update stored designs in Local Storage with the updated design
         for (let i = 0; i < storedDesigns.length;i++) {
             if (storedDesigns[i]._id === design._id) {
-                storedDesigns[i].blocks = blocks;
+                storedDesigns[i].blocks = design.blocks;
                 setLocalDesigns(storedDesigns);
                 return;
             }
@@ -218,11 +224,11 @@ const DesignUI: React.FC<DesignUIProps> = ({
     };
 
     const handleSelectedTextParameter = (textParameter: TtextParameter) => {
-        if (selectedBlock && 'textParameter' in selectedBlock && 'id' in selectedBlock) {
-            const design = selectedBlock as textFieldBlock;
+        if (isTextFieldBlock(selectedBlock)) {
+            const block = selectedBlock as textFieldBlock;
 
             setSelectedBlock(prevSelectedDesign => {
-                if (prevSelectedDesign && prevSelectedDesign.id === design.id) {
+                if (prevSelectedDesign && prevSelectedDesign.id === block.id) {
                     return {
                         ...prevSelectedDesign,
                         textParameter: textParameter,
@@ -230,17 +236,25 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 }
                 return prevSelectedDesign;
             });
-            setBlocks(prevDesigns =>
-                prevDesigns.map(prevDesign => {
-                    if (prevDesign.id === design.id) {
-                        return {
-                            ...prevDesign,
-                            textParameter: textParameter,
+            const updatedBlocks = {
+                ...design.blocks, blocks: {
+                    ...design.blocks.map(prevBlock => {
+                        if (prevBlock.id === block.id) {
+                            return {
+                                ...prevBlock,
+                                textParameter: textParameter,
+                            }
                         }
-                    }
-                    return prevDesign;
-                })
-            );
+                        return prevBlock;
+                    })
+                }
+            }
+            if (isUnifiedBlockArray(updatedBlocks)) {
+                const updatedDesign = { ...design, blocks: updatedBlocks };
+                setDesign(updatedDesign);
+            }
+        } else {
+            console.log('Err: Selected Block is not TextFieldBlock!')
         }
     };
     const updateSliderValue = (property: string, value: number) => {
@@ -269,38 +283,12 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 }
                 return prevSelectedDesign;
             });
-
-            setBlocks(prevDesigns =>
-                prevDesigns.map(prevDesign => {
-                    if (prevDesign.id === selectedBlock.id) {
-                        if (field === 'position') {
-                            return {
-                                ...prevDesign,
-                                position: {
-                                    ...(prevDesign.position as Position),
-                                    [attribute]: value,
-                                },
-                            };
-                        } else if (field === 'dimensions') {
-                            return {
-                                ...prevDesign,
-                                dimensions: {
-                                    ...(prevDesign.dimensions as Dimensions),
-                                    [attribute]: value,
-                                },
-                            };
-                        }
-                    }
-                    return prevDesign;
-                })
-            );
         }
     };
     const handleBackgroundChange = (newBackground: string | ImagePointer) => {
         if (design && isDesign(design)) {
             const updatedDesign = { ...design, canvas: { ...design.canvas, background: newBackground } };
            setDesign(updatedDesign);
-            
             // Update the design in the session storage
             const storedDesigns: Design[] | null = getLocalDesigns();
             if (!storedDesigns) {
@@ -317,17 +305,26 @@ const DesignUI: React.FC<DesignUIProps> = ({
         }
     }
     const addTextDesign = () => {
-        setBlocks((prevDesigns) => [
-            ...prevDesigns,
-            {
-                id: prevDesigns.length + 1,
-                position: { x: 50, y: 50 },
-                dimensions: { width: 100, height: 20 },
-                font: '20px Arial',
-                color: 'red',
-                textParameter: textParameters[0]
-            },
-        ]);
+        console.log(design.blocks.length)
+        const updatedDesign = {
+            ...design,
+                blocks: [
+                   ...[...design.blocks, 
+                        ...[{
+                        id: design.blocks.length + 1,
+                        position: { x: 50, y: 50 },
+                        dimensions: { width: 100, height: 20 },
+                        font: '20px Arial',
+                        color: 'red',
+                        textParameter: textParameters[0]
+                        }]],
+                ]
+        }
+        if (isDesign(updatedDesign))
+            setDesign(updatedDesign);
+        else {
+            console.log('Err: updatedDesign is not Design type!');
+        }
     };
     const dialogMap = new Map<string, boolean>([
         ['canvasHeight', false],
@@ -356,8 +353,6 @@ setOpenDialog(prevOpenDialog => {
         //if it is not, it creates new block
 
         try {
-            //not sure if this line is needed
-            design.blocks = blocks;
             const storedDesigns: Design[] | null = getLocalDesigns();
             //check against null value in case the session storage is empty. In this case we have no blocks stored
             if (!storedDesigns) {
@@ -397,18 +392,25 @@ setOpenDialog(prevOpenDialog => {
     };
 
     const addImageDesign = () => {
-        setBlocks((prevDesigns) => [
-            ...prevDesigns,
-            {
-                id: prevDesigns[prevDesigns.length-1].id + 1,
-                position: { x: 50, y: 50 },
-                dimensions: { width: 30, height: 30 },
-                font: '20px Helvetica',
-                color: 'red',
-                type: 'allergens', // Initialize with an empty string or default value
-              //  allergenParameter: 'allergen_image.jpg', // Set the image parameter here
-            },
-        ]);
+        const updatedDesign = {
+            ...design,
+            blocks: {
+                ...design.blocks,
+                ...[{
+                    id: design.blocks.length + 1,
+                    position: { x: 50, y: 50 },
+                    dimensions: { width: 30, height: 30 },
+                    font: '20px Helvetica',
+                    color: 'red',
+                    type: 'allergens', // Initialize with an empty string or default value
+                    //  allergenParameter: 'allergen_image.jpg', // Set the image parameter here
+                }],
+            }
+        };
+        if (isDesign(updatedDesign))
+            setDesign(updatedDesign);
+        else
+            console.log('EditorUI.tsx/const EditorUI=> addImageDesign ==> The updated design is not Design type! Cant setDesign!')
     };
     
     const alignLeft = () => {
@@ -497,7 +499,7 @@ setOpenDialog(prevOpenDialog => {
                     <Grid item width={'100%'}>
                         <Grid container>
                         <Grid item width={1/2 }>
-                            <BlockSelector blocks={blocks} selectedBlock={selectedBlock} handleBlockSelection={handleBlockSelection} />
+                            <BlockSelector blocks={design.blocks} selectedBlock={selectedBlock} handleBlockSelection={handleBlockSelection} />
                         </Grid>
                         <Grid item width={1/2 }>
                             <BlockParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
@@ -509,10 +511,10 @@ setOpenDialog(prevOpenDialog => {
                     </Grid>
                     <Grid container>
                         <Grid item width={1}>
-                            <FontSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
+                            <FontSelector selectedBlock={selectedBlock} design={design} setDesign={setDesign} setSelectedBlock={setSelectedBlock} />
                         </Grid>
                         <Grid item width={1} alignItems='right' alignContent='right'>
-                            <ColorSelector selectedBlock={selectedBlock} blocks={blocks} setBlocks={setBlocks} setSelectedBlock={setSelectedBlock} />
+                                <ColorSelector selectedBlock={selectedBlock} design={design} setDesign={setDesign} setSelectedBlock={setSelectedBlock} />
                         </Grid>
                     </Grid>
                     <Grid item width={1 }>
@@ -529,12 +531,21 @@ setOpenDialog(prevOpenDialog => {
 const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ design, handleBackgroundChange, openDialog, handleOpenDialog, handleCloseDialog }) => {
     const fullScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
     const [dummyImage,setDummyImage] = useState<Iimage| null>(null);
-    const [images, setImages] = useState<Iimage[]>(getImagesLocally());
+    const [images, setImages] = useState<Iimage[]>();
     useEffect(() => {
+        const populateImages = async () => {
+            const loadedImages = await loadImages(getImagesLocally() || []);
+            if (isIimageArray(loadedImages))
+                setImages(loadedImages);
+            else if (isIimage(loadedImages))
+                setImages([loadedImages]);
+        }
+        
         const fetchDummyImage = async () => {
             await getDummyImage().then(image => setDummyImage(image));
         };
-    fetchDummyImage();
+        populateImages();
+        fetchDummyImage();
     }, []);
     return (
         <div>
@@ -555,7 +566,7 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
                             onChange={(e) => {
                                 const img = images.find(image => image._id === e.target.value) || dummyImage;
                                 if (isIimage(img))
-                                    handleBackgroundChange({ _id: img._id, name: img.name, size: img.size, transparency:1 } as ImagePointer);
+                                    handleBackgroundChange({ _id: img._id, name: img.name, size: img.size, transperancy:1 } as ImagePointer);
                             }
                             }
                         >
@@ -569,7 +580,7 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
                        <FormControl fullWidth>
 <TransperancySlider design={design} handleBackgroundChange={handleBackgroundChange} />
             </FormControl>
-                            {typeof design.canvas.background !== 'string' && <Typography>Transperancy: {design.canvas.background.transparency} </Typography>}
+                            {typeof design.canvas.background !== 'string' && <Typography>Transperancy: {design.canvas.background.transperancy} </Typography>}
                         
                     </FormControl></Grid>)}
 
@@ -582,8 +593,8 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
 const TransperancySlider: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void }> = ({ design, handleBackgroundChange }) => {
     const [transparency, setTransparency] = useState(
         typeof design.canvas.background !== 'string'
-            ? design.canvas.background.transparency
-            : 1
+            ? design.canvas.background.transperancy
+            : 10
     );
 
     const handleTransparencyChange = (e:any,value: number | number[]) => {
@@ -591,8 +602,12 @@ const TransperancySlider: React.FC<{ design: Design, handleBackgroundChange: (ne
         typeof design.canvas.background !== 'string' &&
             handleBackgroundChange({
                 ...design.canvas.background,
-                transparency: value,
+                transperancy: value,
             });
+        typeof design.canvas.background !== 'string' && console.log({
+            ...design.canvas.background,
+            transperancy: value,
+        })
         setTransparency(value); // Update the transparency state
     };
 
@@ -602,8 +617,8 @@ const TransperancySlider: React.FC<{ design: Design, handleBackgroundChange: (ne
             aria-label="transparency"
             value={transparency}
             min={0}
-            max={1}
-            step={0.05}
+            max={100}
+            step={0.5}
             onChange={handleTransparencyChange}
         />
     );
@@ -625,16 +640,16 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ id, value, onChange }) => {
 };
 interface ColorSelectorProps {
     selectedBlock: UnifiedBlock | null;
-    blocks: UnifiedBlock[];
-    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
+    design: Design;
+    setDesign: (newDesign:Design)=>void;
     setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
 }
 
-const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
+const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, design, setDesign, setSelectedBlock }) => {
     if (!selectedBlock || !(selectedBlock.id > 0) || selectedBlock === null || isImageFieldBlock(selectedBlock)) return null;
     const handleColorChange = (color: string) => {
         if (!selectedBlock || selectedBlock.id <= 0) return;
-
+        const blocks = design.blocks;
         const updatedBlocks = blocks.map((block) => {
             if (block.id === selectedBlock.id) {
                 return { ...block, color };
@@ -642,11 +657,16 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, se
             return block;
         });
         if (isUnifiedBlockArray(updatedBlocks)) {
-            setBlocks(updatedBlocks);
+            const updatedDesign = { ...design, blocks: updatedBlocks };
+            setDesign(updatedDesign);
+        } else {
+            console.log("Err: updatedBlocks are not UnifiedBlockArray!");
         }
         if (isUnifiedBlock(selectedBlock)) {
             selectedBlock.color = color;
             setSelectedBlock(selectedBlock);
+        } else {
+            console.log('ErrselectedBlock is not UnifiedBlock!');
         }
     };
 
@@ -663,11 +683,11 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedBlock, blocks, se
 };
 interface FontSelectorProps {
     selectedBlock: UnifiedBlock | null;
-    blocks: UnifiedBlock[];
-    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
     setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
+    design: Design;
+    setDesign: (newDesign:Design)=>void; 
 }
-const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setBlocks, setSelectedBlock }) => {
+const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, design, setDesign, setSelectedBlock }) => {
     const [isInputMode, setIsInputMode] = useState(false);
     // Ensure selectedBlock and its font property exist
     if (!selectedBlock || !(selectedBlock.id > 0 || selectedBlock === null) || !selectedBlock.font || isImageFieldBlock(selectedBlock)) return null;
@@ -689,14 +709,14 @@ const FontSelector: React.FC<FontSelectorProps> = ({ selectedBlock, blocks, setB
             else return block;
         };
 
-        const updatedDesigns = blocks.map(updateBlockStyle);
-        if (isUnifiedBlockArray(updatedDesigns)) {
-            setBlocks(updatedDesigns);
+        const updatedBlocks = design.blocks.map(updateBlockStyle);
+        if (isUnifiedBlockArray(updatedBlocks)) {
+            const updatedDesign = { ...design, blocks: updatedBlocks };
+            setDesign(updatedDesign);
         }
 
-        const updatedSelectedDesign = { ...selectedBlock, ...style } as UnifiedBlock;
-        //
-        setSelectedBlock(structuredClone(updatedSelectedDesign));
+        const updatedSelectedBlock = { ...selectedBlock, ...style } as UnifiedBlock;
+        setSelectedBlock(structuredClone(updatedSelectedBlock));
     };
 
     // Parse font string to get size and family
@@ -1011,10 +1031,14 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
             
             <Select
                         value={selectedBlock.id > 0 && selectedBlock.image ? selectedBlock.image._id : images[0]._id}
-                        onChange={(e) => {
+                        onChange={async(e) => {
                             const img = images.find(image => image._id === e.target.value);
-                            if (isIimage(img))
-                                handleSelectedImage(img);
+                            if (img && isImageURL(img))
+                                var loadedImage = await loadImages(img);
+                            else return;
+                            if (isIimage(loadedImage)) {
+                                handleSelectedImage(loadedImage);
+                                }
                         }
                         }
                     >
@@ -1026,9 +1050,9 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
                     </Select>
             </Grid>
             <Grid item width={3 / 3}>
-                <InputLabel>Transperancy: {selectedBlock.image.transparency }% </InputLabel>
+                <InputLabel>Transperancy: {selectedBlock.image.transperancy }% </InputLabel>
                 <Slider
-                    value={selectedBlock && selectedBlock.id > 0 && 'transparency' in selectedBlock.image ? selectedBlock.image.transparency : 0}
+                    value={selectedBlock && selectedBlock.id > 0 && 'transperancy' in selectedBlock.image ? selectedBlock.image.transperancy : 0}
                     min={0}
                     max={100}
                     onChange={(e, value) => handleTransperancyChange(value as number)}

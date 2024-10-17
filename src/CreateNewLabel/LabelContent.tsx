@@ -18,7 +18,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
     const [preview, setPreview] = useState<any>(null);
     const setNameValue = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lang: string) => {
         let tmp = [...translation];
-        tmp.map((el: MealTranslation) => {
+        tmp.forEach((el: MealTranslation) => {
             if (el.lang === lang) {
                 el.name = e.target.value;
             }
@@ -27,7 +27,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
     }
     const setDescriptionValue = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lang: string) => {
         let tmp = [...translation];
-        tmp.map((el: MealTranslation) => {
+        tmp.forEach((el: MealTranslation) => {
             if (el.lang === lang) {
                 el.description = e.target.value;
             }
@@ -53,23 +53,6 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
 
         setTranslation(tmp);
     };
-  /*  const handleDescriptionTranslate = async (text: string, lang: string) => {
-        let tmp = [ ...translation ];
-        await Promise.all(tmp.map(async (el: MealTranslation) => {
-            const langCode = el.lang;
-            if (langCode === lang) return el;
-            if (el.description === '') {
-                try {
-                    let translation = await translate(text, langCode);
-                    el.description = translation.replace(/["]/g, '');
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-            return el;
-        }));
-        setTranslation(structuredClone(tmp));
-    }*/
        const handleDescriptionTranslate = useCallback(async (text: string, lang: string) => {
         const updatedTranslations = await Promise.all(translation.map(async el => {
             if (el.lang !== lang && el.description === '') {
@@ -98,7 +81,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
         };
         const label = <LabelCanvas design={design} blocks={design.blocks} label={labelNew} />;
         setPreview(label);
-    }, [translation, currentAllergens]);
+    }, [translation, currentAllergens, filterCategory]);
 
     return (
         <Container  disableGutters >
@@ -117,8 +100,10 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginTop: '50px',
-                    }}> {/* To rework this */ }
-                            {preview ? preview : 'no preview loaded'}
+                    }}> {/* 
+                    Its LabelCanvas or null    
+                    */ }
+                            {preview || 'no preview loaded'}
                             </Grid>
                         
                         <Grid xs={12} sx={{
@@ -126,30 +111,23 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                             fontSize: '1.2rem',
                             fontWeight: 'bold'
                         }}>
-                        <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            fontSize: '1.4rem'
-                        }}>
                         <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> 
-                      </Box>
-                        </Grid>
+                    </Grid>
+
                     <Grid xs={12} sx={{
                         alignItems: 'center',
                         fontSize: '1.2rem',
                         fontWeight: 'bold'
                     }}>
-                      
-                        <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            fontSize: '1.4rem',
-                        }}>
                           <Allergens currentAllergens={currentAllergens} setCurrentAllergens={setCurrentAllergens} />
-                        </Box>
                     </Grid>
 
-                    {/* Translation section */ }
+                    {/* Translation section 
+                        Itterates throught translation and
+                        creates a translation section for each language
+                        which contains a name and description input
+                        also a translate button for each input
+                    */ }
                         {translation.map((transl: MealTranslation) => (
                      
                             <Grid container key={transl.lang + 'ID'} sx={{
@@ -167,7 +145,14 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                         {/* End of translation section */ }
 
                     <Grid xs={12} sx={{textAlign:'center'} }>
-                        <button type="submit" className="submitButton">{type}</button>
+                        <Button type="submit"
+                            variant="contained"
+                            color="primary"
+                            style={{
+                                marginBottom: '5px',
+                                fontSize: '1.5rem'
+                            }}
+                            >{type}</Button>
                     </Grid>
                 </Grid>
             </Box>
@@ -229,8 +214,6 @@ const LabelNameElement = ({ transl, setNameValue, handleTranslate }:
         </Grid>
 );
 }
-
-
 
 const DescriptionElement = ({ transl, setDescriptionValue, translate }:
     {

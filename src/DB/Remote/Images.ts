@@ -1,5 +1,5 @@
-import { ImageURL } from "../Interfaces/Designs";
-import { Image, Iimage } from "../Interfaces/Images";
+import { ImageURL } from "../LocalStorage/Images";
+import { Image } from "../Interfaces/Images";
 import { address } from './server';
 
 export function fetchImages() {
