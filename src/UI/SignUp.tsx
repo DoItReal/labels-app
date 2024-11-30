@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
@@ -130,7 +130,7 @@ export default function SignUp() {
                     </Typography>
                 <Box component="form" noValidate={false} onSubmit={handleSubmit} sx={{ mt: 3 }}>
                         <Grid container spacing={2}>
-                            <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                                 <TextField
                                     autoComplete="username"
                                     name="username"
@@ -142,7 +142,7 @@ export default function SignUp() {
                                     autoFocus
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                                 <TextField
                                     required
                                     fullWidth
@@ -154,7 +154,7 @@ export default function SignUp() {
                                     autoComplete="email"
                                 />
                         </Grid>
-                        <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 required
                                 fullWidth
@@ -166,7 +166,7 @@ export default function SignUp() {
                                 autoComplete="email"
                             />
                         </Grid>
-                            <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                                 <TextField
                                     required
                                     fullWidth
@@ -178,7 +178,7 @@ export default function SignUp() {
                                     autoComplete="new-password"
                                 />
                         </Grid>
-                        <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 required
                                 fullWidth
@@ -191,19 +191,19 @@ export default function SignUp() {
                             />
                         </Grid>
                         <Grid container alignItems="center">
-                              <Grid xs={8}>
+                            <Grid size={{ xs:8}}>
                                 <FormControlLabel
                                   control={<Checkbox checked={isTermsAccepted} onChange={handleCheckboxChange} value="acceptTerms" color="primary" />}
                                   label="I accept the Terms of Service and Privacy Policy."
                                 />
                               </Grid>
-                              <Grid xs={4}>
+                            <Grid size={{ xs: 4 }}>
                                 <Button onClick={handleShowTerms} color="primary" variant="outlined" size="small">
                                   <InfoOutlinedIcon fontSize="small" />
                                 </Button>
                               </Grid>
                         </Grid>
-                            <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                                 <FormControlLabel
                                     control={<Checkbox value="allowExtraEmails" color="primary" />}
                                     label="I want to receive inspiration, marketing promotions and updates via email."

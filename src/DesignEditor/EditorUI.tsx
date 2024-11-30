@@ -17,9 +17,9 @@ It is the UI of the editor
 */
 
 import React, { useState, useEffect } from 'react';
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, Grid } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, Grid, TextField } from '@mui/material';
 import { styled } from '@mui/system';
-import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
+//import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import SaveIcon from '@mui/icons-material/Save';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
@@ -31,6 +31,9 @@ import { getDummyImage, getImagesLocally, isImageURL, loadImages } from '../DB/L
 import { Position, Dimensions, TtextParameter, TimageParameter, textParameters, textFieldBlock, imagePointerBlock, UnifiedBlock, isDesignArray, Design, TypeBlock, isUnifiedBlock, isUnifiedBlockArray, isImageFieldBlock, isAllergenFieldBlock, ImagePointer, isImagePointerBlock, isTextFieldBlock, isDesign, isImagePointer } from '../DB/Interfaces/Designs';
 import { Iimage, isIimage, isIimageArray, isImage } from '../DB/Interfaces/Images';
 import ImageUpload from './ImageUpload';
+import { Tabs, Tab, Box } from '@mui/material';
+import { TabContext, TabPanel } from '@mui/lab';
+
 
 interface DesignUIProps {
     design: Design;
@@ -477,57 +480,226 @@ setOpenDialog(prevOpenDialog => {
                 </IconButton>
             </Grid>
            
-            <StyledDiv> 
-            <h2>Playground UI</h2>
-                    <br />
-                    <Grid item width={'100%' }>
-                 <DimensionsMenu type="Height" value={design.canvas.dim.height} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-                 <DimensionsMenu type="Width" value={design.canvas.dim.width} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-                 <DimensionsMenu type="Border" value={design.canvas.border} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} setDesign={setDesign} design={design} />
-                  <BackgroundMenu design={design} handleBackgroundChange={handleBackgroundChange} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
-                        </Grid>
-                    <Grid item width={'100%' }>   <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
-                    {selectedBlock && selectedBlock.id > 0 ? <h3>Block {selectedBlock.id}</h3> :
-                        <h3>Select Block to edit or add a new Block</h3>}
-                        
-                        <Grid container width={'100%'}>
-                        <ButtonsContainer addTextDesign={addTextDesign} addImageDesign={addImageDesign} deleteDesign={deleteSelectedBlock} selectedBlock={selectedBlock} />
-
-                    </Grid>
-                </div>
-                    </Grid>
-                    <Grid item width={'100%'}>
-                        <Grid container>
-                        <Grid item width={1/2 }>
-                            <BlockSelector blocks={design.blocks} selectedBlock={selectedBlock} handleBlockSelection={handleBlockSelection} />
-                        </Grid>
-                        <Grid item width={1/2 }>
-                            <BlockParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} handleSelectedImageParameter={handleSelectedImageParameter} handleSelectedTextParameter={handleSelectedTextParameter} /> 
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid item width={'100%'}>
-                        <ImageParameterSelector selectedBlock={selectedBlock} handleSelectedImage={handleSelectedImage} handleTransperancyChange={handleTransperancyChange } />
-                    </Grid>
-                    <Grid container>
-                        <Grid item width={1}>
-                            <FontSelector selectedBlock={selectedBlock} design={design} setDesign={setDesign} setSelectedBlock={setSelectedBlock} />
-                        </Grid>
-                        <Grid item width={1} alignItems='right' alignContent='right'>
-                                <ColorSelector selectedBlock={selectedBlock} design={design} setDesign={setDesign} setSelectedBlock={setSelectedBlock} />
-                        </Grid>
-                    </Grid>
-                    <Grid item width={1 }>
-                        <AlignContainer selectedBlock={selectedBlock} alignLeft={alignLeft} alignCenter={alignCenter} alignRight={alignRight } />
-                    </Grid>
-                    <Grid item width={1 }>
-                        <BlockManipulator selectedBlock={selectedBlock} updateSliderValue={updateSliderValue} openDialog={openDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
-                    </Grid>
+                    <StyledDiv> 
+                        {design ? <h2>{design.name}</h2> :
+                            <h2>Playground UI</h2>
+                        }
+                        <DesignTabs
+                            tabs={[
+                                {
+                                    label: 'Dimensions',
+                                    content: (
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12}>
+                                                <DimensionsMenu
+                                                    type="Height"
+                                                    value={design.canvas.dim.height}
+                                                    openDialog={openDialog}
+                                                    handleOpenDialog={handleOpenDialog}
+                                                    handleCloseDialog={handleCloseDialog}
+                                                    setDesign={setDesign}
+                                                    design={design}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <DimensionsMenu
+                                                    type="Width"
+                                                    value={design.canvas.dim.width}
+                                                    openDialog={openDialog}
+                                                    handleOpenDialog={handleOpenDialog}
+                                                    handleCloseDialog={handleCloseDialog}
+                                                    setDesign={setDesign}
+                                                    design={design}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <DimensionsMenu
+                                                    type="Border"
+                                                    value={design.canvas.border}
+                                                    openDialog={openDialog}
+                                                    handleOpenDialog={handleOpenDialog}
+                                                    handleCloseDialog={handleCloseDialog}
+                                                    setDesign={setDesign}
+                                                    design={design}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <BackgroundMenu
+                                                    design={design}
+                                                    handleBackgroundChange={handleBackgroundChange}
+                                                    openDialog={openDialog}
+                                                    handleOpenDialog={handleOpenDialog}
+                                                    handleCloseDialog={handleCloseDialog}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    ),
+                                },
+                                {
+                                    label: 'Blocks',
+                                    content: (
+                                        <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
+                                            {selectedBlock && selectedBlock.id > 0 ? (
+                                                <h3>Block {selectedBlock.id}</h3>
+                                            ) : (
+                                                <h3>Select Block to edit or add a new Block</h3>
+                                            )}
+                                            <DesignTabs
+                                                tabs={[{
+                                                    label: "General",
+                                                    content: (
+                                            <Grid container spacing = { 1} >
+                                                <Grid item xs={12}>
+                                                    <Grid container direction="row">
+                                                    <ButtonsContainer
+                                                        addTextDesign={addTextDesign}
+                                                        addImageDesign={addImageDesign}
+                                                        deleteDesign={deleteSelectedBlock}
+                                                        selectedBlock={selectedBlock}
+                                                    />
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item xs={6}>
+                                                    <BlockSelector
+                                                        blocks={design.blocks}
+                                                        selectedBlock={selectedBlock}
+                                                        handleBlockSelection={handleBlockSelection}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={6}>
+                                                    <BlockParameterSelector
+                                                        selectedBlock={selectedBlock}
+                                                        handleSelectedImage={handleSelectedImage}
+                                                        handleSelectedImageParameter={handleSelectedImageParameter}
+                                                        handleSelectedTextParameter={handleSelectedTextParameter}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <ImageParameterSelector
+                                                        selectedBlock={selectedBlock}
+                                                        handleSelectedImage={handleSelectedImage}
+                                                        handleTransperancyChange={handleTransperancyChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <FontSelector
+                                                        selectedBlock={selectedBlock}
+                                                        design={design}
+                                                        setDesign={setDesign}
+                                                        setSelectedBlock={setSelectedBlock}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <ColorSelector
+                                                        selectedBlock={selectedBlock}
+                                                        design={design}
+                                                        setDesign={setDesign}
+                                                        setSelectedBlock={setSelectedBlock}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                                    )
+                                                },
+                                                    {
+                                                        label: "Allignment",
+                                                        content: (<Grid container spacing={2}>
+                                                            <Grid item xs={12}>
+                                                                <AlignContainer
+                                                                    selectedBlock={selectedBlock}
+                                                                    alignLeft={alignLeft}
+                                                                    alignCenter={alignCenter}
+                                                                    alignRight={alignRight}
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12}>
+                                                                <BlockManipulator
+                                                                    selectedBlock={selectedBlock}
+                                                                    updateSliderValue={updateSliderValue}
+                                                                    openDialog={openDialog}
+                                                                    handleOpenDialog={handleOpenDialog}
+                                                                    handleCloseDialog={handleCloseDialog}
+                                                                />
+                                                            </Grid>
+                                                        </Grid>)
+                                                    }
+                                                ]} />
+                                        </div>
+                                    ),
+                                },
+                            ]}
+                        /> 
             </StyledDiv>
             </Paper>
         </Grid></Container>
     );
 };
+
+interface DesignTabsProps {
+    tabs: { label: string; content: React.ReactNode }[];
+}
+
+const DesignTabs: React.FC<DesignTabsProps> = ({ tabs }) => {
+    const [tabIndex, setTabIndex] = useState('0');
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+        setTabIndex(newValue);
+    };
+
+    return (
+        <TabContext value={tabIndex}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs variant="scrollable" value={tabIndex} onChange={handleTabChange} aria-label="design tabs" centered>
+                    {tabs.map((tab, index) => (
+                        <Tab key={index} label={tab.label} value={index.toString()} />
+                    ))}
+                </Tabs>
+            </Box>
+
+            {tabs.map((tab, index) => (
+                <TabPanel key={index} value={index.toString()}>
+                    {tab.content}
+                </TabPanel>
+            ))}
+        </TabContext>
+    );
+};
+
+/*
+const DesignTabs = () => {
+    const [tabIndex, setTabIndex] = useState<string>('0');
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+        setTabIndex(newValue);
+    };
+
+    return (
+        <TabContext value={tabIndex}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                    value={tabIndex}
+                    onChange={handleTabChange}
+                    aria-label="design tabs"
+                    centered
+                >
+                    <Tab label="Position" value="0" />
+                    <Tab label="Size" value="1" />
+                    <Tab label="Blocks" value="2" />
+                </Tabs>
+            </Box>
+
+            <TabPanel value="0">
+                <Box p={3}>Position settings go here.</Box>
+            </TabPanel>
+            <TabPanel value="1">
+                <Box p={3}>Size settings go here.</Box>
+            </TabPanel>
+            <TabPanel value="2">
+                <Box p={3}>Blocks settings go here.</Box>
+            </TabPanel>
+        </TabContext>
+    );
+}*/
+
 const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ design, handleBackgroundChange, openDialog, handleOpenDialog, handleCloseDialog }) => {
     const fullScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
     const [dummyImage,setDummyImage] = useState<Iimage| null>(null);
@@ -848,12 +1020,14 @@ const theme = useTheme();
                 <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvas' + type) || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
                     <DialogTitle>Edit Design {type}</DialogTitle>
                 <DialogContent>
-                    <StyledSliderContainer> 
-                        <NumberInput
+                        <StyledSliderContainer>
+                            <TextField
+                            type="number"
                             aria-label="Canvas Border number input"
                             placeholder="Type a number "
                             value={value}
-                            onChange={(e, value) => {
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const value = parseFloat(e.target.value);
                                 if (typeof value === 'number') {
                                     design.canvas.border = value;
                                     setDesign(design);
@@ -889,12 +1063,14 @@ const theme = useTheme();
                         }
                         }
                         style={{ width: '40%' }}
-                    />
-                    <NumberInput
+                            />
+                            <TextField
+                        type= "number"
                         aria-label="Canvas Height number input"
                         placeholder="Type a number "
                         value={value}
-                        onChange={(e, value) => {
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const value = parseFloat(e.target.value);
                             if (typeof value === 'number') {
                                 design.canvas.dim.height = value;
                                 setDesign(design);
@@ -917,11 +1093,13 @@ const theme = useTheme();
                                     }
                                     style={{ width: '40%' }}
                                 />
-                                <NumberInput
+                                <TextField
+                                    type="number"
                                     aria-label="Canvas Width number input"
                                     placeholder="Type a number "
                                     value={value}
-                                    onChange={(e, value) => {
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                        const value = parseFloat(e.target.value);
                                         if (typeof value === 'number') {
                                             design.canvas.dim.width = value;
                                             setDesign(design);
@@ -1080,11 +1258,12 @@ const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSli
                                 onChange={(e, value) => updateSliderValue('position.x', value as number)}
                                 style={{ width: '40%' }}
                             />
-                            <NumberInput
-                                aria-label="Position X number input"
-                                placeholder="Type a number "
-                                value={selectedBlock ? selectedBlock.position.x : 0}
-                                onChange={(e, value) => updateSliderValue('position.x', value as number)}
+                            <TextField
+                            type="number"
+                            aria-label="Position X number input"
+                            placeholder="Type a number "
+                            value={selectedBlock ? selectedBlock.position.x : 0}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { const value = parseFloat(e.target.value); updateSliderValue('position.x', value as number) }}
                             />
                         </StyledSliderContainer>
                     </DialogContent>
@@ -1102,11 +1281,12 @@ const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSli
                                 onChange={(e, value) => updateSliderValue('position.y', value as number)}
                                 style={{ width: '40%' }}
                             />
-                            <NumberInput
-                                aria-label="Position Y number input"
-                                placeholder="Type a number "
-                                value={selectedBlock ? selectedBlock.position.y : 0}
-                                onChange={(e, value) => updateSliderValue('position.y', value as number)}
+                            <TextField
+                            type="number"
+                            aria-label="Position Y number input"
+                            placeholder="Type a number "
+                            value={selectedBlock ? selectedBlock.position.y : 0}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { const value = parseFloat(e.target.value); updateSliderValue('position.y', value as number) }}
                             />
                         </StyledSliderContainer>
                     </DialogContent>
@@ -1123,11 +1303,12 @@ const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSli
                                 onChange={(e, value) => updateSliderValue('dimensions.height', value as number)}
                                 style={{ width: '40%' }}
                             />
-                            <NumberInput
-                                aria-label="Design Height number input"
-                                placeholder="Type a number "
-                                value={selectedBlock ? selectedBlock.dimensions.height : 0}
-                                onChange={(e, value) => updateSliderValue('dimensions.height', value as number)}
+                            <TextField
+                            type="number"
+                            aria-label="Design Height number input"
+                            placeholder="Type a number "
+                            value={selectedBlock ? selectedBlock.dimensions.height : 0}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { const value = parseFloat(e.target.value); updateSliderValue('dimensions.height', value as number) }}
                             />
                         </StyledSliderContainer>
                     </DialogContent>
@@ -1144,11 +1325,12 @@ const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSli
                                 onChange={(e, value) => updateSliderValue('dimensions.width', value as number)}
                                 style={{ width: '40%' }}
                             />
-                            <NumberInput
-                                aria-label="Design Width number input"
-                                placeholder="Type a number "
-                                value={selectedBlock ? selectedBlock.dimensions.width : 0}
-                                onChange={(e, value) => updateSliderValue('dimensions.width', value as number)}
+                            <TextField
+                            type="number"
+                            aria-label="Design Width number input"
+                            placeholder="Type a number "
+                            value={selectedBlock ? selectedBlock.dimensions.width : 0}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { const value = parseFloat(e.target.value); updateSliderValue('dimensions.width', value as number) }}
                             />
                         </StyledSliderContainer>
                     </DialogContent>

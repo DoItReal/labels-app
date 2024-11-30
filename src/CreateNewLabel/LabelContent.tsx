@@ -6,7 +6,7 @@ import { IsaveLabelInput } from './index';
 import { translate } from '../tools/translate';
 import TranslateButtonSVG from '@mui/icons-material/Translate';
 import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField} from "@mui/material";
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import { MealTranslation } from "../DB/Interfaces/Labels";
 import { getFullLanguageName } from "../tools/langUtils";
 import { labelDataType } from '../DB/Interfaces/Labels';
@@ -95,7 +95,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                         padding:'0 5% 0 5%'
                     }}>
                 <Grid container rowSpacing={1} columnSpacing={1} sx={{} }>
-                    <Grid xs={12} sx={{
+                    <Grid size={{ xs: 12 }} sx={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -106,7 +106,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                             {preview || 'no preview loaded'}
                             </Grid>
                         
-                        <Grid xs={12} sx={{
+                    <Grid size={{ xs: 12 }} sx={{
                             alignItems: 'center',
                             fontSize: '1.2rem',
                             fontWeight: 'bold'
@@ -114,7 +114,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                         <Category filterCategory={filterCategory} setFilterCategory={setFilterCategory} /> 
                     </Grid>
 
-                    <Grid xs={12} sx={{
+                    <Grid size={{ xs: 12 }} sx={{
                         alignItems: 'center',
                         fontSize: '1.2rem',
                         fontWeight: 'bold'
@@ -144,7 +144,7 @@ export const LabelContent = ({ currentAllergens, setCurrentAllergens, filterCate
                     )}
                         {/* End of translation section */ }
 
-                    <Grid xs={12} sx={{textAlign:'center'} }>
+                    <Grid size={{ xs: 12 }} sx={{textAlign:'center'} }>
                         <Button type="submit"
                             variant="contained"
                             color="primary"
@@ -167,7 +167,7 @@ const LabelNameElement = ({ transl, setNameValue, handleTranslate }:
      }
 ) => {
     return (
-        <Grid xs={10}>
+        <Grid size={{ xs: 10 }}>
         <FormControl fullWidth variant="outlined" size="small" >
     <InputLabel color='info' htmlFor={"label_" + transl.lang} sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{getFullLanguageName(transl.lang)}</InputLabel>
     <OutlinedInput
@@ -253,7 +253,7 @@ const DescriptionElement = ({ transl, setDescriptionValue, translate }:
     }
 
     return (
-        <Grid xs={2}>
+        <Grid size={{ xs: 2 }}>
             <FormControl variant="outlined" size="small">
                 <IconButton
                     size="large"

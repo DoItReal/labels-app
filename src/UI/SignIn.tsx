@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-undef */
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import { Avatar, Box, Button, Container, Typography } from '@mui/material';
 import { Link, Navigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -68,7 +68,7 @@ export function LoginUI() {
                     </Typography>
                     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
                         <Grid container spacing={2}>   
-                            <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                                 <TextField
                                     required
                                     fullWidth
@@ -80,7 +80,7 @@ export function LoginUI() {
                                     autoFocus
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                        <Grid size={{ xs: 12 }}>
                                 <TextField
                                 required
                                 fullWidth

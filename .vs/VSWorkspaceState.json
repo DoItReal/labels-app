@@ -6,9 +6,11 @@
     "\\src\\DB\\LocalStorage",
     "\\src\\DB\\Remote",
     "\\src\\DesignEditor",
+    "\\src\\Designs",
     "\\src\\nav",
     "\\src\\tools",
     "\\src\\UI"
   ],
+  "SelectedNode": "\\src\\Designs\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
