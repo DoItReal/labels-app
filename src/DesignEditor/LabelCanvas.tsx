@@ -436,7 +436,6 @@ const Canvas: React.FC<CanvasProps> = ({ design, label, qrCode=false }) => {
                     }
                     item.context.save();
                     // Set transparency for the image 
-                    console.log(item.transparency);
                     item.context.globalAlpha = item.transparency / 100;
                     item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
                     item.context.restore();

@@ -17,7 +17,7 @@ It is the UI of the editor
 */
 
 import React, { useState, useEffect } from 'react';
-import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, Grid, TextField } from '@mui/material';
+import { Button, Slider, FormControl, InputLabel, MenuItem, Select, Dialog, DialogTitle, DialogContent, useTheme, useMediaQuery, IconButton, Container, Paper, Typography, Input, Grid2 as Grid, TextField } from '@mui/material';
 import { styled } from '@mui/system';
 //import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
 import SaveIcon from '@mui/icons-material/Save';
@@ -263,31 +263,71 @@ const DesignUI: React.FC<DesignUIProps> = ({
     const updateSliderValue = (property: string, value: number) => {
         if (selectedBlock) {
             const [field, attribute] = property.split('.');
-            
-            setSelectedBlock(prevSelectedDesign => {
-                if (prevSelectedDesign && prevSelectedDesign.id === selectedBlock.id) {
+
+            // Update the selected block first
+            setSelectedBlock(prevSelectedBlock => {
+                if (prevSelectedBlock && prevSelectedBlock.id === selectedBlock.id) {
+                    let updatedBlock = { ...prevSelectedBlock };
+
                     if (field === 'position') {
-                        return {
-                            ...prevSelectedDesign,
+                        updatedBlock = {
+                            ...updatedBlock,
                             position: {
-                                ...(prevSelectedDesign.position as Position),
+                                ...(updatedBlock.position as Position),
                                 [attribute]: value,
                             },
                         };
                     } else if (field === 'dimensions') {
-                        return {
-                            ...prevSelectedDesign,
+                        updatedBlock = {
+                            ...updatedBlock,
                             dimensions: {
-                                ...(prevSelectedDesign.dimensions as Dimensions),
+                                ...(updatedBlock.dimensions as Dimensions),
                                 [attribute]: value,
                             },
                         };
                     }
+
+                    return updatedBlock;
                 }
-                return prevSelectedDesign;
+                return prevSelectedBlock;
+            });
+
+            // Now update the design blocks
+            const updatedBlocks = design.blocks.map(prevBlock => {
+                if (prevBlock.id === selectedBlock.id) {
+                    let updatedBlock = { ...prevBlock };
+
+                    if (field === 'position') {
+                        updatedBlock = {
+                            ...updatedBlock,
+                            position: {
+                                ...(updatedBlock.position as Position),
+                                [attribute]: value,
+                            },
+                        };
+                    } else if (field === 'dimensions') {
+                        updatedBlock = {
+                            ...updatedBlock,
+                            dimensions: {
+                                ...(updatedBlock.dimensions as Dimensions),
+                                [attribute]: value,
+                            },
+                        };
+                    }
+
+                    return updatedBlock;
+                }
+                return prevBlock;
+            });
+
+            // Finally, update the design
+            setDesign({
+                ...design,
+                blocks: updatedBlocks,
             });
         }
     };
+
     const handleBackgroundChange = (newBackground: string | ImagePointer) => {
         if (design && isDesign(design)) {
             const updatedDesign = { ...design, canvas: { ...design.canvas, background: newBackground } };
@@ -462,9 +502,9 @@ setOpenDialog(prevOpenDialog => {
     };
     return (
         <Container>
-            <Grid container>
+            <Grid container size={"grow"}>
         <Paper style={{ height: '80vh', overflow: 'auto' }}>
-                <Grid item width={'100%' }>
+                    <Grid size={12}>
             <IconButton
                 size="large"
                 color="primary"
@@ -490,7 +530,7 @@ setOpenDialog(prevOpenDialog => {
                                     label: 'Dimensions',
                                     content: (
                                         <Grid container spacing={2}>
-                                            <Grid item xs={12}>
+                                            <Grid size={{ xs: 12 }}>
                                                 <DimensionsMenu
                                                     type="Height"
                                                     value={design.canvas.dim.height}
@@ -501,7 +541,7 @@ setOpenDialog(prevOpenDialog => {
                                                     design={design}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12}>
+                                            <Grid size={{ xs: 12 }}>
                                                 <DimensionsMenu
                                                     type="Width"
                                                     value={design.canvas.dim.width}
@@ -512,7 +552,7 @@ setOpenDialog(prevOpenDialog => {
                                                     design={design}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12}>
+                                            <Grid size={{ xs: 12 }}>
                                                 <DimensionsMenu
                                                     type="Border"
                                                     value={design.canvas.border}
@@ -523,7 +563,7 @@ setOpenDialog(prevOpenDialog => {
                                                     design={design}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12}>
+                                            <Grid size={{ xs: 12 }}>
                                                 <BackgroundMenu
                                                     design={design}
                                                     handleBackgroundChange={handleBackgroundChange}
@@ -539,34 +579,32 @@ setOpenDialog(prevOpenDialog => {
                                     label: 'Blocks',
                                     content: (
                                         <div key={selectedBlock ? selectedBlock.id : -10} style={{ marginBottom: '20px' }}>
-                                            {selectedBlock && selectedBlock.id > 0 ? (
-                                                <h3>Block {selectedBlock.id}</h3>
-                                            ) : (
-                                                <h3>Select Block to edit or add a new Block</h3>
-                                            )}
+                                            <Grid container size={"grow"} spacing={1}>
+                                                <Grid size={"grow"}>
+                                            <BlockSelector
+                                                blocks={design.blocks}
+                                                selectedBlock={selectedBlock}
+                                                handleBlockSelection={handleBlockSelection}
+                                                    />
+                                                </Grid>
+                                                <Grid size={{ xs: 12 }} >
+                                                    <Grid container direction="row">
+                                                        <ButtonsContainer
+                                                            addTextDesign={addTextDesign}
+                                                            addImageDesign={addImageDesign}
+                                                            deleteDesign={deleteSelectedBlock}
+                                                            selectedBlock={selectedBlock}
+                                                        />
+                                                    </Grid>
+                                                </Grid>
+                                            </Grid>
                                             <DesignTabs
                                                 tabs={[{
                                                     label: "General",
                                                     content: (
                                             <Grid container spacing = { 1} >
-                                                <Grid item xs={12}>
-                                                    <Grid container direction="row">
-                                                    <ButtonsContainer
-                                                        addTextDesign={addTextDesign}
-                                                        addImageDesign={addImageDesign}
-                                                        deleteDesign={deleteSelectedBlock}
-                                                        selectedBlock={selectedBlock}
-                                                    />
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item xs={6}>
-                                                    <BlockSelector
-                                                        blocks={design.blocks}
-                                                        selectedBlock={selectedBlock}
-                                                        handleBlockSelection={handleBlockSelection}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={6}>
+
+                                                            <Grid size={{ xs: 6 }}>
                                                     <BlockParameterSelector
                                                         selectedBlock={selectedBlock}
                                                         handleSelectedImage={handleSelectedImage}
@@ -574,14 +612,14 @@ setOpenDialog(prevOpenDialog => {
                                                         handleSelectedTextParameter={handleSelectedTextParameter}
                                                     />
                                                 </Grid>
-                                                <Grid item xs={12}>
+                                                            <Grid size={{ xs: 12 }}>
                                                     <ImageParameterSelector
                                                         selectedBlock={selectedBlock}
                                                         handleSelectedImage={handleSelectedImage}
                                                         handleTransperancyChange={handleTransperancyChange}
                                                     />
                                                 </Grid>
-                                                <Grid item xs={12}>
+                                                            <Grid size={{xs:12}}>
                                                     <FontSelector
                                                         selectedBlock={selectedBlock}
                                                         design={design}
@@ -589,7 +627,7 @@ setOpenDialog(prevOpenDialog => {
                                                         setSelectedBlock={setSelectedBlock}
                                                     />
                                                 </Grid>
-                                                <Grid item xs={12}>
+                                                            <Grid size={{xs:12}}>
                                                     <ColorSelector
                                                         selectedBlock={selectedBlock}
                                                         design={design}
@@ -602,8 +640,8 @@ setOpenDialog(prevOpenDialog => {
                                                 },
                                                     {
                                                         label: "Allignment",
-                                                        content: (<Grid container spacing={2}>
-                                                            <Grid item xs={12}>
+                                                        content: (<Grid container spacing={0}>
+                                                            <Grid size={{ xs: 12 }}>
                                                                 <AlignContainer
                                                                     selectedBlock={selectedBlock}
                                                                     alignLeft={alignLeft}
@@ -611,7 +649,7 @@ setOpenDialog(prevOpenDialog => {
                                                                     alignRight={alignRight}
                                                                 />
                                                             </Grid>
-                                                            <Grid item xs={12}>
+                                                            <Grid size={{ xs: 12 }}>
                                                                 <BlockManipulator
                                                                     selectedBlock={selectedBlock}
                                                                     updateSliderValue={updateSliderValue}
@@ -648,7 +686,7 @@ const DesignTabs: React.FC<DesignTabsProps> = ({ tabs }) => {
     return (
         <TabContext value={tabIndex}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs variant="scrollable" value={tabIndex} onChange={handleTabChange} aria-label="design tabs" centered>
+                <Tabs variant="scrollable" value={tabIndex} onChange={handleTabChange} aria-label="design tabs">
                     {tabs.map((tab, index) => (
                         <Tab key={index} label={tab.label} value={index.toString()} />
                     ))}
@@ -664,41 +702,7 @@ const DesignTabs: React.FC<DesignTabsProps> = ({ tabs }) => {
     );
 };
 
-/*
-const DesignTabs = () => {
-    const [tabIndex, setTabIndex] = useState<string>('0');
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
-        setTabIndex(newValue);
-    };
-
-    return (
-        <TabContext value={tabIndex}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs
-                    value={tabIndex}
-                    onChange={handleTabChange}
-                    aria-label="design tabs"
-                    centered
-                >
-                    <Tab label="Position" value="0" />
-                    <Tab label="Size" value="1" />
-                    <Tab label="Blocks" value="2" />
-                </Tabs>
-            </Box>
-
-            <TabPanel value="0">
-                <Box p={3}>Position settings go here.</Box>
-            </TabPanel>
-            <TabPanel value="1">
-                <Box p={3}>Size settings go here.</Box>
-            </TabPanel>
-            <TabPanel value="2">
-                <Box p={3}>Blocks settings go here.</Box>
-            </TabPanel>
-        </TabContext>
-    );
-}*/
 
 const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBackground: string | ImagePointer) => void, openDialog: Map<string, boolean>, handleOpenDialog: (dialogName: string) => void, handleCloseDialog: () => void }> = ({ design, handleBackgroundChange, openDialog, handleOpenDialog, handleCloseDialog }) => {
     const fullScreen = useMediaQuery(useTheme().breakpoints.down('sm'));
@@ -729,7 +733,7 @@ const BackgroundMenu: React.FC<{ design: Design, handleBackgroundChange: (newBac
                     {design.canvas.background ?
                         <ColorPicker id="newBackground-picker" value={typeof design.canvas.background === 'string' ? design.canvas.background : '#000000'} onChange={(color: string) => handleBackgroundChange(color)} />
                         : null}
-                    {images && (<Grid item width={1 / 3}>
+                    {images && (<Grid size={4}>
 <FormControl fullWidth>
                         <InputLabel>Image:</InputLabel>
 
@@ -944,15 +948,17 @@ if (event.key === 'Enter') {
         return a - b;
     });
     return (
-        <Container style={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="body2" gutterBottom>
+        <Grid container size={"grow"}>
+            <Grid size={"auto"} alignContent="center" alignItems="center" alignSelf="left">
+            <Typography variant="body2" fontSize="0.8rem" gutterBottom>
                 Font Family:
-            </Typography>
+                </Typography>
             <FormControl>
                 <Select
-                    value={parseFontString(selectedBlock.font).fontFamily}
-                    onChange={e => handleFontFamilyChange(e.target.value as string)}
-                    size="small"
+                        value={parseFontString(selectedBlock.font).fontFamily}
+                        onChange={e => handleFontFamilyChange(e.target.value as string)}
+                        size="small"
+                        sx={{fontSize:"0.6rem"} }
                 >
                     {["Arial",
                         "Helvetica",
@@ -971,28 +977,31 @@ if (event.key === 'Enter') {
                         )
                     )}
                 </Select>
-            </FormControl>
-            <Typography variant="body2" gutterBottom>
+                </FormControl>
+                </Grid>
+            <Grid size={6} alignContent="center" alignItems="center" alignSelf="right" >
+            <Typography variant="body2" fontSize="0.8rem" gutterBottom>
                 Font Size: {parseFontString(selectedBlock.font).size}px
             </Typography>
             {isInputMode ? (
                 <FormControl>
                     <Input
-                        value={parseFontString(selectedBlock.font).size} // Update the value to include 'px'
-                        onChange={e => { handleFontChange(e.target.value + 'px' as string) }}
-                        onBlur={(e) => setIsInputMode(false)}
-                        onKeyDown={(event) => handleInputKeyDown(event)}
-                        autoFocus
+                            value={parseFontString(selectedBlock.font).size} // Update the value to include 'px'
+                            onChange={e => { handleFontChange(e.target.value + 'px' as string) }}
+                            onBlur={(e) => setIsInputMode(false)}
+                            onKeyDown={(event) => handleInputKeyDown(event)}
+                            autoFocus
+                            sx={{fontSize:"0.6rem", padding:0, margin:0} }
                    />
                 </FormControl >
             ) : (
                 <FormControl>
                 <Select
-                    value = {`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
-            onChange={e => handleFontChange(e.target.value as string)}
-                            size="small"
-                            onDoubleClick={() => setIsInputMode(true)}
-            
+                                value={`${parseFontString(selectedBlock.font).size}px`} // Update the value to include 'px'
+                                onChange={e => handleFontChange(e.target.value as string)}
+                                size="small"
+                                onDoubleClick={() => setIsInputMode(true)}
+                                sx={{ fontSize: "0.6rem", padding:0,margin:0 } }
                 >
             {sortedFontSizes.map(fontSize => ( // Remove 'px' suffix
                 <MenuItem key={fontSize} value={`${fontSize}px`}> {/* Add 'px' suffix */}
@@ -1001,8 +1010,8 @@ if (event.key === 'Enter') {
             ))}
         </Select>
             </FormControl >)}
-            
-            </Container>
+            </Grid>
+            </Grid>
     );
 };
 
@@ -1014,11 +1023,11 @@ const theme = useTheme();
     if (type === 'Border') {
         return (
             <>
-            <StyledInputLabel>Design {type}: {value}px
+            <StyledInputLabel>Canvas {type}: {value}px
                 <Button key={'button' + type} onClick={() => handleOpenDialog('canvas' + type)}>Edit</Button>
             </StyledInputLabel> 
                 <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvas' + type) || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
-                    <DialogTitle>Edit Design {type}</DialogTitle>
+                    <DialogTitle>Edit Canvas {type}</DialogTitle>
                 <DialogContent>
                         <StyledSliderContainer>
                             <TextField
@@ -1043,11 +1052,11 @@ const theme = useTheme();
     }
     return (
         <>
-            <StyledInputLabel>Design {type}: {value}
+            <StyledInputLabel>Canvas {type}: {value}
                 <Button key={'button' + type} onClick={() => handleOpenDialog('canvas' + type)}>Edit</Button>
             </StyledInputLabel> 
                 <Dialog fullWidth maxWidth={'sm'} open={openDialog.get('canvas'+type) || false} onClose={handleCloseDialog} fullScreen={fullScreen}>
-                <DialogTitle>Edit Design {type}</DialogTitle>
+                <DialogTitle>Edit Canvas {type}</DialogTitle>
                     <DialogContent>
                     {type === 'Height' ? (
                     <StyledSliderContainer>
@@ -1116,7 +1125,7 @@ const theme = useTheme();
 };
 
 const BlockSelector: React.FC<{ blocks: UnifiedBlock[], selectedBlock: UnifiedBlock | null, handleBlockSelection: (blockId: number) => void }> = ({ blocks, selectedBlock, handleBlockSelection }) => {
-    if (!selectedBlock || selectedBlock === null) return null;
+   // if (!selectedBlock || selectedBlock === null) return null;
     return (
          <FormControl>
                     <InputLabel>Selected Block:</InputLabel>
@@ -1124,7 +1133,7 @@ const BlockSelector: React.FC<{ blocks: UnifiedBlock[], selectedBlock: UnifiedBl
                         value={selectedBlock && selectedBlock.id>0 ? selectedBlock.id : 'None'}
                         onChange={(e) => handleBlockSelection(Number(e.target.value))}
                     >
-                        <MenuItem key='Not selected Text Design' value='None'>None</MenuItem>
+                        <MenuItem key='Not selected Block' value='None'>Please select a block!</MenuItem>
                         {blocks.map((design) => (
                             <MenuItem key={design.id} value={design.id}>
                                 { 'type' in design ? 'ImageField ' + design.id : 'TextField ' + design.id }
@@ -1198,13 +1207,13 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
     }     
  
     return (
-        <Grid container spacing={0} width={'100%'} alignItems={'center'} alignContent={'center' }>
-                <Grid item width={2 / 3} height={'100%' }>
+        <Grid container spacing={0} size={"grow"} height={'100%'} width={'100%'} alignItems={'center'} alignContent={'center' }>
+                <Grid size={6}>
           
                 <ImageUpload />
                   
                 </Grid>
-                <Grid item width={1/3 }>
+                <Grid size={6 }>
                     <InputLabel>Image:</InputLabel>
             
             <Select
@@ -1227,7 +1236,7 @@ const ImageParameterSelector: React.FC<{ selectedBlock: UnifiedBlock | null, han
                     }
                     </Select>
             </Grid>
-            <Grid item width={3 / 3}>
+            <Grid size={12}>
                 <InputLabel>Transperancy: {selectedBlock.image.transperancy }% </InputLabel>
                 <Slider
                     value={selectedBlock && selectedBlock.id > 0 && 'transperancy' in selectedBlock.image ? selectedBlock.image.transperancy : 0}
@@ -1343,13 +1352,13 @@ const BlockManipulator: React.FC<{ selectedBlock: UnifiedBlock | null, updateSli
 const ButtonsContainer: React.FC<{ addTextDesign: () => void, addImageDesign: () => void, deleteDesign: () => void, selectedBlock: UnifiedBlock | null }> = ({ addTextDesign, addImageDesign, deleteDesign, selectedBlock}) => {
 return (
     <>
-        <Grid item width={1/3 }>
+        <Grid size={4 }>
             <Button onClick={addTextDesign} variant="contained" color="primary" size="small" >Add Text Design</Button>
         </Grid>
-        <Grid item width={1/3 }>
+        <Grid size={4}>
         <Button onClick={addImageDesign} variant="contained" color="primary" size="small">Add Image Design</Button>
         </Grid >
-        <Grid item width={1/3 }>
+        <Grid size={4}>
             <Button onClick={deleteDesign} variant="contained" color="secondary" size="small" disabled={!selectedBlock || selectedBlock.id < 1}>Delete Design</Button>
         </Grid>
         </>
@@ -1358,11 +1367,17 @@ return (
 const AlignContainer: React.FC<{ selectedBlock: UnifiedBlock | null, alignLeft:()=>void, alignCenter:()=>void,alignRight:()=>void }> = ({ selectedBlock, alignLeft, alignCenter,alignRight }) => {
     if (!selectedBlock || selectedBlock === null) return null;
     return (
-        <Container>
-            <Button variant="contained" title="Align Left" color="primary" size="small" onClick={alignLeft} startIcon={<FormatAlignLeftIcon />}>Left</Button>
-            <Button variant="contained" title="Align Center" color="primary" size="small" onClick={alignCenter} startIcon={<FormatAlignCenterIcon />}>Center</Button>
-            <Button variant="contained" title="Align Right" color="primary" size="small" onClick={alignRight} startIcon={<FormatAlignRightIcon />}>Right</Button>
-            </Container>
+        <Grid container spacing={0} size={"grow"} direction="row" columns={18 }>
+            <Grid size={5} minWidth="auto">
+                <Button variant="contained" title="Align Left" color="primary" sx={{ fontSize: "0.6rem" }} size="small" onClick={alignLeft} startIcon={<FormatAlignLeftIcon fontSize="small" />}>Left</Button>
+            </Grid>
+            <Grid size={8} minWidth="auto">
+                <Button variant="contained" title="Align Center" color="primary" sx={{fontSize:"0.6rem"}} size="small" onClick={alignCenter} startIcon={<FormatAlignCenterIcon fontSize="small" />}>Center</Button>
+            </Grid>
+            <Grid size={5} minWidth="auto">
+                <Button variant="contained" title="Align Right" color="primary" sx={{ fontSize: "0.6rem" }} size="small" onClick={alignRight} startIcon={<FormatAlignRightIcon fontSize="small" />}>Right</Button>
+            </Grid>
+        </Grid>
     );
 };
 
