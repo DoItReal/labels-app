@@ -139,14 +139,17 @@ const Designs: React.FC = () => {
         <>
         <Grid container>
             <Grid item xs={menuCollapsed ? 1 : 3}>
-                {/* Button to toggle menu */}
-                <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >
+                    {/* Button to toggle menu */}
+                    <Grid item sx={{ border: "1px solid darkslategray", backgroundColor: "ghostwhite" }} >
+                    <IconButton size="medium" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}>
                     {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
-                    </IconButton>
+                        </IconButton>
+                        <IconButton color="success" size="large" title="Add New Design" onClick={() => setOpen(true)}><NewIcon fontSize="large" /></IconButton>
+                    </Grid>
                     {/* Button to add new design */}
                     {!menuCollapsed && (
                         <>
-                            <IconButton color="success" size="large" title="Add New Design" onClick={() => setOpen(true)}><NewIcon fontSize="large" /></IconButton>
+                         
                             {/* Dialog for adding a new design */}
                             <Dialog open={open} onClose={handleClose}>
                                 <DialogTitle>Add New Design</DialogTitle>
@@ -166,8 +169,8 @@ const Designs: React.FC = () => {
                     )}
                 {/* Design List */}
                 <List>
-                    {designs.map((design: Design) => (
-                        <ListItem key={'design ' + design._id} sx={{borderBottom:"1px solid gray"} }>
+                    {designs.map((design: Design, index) => (
+                        <ListItem key={'design ' + design._id} sx={{ borderBottom: "1px solid gray", background: index % 2 ? 'whitesmoke' : "white", borderRight: '1px solid darkslategray' }}>
                             {renamingDesignId === design._id ? (
                                 <TextField
                                     value={renamingDesignName}
@@ -182,7 +185,7 @@ const Designs: React.FC = () => {
                             )}
                             
                             {!menuCollapsed && (
-                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor:"whitesmoke" } }>
+                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor: index % 2 ? 'whitesmoke' : "white" }}>
                                     <IconButton title="Edit" color={"info"} onClick={() => handleEditDesign(design)}><EditIcon/></IconButton>
                                     <IconButton title="Delete" color={"warning"} onClick={() => handleDeleteDesign(design._id)}><DeleteForeverIcon /></IconButton>
                                     <IconButton title="Rename" color={"secondary"} onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); }}><RenameIcon /></IconButton>

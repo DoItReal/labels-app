@@ -2,7 +2,6 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
     "\\src\\CreateNewLabel",
     "\\src\\DB",
     "\\src\\DB\\Remote",
@@ -12,6 +11,5 @@
     "\\src\\tools",
     "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\Catalogs\\CatalogEditor.tsx",
   "PreviewInSolutionExplorer": false
 }

@@ -42,12 +42,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { getImageById } from '../DB/LocalStorage/Images'; // Import the Design type
 import { textParametersMap } from './Editor';
-import { png } from '../labels';
+import { PNGs } from '../pngs';
 import { imagePointerBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
 import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue } from './Interfaces/LabelCanvasInterfaces';
 import { generateQRCodeCanvas as QRcode } from '../UI/QRcode';
 import { isLabelDataType } from '../DB/Interfaces/Labels';
 
+const png = new PNGs();
 const Canvas: React.FC<CanvasProps> = ({ design, label, qrCode=false }) => {
     const [queue, setQueue] = useState<TqueueArray>([]); // [textQueue, allergenQueue, imageQueue]
     const canvasRef = useRef<HTMLCanvasElement>(null);
