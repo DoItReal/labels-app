@@ -19,7 +19,8 @@ export const initDB = async () => {
         //fetch Allergens and set them to LocalStorage
         fetchAllergens().then(allergens => { setLocalAllergens(allergens) });
         //fetch Images and set them to LocalStorage
-         await initImages();
+        // await initImages();
+        fetchImages().then(images => { setLocalImages(images) });
     } catch (error) {
         console.error(error);
     }

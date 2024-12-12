@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { textParametersMap } from './Editor'; // Import the Design type
-import { Position, Dimensions, UnifiedBlock, HandleType } from '../DB/Interfaces/Designs';
+import { Position, Dimensions, UnifiedBlock, HandleType, isDesign, Design, isUnifiedBlockArray } from '../DB/Interfaces/Designs';
 import { styled } from '@mui/system';
 
 const StyledCanvas = styled('canvas')`
@@ -10,16 +10,17 @@ const StyledCanvas = styled('canvas')`
 interface CanvasProps {
     dimensions: Dimensions;
     border: number;
-    blocks: UnifiedBlock[];
+    design: Design;
+    setDesign: (newDesign:Design)=>void;
     selectedBlock: UnifiedBlock | null;
     setSelectedBlock: React.Dispatch<React.SetStateAction<UnifiedBlock | null>>;
-    setBlocks: React.Dispatch<React.SetStateAction<UnifiedBlock[]>>;
+    
     deleteSelectedBlock: () => void;
   //  selectedTextParameter: TtextParameter; // Add selectedTextParameter
     
 }
 
-const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBlock, setSelectedBlock, setBlocks, deleteSelectedBlock }) => {
+const Canvas: React.FC<CanvasProps> = ({ dimensions,border, design, setDesign, selectedBlock, setSelectedBlock, deleteSelectedBlock }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const [dragStart, setDragStart] = useState<Position | null>(null);
@@ -42,7 +43,7 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         return () => {
             window.removeEventListener('keydown', handleDeleteKeyPress);
         };
-    }, [canvasRef, blocks,dimensions, selectedBlock, setBlocks, setSelectedBlock]);
+    }, [canvasRef, design.blocks,dimensions, selectedBlock, setDesign, setSelectedBlock]);
 
     // Delete the selected block on delete key press
     const handleDeleteKeyPress = (event: KeyboardEvent) => {
@@ -66,8 +67,8 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         const mouseX = clientX - (rect?.left || 0);
         const mouseY = clientY - (rect?.top || 0);
 
-        const clickedDesign = blocks.find((design) => {
-            const clickedHandle = checkResizeHandle(mouseX, mouseY, design);
+        const selectedBlock = design.blocks.find((block:UnifiedBlock) => {
+            const clickedHandle = checkResizeHandle(mouseX, mouseY, block);
             if (clickedHandle) {
                 setResizeHandle(clickedHandle);
                 setIsDragging(false);
@@ -76,10 +77,10 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
             }
 
             //convert to PX from % 
-            const x = design.position.x * dimensions.width / 100;
-            const y = design.position.y * dimensions.height / 100;
-            const width = design.dimensions.width * dimensions.width / 100;
-            const height = design.dimensions.height * dimensions.height / 100;
+            const x = block.position.x * dimensions.width / 100;
+            const y = block.position.y * dimensions.height / 100;
+            const width = block.dimensions.width * dimensions.width / 100;
+            const height = block.dimensions.height * dimensions.height / 100;
             return (
                 mouseX >= x &&
                 mouseX <= x  + width &&
@@ -88,12 +89,21 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
             );
         });
 
-        if (clickedDesign) {
+        if (selectedBlock) {
             setIsDragging(true);
-            setDragStart({ x: mouseX - clickedDesign.position.x*dimensions.width/100, y: mouseY - clickedDesign.position.y*dimensions.height/100 });
-            setSelectedBlock(clickedDesign);
-            const updateBlocksOrder = blocks.filter((block) => block.id !== clickedDesign.id);
-            setBlocks([clickedDesign, ...updateBlocksOrder]);
+            setDragStart({ x: mouseX - selectedBlock.position.x*dimensions.width/100, y: mouseY - selectedBlock.position.y*dimensions.height/100 });
+            setSelectedBlock(selectedBlock);
+            //the selectedBlock is swapped to the front of the array!
+            const restOfTheBlocks = design.blocks.filter((block: UnifiedBlock) => block.id !== selectedBlock.id);
+            if (!isUnifiedBlockArray(restOfTheBlocks)) {
+                console.log("Err: restOfTheBlocks is not UnifiedBlock");
+            }
+            const updatedDesign = { ...design, blocks: [...[selectedBlock],...restOfTheBlocks] };
+            if (isDesign(updatedDesign)) {
+                setDesign(updatedDesign);
+            }
+            else
+                console.log("Err: updatedDesign is not Design!");
         } else {
             // If no object is clicked, deselect the selected object
             setSelectedBlock(null);
@@ -123,23 +133,18 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
             const mouseY = clientY - (rect?.top || 0);
 
             // Update the block position
-            setBlocks((prevDesigns) =>
-                prevDesigns.map((prevDesign) => {
-                    // Check if the block is the selected block
-                    if (prevDesign.id === selectedBlock.id) {
-                        //const { x, y } = prevDesign.position;
-                        //converting to PX from %
-                        const x = prevDesign.position.x * dimensions.width / 100;
-                        const y = prevDesign.position.y * dimensions.height / 100;
-                        const width = prevDesign.dimensions.width * dimensions.width / 100;
-                        const height = prevDesign.dimensions.height * dimensions.height / 100;
+            const updatedBlocks = [
+                ...design.blocks.map((prevBlock: UnifiedBlock) => {
+                    if (prevBlock.id === selectedBlock.id) {
+                        const x = prevBlock.position.x * dimensions.width / 100;
+                        const y = prevBlock.position.y * dimensions.height / 100;
+                        const width = prevBlock.dimensions.width * dimensions.width / 100;
+                        const height = prevBlock.dimensions.height * dimensions.height / 100;
 
                         let newWidth = width;
                         let newHeight = height;
                         let newX = x;
                         let newY = y;
-
-                        // Check if the block is being resized or dragged
                         if (resizeHandle) {
                             // Check for side handles
                             if (resizeHandle.includes('right')) {
@@ -182,34 +187,40 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
                         //check if the block is not too small and adjust accordingly and dont move the block if it is not dragged
                         if (newWidth < 10) newWidth = 10;
                         if (newHeight < 10) newHeight = 10;
-                        if (newWidth === 10 && resizeHandle) newX =  x;
+                        if (newWidth === 10 && resizeHandle) newX = x;
                         if (newHeight === 10 && resizeHandle) newY = y;
 
- 
+
                         //check if the block is within the canvas boundaries and adjust accordingly and dont move the opposite border if its on minimum size
-                        if (newX < 0) newX = 0;         
+                        if (newX < 0) newX = 0;
                         if (newY < 0) newY = 0;
                         if (newX + newWidth > dimensions.width) newX = dimensions.width - newWidth;
                         if (newY + newHeight > dimensions.height) newY = dimensions.height - newHeight;
 
                         return {
-                            ...prevDesign,
+                            ...prevBlock,
                             position: {
-                                x: Math.trunc(newX*10000/dimensions.width)/100,
-                                y: Math.trunc(newY*10000/dimensions.height)/100,
+                                x: Math.trunc(newX * 10000 / dimensions.width) / 100,
+                                y: Math.trunc(newY * 10000 / dimensions.height) / 100,
                             },
                             dimensions: {
                                 //converting back to % from PX 
-                                width: Math.trunc(newWidth * 10000 / dimensions.width)/100,
-                                height: Math.trunc(newHeight*10000/dimensions.height)/100,
+                                width: Math.trunc(newWidth * 10000 / dimensions.width) / 100,
+                                height: Math.trunc(newHeight * 10000 / dimensions.height) / 100,
                             },
                         };
                     }
-                    return prevDesign;
-                })
-            );
+                    return prevBlock;
+                })]
+            const updatedDesign = { ...design, blocks: updatedBlocks };
+            if (isDesign(updatedDesign)) {
+                setDesign(updatedDesign);
+            }
+            else {
+                console.log("Err: updatedDesign is not Design");
+            }
         }
-    };
+};
 
     // Cancel all animations when mouse is up 
     const handleMouseUp = () => {
@@ -276,8 +287,8 @@ const Canvas: React.FC<CanvasProps> = ({ dimensions,border, blocks, selectedBloc
         context.lineWidth = border;
         context.strokeRect(0, 0, canvas.width, canvas.height);
         //iterates backward blocks and draw them
-        for (let i = blocks.length - 1; i >= 0; i--){
-            drawBlock(blocks[i], context);
+        for (let i = design.blocks.length - 1; i >= 0; i--){
+            drawBlock(design.blocks[i], context);
         }
 
 

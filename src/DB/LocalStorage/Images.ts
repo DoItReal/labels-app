@@ -1,8 +1,36 @@
-import { ImageURL } from '../Interfaces/Designs';
 import { Iimage } from '../Interfaces/Images';
 import { fetchImages } from '../Remote/Images';
 
+/** 
+ *  Each ImageUrl is stored in the DB in an object! 
+ * Here they are fetched and stored in the local storage!
+ * Here are all methods for accesing and manipulating the ImageUrls in the local storage!
+ */
+export interface ImageURL {
+    _id: string;
+    name: string;
+    DataUrl: string;
+    size: number;
+}
+export function isImageURL(obj: any): obj is ImageURL {
+    return (
+        typeof obj._id === 'string' &&
+        typeof obj.name === 'string' &&
+        typeof obj.DataUrl === 'string' &&
+        typeof obj.size === 'number'
+    );
+}
+export function isImageUrlArray(obj: any): obj is ImageURL[] {
+    return (
+        Array.isArray(obj) &&
+        obj.every(imageUrl => isImageURL(imageUrl))
+    );
+}
 
+/**
+ * Array of hard coded dummyImageURLs for generating dummyImage
+ * array.length() === 1;
+ */
 const dummyImageURLs: ImageURL[] = [{
     _id: '1',
     name: 'Default',
@@ -23,8 +51,9 @@ export const getDummyImage = async () => {
     });
 }
 /** loadImages is a function that loads images from the server and returns an array of Iimage objects. */
-const loadImages = async (images:ImageURL[]|ImageURL): Promise<Iimage[]|Iimage> => {
-    if (!Array.isArray(images)) {
+export const loadImages = async (images:ImageURL[]|ImageURL): Promise<Iimage[]|Iimage> => {
+    //ImageURL
+    if (!Array.isArray(images) && isImageURL(images)) {
         var Response:undefined | Iimage;
         await new Promise((resolve) => {
             const tmp = new Image();
@@ -37,9 +66,10 @@ const loadImages = async (images:ImageURL[]|ImageURL): Promise<Iimage[]|Iimage> 
         })
         if (Response) return Response;
     }
-    const loadedImages: Iimage[] = [];
 
-    const uploadedImages: ImageURL[] = images ? images as ImageURL[] : dummyImageURLs;
+    //ImageURL[]
+    const loadedImages: Iimage[] = [];
+    const uploadedImages: ImageURL[] = images && isImageUrlArray(images) ? images : dummyImageURLs;
     //const uploadedImages = dummyImageURLs;
     for (const item of uploadedImages) {
         await new Promise((resolve) => {
@@ -68,17 +98,26 @@ export const initImages = async (): Promise<boolean> => {
     }
 }
 /**
- * Saves the image locally in the browser
+ *        ***!!! FOR INITIAL SAVING THE IMAGES IN LocalStorage OR ADDS NEW ImageURL | ImageURL[] !!!***
+ *                      ***!!! DOES NOT CLEAR THE LOCAL STORAGE OR OVERWRITTES IT !!!*** 
+ *  Saves the image locally in the browser
  * gets Iimage or Iimage[] as input
  * returns true if the image is saved successfully
- * @param image 
- * @returns
+ *
+ * @param image
+ * @returns Promise<boolean>
  */
 export const saveImageLocally = async (image: ImageURL | ImageURL[]) => {
     const imagesDBstr = await localStorage.getItem('images');
+    //tries to parse the localStorage images if there are any!
     const imagesDB = imagesDBstr ? JSON.parse(imagesDBstr) as ImageURL[] : [];
+
+    //
     if (Array.isArray(image)) {
         image.forEach((img) => {
+                //Checks if img is ImageURL. If it is not skips it!
+            if (isImageURL(img))
+                //Probably possible just: imagesDB.push(img);
             imagesDB.push({ _id: img._id, name: img.name, DataUrl: img.DataUrl, size: img.size });
         });
     } else {
@@ -87,12 +126,33 @@ export const saveImageLocally = async (image: ImageURL | ImageURL[]) => {
     await localStorage.setItem('images', JSON.stringify(imagesDB));
     return true;
 }
-export const getImagesLocally = ()=>{
+
+// HAVE TO MAKE SKETCH ON THE INTERFACES OF ALL LOCAL STORAGE OBJECTS!
+/**
+ * Returns the images as ImageURL[] 
+ * if there are no images in localStorage or the data in localStorage is not ImageURL[] it returns undefined;
+ * @returns
+ */
+export const getImagesLocally = () => {
     const images = localStorage.getItem('images');
-    return images ? JSON.parse(images) : undefined;
+    const parsedImages = images ? JSON.parse(images) : undefined;
+    if (isImageUrlArray(parsedImages))
+        return parsedImages;
+    else
+        return undefined;
 }
+/**
+ * Sets the images in the localStorage overwrites the existing data.
+ * @param images
+ * @returns boolean
+ */
 export const setLocalImages = (images: ImageURL[]) => {
-    localStorage.setItem('images', JSON.stringify(images));
+    if (isImageUrlArray(images)) {
+        localStorage.setItem('images', JSON.stringify(images));
+        return true;
+        }
+    else
+        return false;
 }
 /**
  * Gets an image by its id
@@ -102,7 +162,9 @@ export const setLocalImages = (images: ImageURL[]) => {
  */
 export const getImageById = async(id: string) => {
     const images = getImagesLocally();
-    if (!images) return undefined;
+
+    if (!images || !isImageUrlArray(images)) return undefined;
+
     for (let i = 0; i < images.length; i++) {
         if (images[i] && '_id' in images[i] && images[i]._id === id) {              ;
             const loadedImage = await loadImages(images[i]);

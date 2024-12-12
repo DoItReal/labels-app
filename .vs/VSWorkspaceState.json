@@ -2,15 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\content",
-    "\\src\\content\\UI",
-    "\\src\\CreateNewLabel",
-    "\\src\\DB\\Interfaces",
+    "\\src\\DB",
+    "\\src\\DB\\LocalStorage",
     "\\src\\DB\\Remote",
     "\\src\\DesignEditor",
     "\\src\\nav",
-    "\\src\\tools"
+    "\\src\\tools",
+    "\\src\\UI"
   ],
-  "SelectedNode": "\\src\\CreateNewLabel\\saveLabel.css",
   "PreviewInSolutionExplorer": false
 }

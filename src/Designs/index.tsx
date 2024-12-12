@@ -11,6 +11,11 @@ import {
     Grid,
     IconButton,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { default as RenameIcon } from '@mui/icons-material/DriveFileRenameOutline';
+import { default as CopyIcon } from '@mui/icons-material/ContentCopy';
+import { default as NewIcon } from '@mui/icons-material/FiberNew';
 import Editor from '../DesignEditor/Editor';
 import { Design, NewDesign } from '../DB/Interfaces/Designs';
 import { createNewDesign, deleteDesign } from '../DB/Remote/Designs';
@@ -52,6 +57,7 @@ const Designs: React.FC = () => {
         });
         setDesigns(updatedDesigns);
     }
+   
     useEffect(() => {
         const storedDesigns = getLocalDesigns();
         setDesigns(storedDesigns || []);
@@ -66,6 +72,22 @@ const Designs: React.FC = () => {
     const toggleMenu = () => {
         setMenuCollapsed(!menuCollapsed);
     };
+    /**
+     IMPORTANT! ***!!!  TO DO: Error Check for existing name! !!!*** 
+    **/
+    const copyDesign = async (design: Design | Partial<Design>) => {
+        delete design._id;
+        const updatedDesign = { ...design, name: 'copy' + design.name } as NewDesign;
+        try {
+            const newDesign = await createNewDesign(updatedDesign);
+            const updatedDesigns = [...designs, newDesign];
+            setDesigns(updatedDesigns);
+            setLocalDesigns(updatedDesigns);
+        } catch (err) {
+            console.log(err);
+        }
+        handleClose();
+    }
     const handleAddDesign =async () => {
         // Logic to add a new design to the list
         const newDesign: NewDesign = {
@@ -120,11 +142,32 @@ const Designs: React.FC = () => {
                 {/* Button to toggle menu */}
                 <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >
                     {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
-                </IconButton>
+                    </IconButton>
+                    {/* Button to add new design */}
+                    {!menuCollapsed && (
+                        <>
+                            <IconButton color="success" size="large" title="Add New Design" onClick={() => setOpen(true)}><NewIcon fontSize="large" /></IconButton>
+                            {/* Dialog for adding a new design */}
+                            <Dialog open={open} onClose={handleClose}>
+                                <DialogTitle>Add New Design</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        label="Design Name"
+                                        value={newDesignName}
+                                        onChange={(e) => setNewDesignName(e.target.value)}
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleAddDesign}>Add</Button>
+                                    <Button onClick={handleClose}>Cancel</Button>
+                                </DialogActions>
+                            </Dialog>
+                        </>
+                    )}
                 {/* Design List */}
                 <List>
                     {designs.map((design: Design) => (
-                        <ListItem key={'design ' + design._id}>
+                        <ListItem key={'design ' + design._id} sx={{borderBottom:"1px solid gray"} }>
                             {renamingDesignId === design._id ? (
                                 <TextField
                                     value={renamingDesignName}
@@ -139,38 +182,19 @@ const Designs: React.FC = () => {
                             )}
                             
                             {!menuCollapsed && (
-                                <>
-                            <Button onClick={() => handleEditDesign(design)}>Edit</Button>
-                            <Button onClick={() => handleDeleteDesign(design._id)}>Delete</Button>
-                            <Button onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); } }>Rename</Button>
-                            </>
+                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor:"whitesmoke" } }>
+                                    <IconButton title="Edit" color={"info"} onClick={() => handleEditDesign(design)}><EditIcon/></IconButton>
+                                    <IconButton title="Delete" color={"warning"} onClick={() => handleDeleteDesign(design._id)}><DeleteForeverIcon /></IconButton>
+                                    <IconButton title="Rename" color={"secondary"} onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); }}><RenameIcon /></IconButton>
+                                    <IconButton title="Copy" color={"inherit"} onClick={() => copyDesign(design)}><CopyIcon/></IconButton>
+                            </Grid>
                             )}
                         
                         </ListItem>
                     ))}
                 </List>
                 
-                {/* Button to add new design */}
-                {!menuCollapsed && (
-                    <>
-                <Button onClick={() => setOpen(true)}>Add Design</Button>
-                {/* Dialog for adding a new design */}
-                <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Add New Design</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            label="Design Name"
-                            value={newDesignName}
-                            onChange={(e) => setNewDesignName(e.target.value)}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleAddDesign}>Add</Button>
-                        <Button onClick={handleClose}>Cancel</Button>
-                    </DialogActions>
-                        </Dialog>
-                </>
-)}
+               
             </Grid>
                 <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} >
                 {editingDesignId !== null ? (

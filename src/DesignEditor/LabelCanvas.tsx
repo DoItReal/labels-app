@@ -43,18 +43,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { getImageById } from '../DB/LocalStorage/Images'; // Import the Design type
 import { textParametersMap } from './Editor';
 import { png } from '../labels';
-import { imageFieldBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
+import { imagePointerBlock, allergenFieldBlock, UnifiedBlock, isImagePointer } from '../DB/Interfaces/Designs';
 import { IallergenQueue, IimageQueue, ItextQueue, CanvasProps, TqueueArray, isTextQueue, isImageQueue, isAllergenQueue } from './Interfaces/LabelCanvasInterfaces';
 import { generateQRCodeCanvas as QRcode } from '../UI/QRcode';
 import { isLabelDataType } from '../DB/Interfaces/Labels';
 
-const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) => {
+const Canvas: React.FC<CanvasProps> = ({ design, label, qrCode=false }) => {
     const [queue, setQueue] = useState<TqueueArray>([]); // [textQueue, allergenQueue, imageQueue]
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = design.canvas.dim;
     const border = design.canvas.border;
     const [images, setImages] = useState<HTMLImageElement[]>([]);
     const drawed = useRef(false);
+    const blocks = structuredClone(design.blocks);
     // eslint-disable-next-line
     const drawBlocks = async () => {
         //check if canvas and context exists
@@ -88,10 +89,13 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         if (!canvas) return;
         const context = canvas.getContext('2d');
         if (!context) return;
-        blocks.forEach((block) => {
-            const queueElement = generateQueueElement(block, context);
-            if (queueElement) queueTmp.push(queueElement);
-        });
+        if (!blocks || !Array.isArray(blocks))
+            console.log('Err: blocks is not Array!');
+        else
+            blocks.forEach((block) => {
+                const queueElement = generateQueueElement(block, context);
+                if (queueElement) queueTmp.push(queueElement);
+            });
         setQueue([...queueTmp]);
     }
     //TO ADD block.multiline that can be true or false and to render the text on multiple lines or on single one!
@@ -116,7 +120,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         }
     }
     const drawQRCode = async (context: CanvasRenderingContext2D) => {
-        const allergenBlock = blocks.find((block) => 'type' in block && block.type === 'allergens');
+        const allergenBlock = blocks.find((block:UnifiedBlock) => 'type' in block && block.type === 'allergens');
         if(!allergenBlock) return;
         try {
             const qrCodeCanvas = await QRcode(label._id);
@@ -141,7 +145,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         if(!design.canvas.background || !isImagePointer(design.canvas.background)) return;
         context.save();
         //set transperancy for the image
-        context.globalAlpha = design.canvas.background.transparency;
+        context.globalAlpha = design.canvas.background.transperancy/100;
         context.drawImage(image, 0, 0, dimensions.width, dimensions.height);
         context.restore();
     }
@@ -408,7 +412,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
 
     }
 
-    const generateImageQueue = (block: imageFieldBlock, context: CanvasRenderingContext2D) => {
+    const generateImageQueue = (block: imagePointerBlock, context: CanvasRenderingContext2D) => {
         var queueHead: IimageQueue | null = null;
         const imgDimensions = {
             width: block.dimensions.width * dimensions.width / 100,
@@ -432,6 +436,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
                     }
                     item.context.save();
                     // Set transparency for the image 
+                    console.log(item.transparency);
                     item.context.globalAlpha = item.transparency / 100;
                     item.context.drawImage(img, item.position.x, item.position.y, item.dimensions.width, item.dimensions.height);
                     item.context.restore();
@@ -459,16 +464,20 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
    
     const getImages = async () => {
         const images: HTMLImageElement[] = [];
-        blocks.forEach(async (block) => {
-            if ('type' in block && block.type === 'image') {
-                const imageBlock = block as imageFieldBlock;
-                const img = await getImageById(imageBlock.image._id);
-                if (img) {
-                    images.push(img);
+        if (!blocks || !Array.isArray(blocks))
+            console.log("Err: blocks is notArray");
+        else {
+            blocks.forEach(async (block) => {
+                if ('type' in block && block.type === 'image') {
+                    const imageBlock = block as imagePointerBlock;
+                    const img = await getImageById(imageBlock.image._id);
+                    if (img) {
+                        images.push(img);
+                    }
                 }
-            }
-        });
-        setImages(images);
+            });
+            setImages(images);
+        }
         return images;
     }
     const generateQueueElement = (block: UnifiedBlock, context: CanvasRenderingContext2D) => {
@@ -513,7 +522,7 @@ const Canvas: React.FC<CanvasProps> = ({ design,blocks, label, qrCode=false }) =
         else {
             fetchQueue().then(() => fetchImages());
         }
-    }, [design, blocks, qrCode]);
+    }, [design, qrCode]);
     useEffect(() => {
        
         

@@ -51,7 +51,6 @@ export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAl
         }
         setCurrentAllergens([...Arr]);                         
         currentValue.current = typeof value === 'string' ? value.split(',') : value
-        console.log(value)
     };
     // if currentAllergens is not empty and didMount is false
     useEffect(() => {
