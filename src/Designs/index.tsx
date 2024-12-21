@@ -20,8 +20,10 @@ import Editor from '../DesignEditor/Editor';
 import { Design, NewDesign } from '../DB/Interfaces/Designs';
 import { createNewDesign, deleteDesign } from '../DB/Remote/Designs';
 import { getLocalDesigns, setLocalDesigns } from '../DB/LocalStorage/Designs';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, Label } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 
 const useStyles = makeStyles((theme) => ({
     buttonStyle: {
@@ -137,14 +139,15 @@ const Designs: React.FC = () => {
 
     return (
         <>
-        <Grid container>
-            <Grid item xs={menuCollapsed ? 1 : 3}>
+            <Grid container>
+                <Grid item xs={menuCollapsed ? 1 : 3} sx={{ transitionDuration:'0.3s' }}>
                     {/* Button to toggle menu */}
-                    <Grid item sx={{ border: "1px solid darkslategray", backgroundColor: "ghostwhite" }} >
-                    <IconButton size="medium" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}>
-                    {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
+                    <Grid item sx={{ border: "1px solid darkslategray", backgroundColor: "ghostwhite", }} >
+                    <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}>
+                    {menuCollapsed ? <ChevronRight fontSize='small'/> : <ChevronLeft fontSize='small' />}
                         </IconButton>
-                        <IconButton color="success" size="large" title="Add New Design" onClick={() => setOpen(true)}><NewIcon fontSize="large" /></IconButton>
+                        <IconButton sx={{ color: "steelblue" }} size="large" title="Add New Design" onClick={() => setOpen(true)}><LibraryAddIcon fontSize="large" /></IconButton>
+                        {!menuCollapsed ? <span style={{fontSize:'2rem', alignSelf: 'center', textAlign:'center',marginLeft:'10%' }}>Designs</span> : <></>}
                     </Grid>
                     {/* Button to add new design */}
                     {!menuCollapsed && (
@@ -170,7 +173,9 @@ const Designs: React.FC = () => {
                 {/* Design List */}
                 <List>
                     {designs.map((design: Design, index) => (
-                        <ListItem key={'design ' + design._id} sx={{ borderBottom: "1px solid gray", background: index % 2 ? 'whitesmoke' : "white", borderRight: '1px solid darkslategray' }}>
+                        <ListItem disablePadding key={'design ' + design._id} sx={{ borderBottom: "1px solid gray", background: index % 2 ? 'whitesmoke' : "white", borderRight: '1px solid darkslategray', paddingLeft:'2px' }}>
+                            <Grid container alignContent="center" alignItems="center" textAlign="center">
+                                
                             {renamingDesignId === design._id ? (
                                 <TextField
                                     value={renamingDesignName}
@@ -181,7 +186,7 @@ const Designs: React.FC = () => {
                             ) : (
                                     <span onDoubleClick={() => handleDoubleClick(design._id, design.name)} style={{
                                         fontSize: menuCollapsed ? '0.6rem' : '1rem',
-                                    } }>{design.name}</span>
+                                    }}><CollectionsIcon fontSize="small" sx={{ color: 'steelblue', marginRight:'5px' }} />{design.name}</span>
                             )}
                             
                             {!menuCollapsed && (
@@ -192,7 +197,7 @@ const Designs: React.FC = () => {
                                     <IconButton title="Copy" color={"inherit"} onClick={() => copyDesign(design)}><CopyIcon/></IconButton>
                             </Grid>
                             )}
-                        
+                        </Grid>
                         </ListItem>
                     ))}
                 </List>

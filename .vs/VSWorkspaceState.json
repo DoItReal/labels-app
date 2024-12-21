@@ -2,14 +2,12 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\Catalogs",
+    "\\src\\content",
+    "\\src\\content\\UI",
     "\\src\\CreateNewLabel",
-    "\\src\\DB",
-    "\\src\\DB\\Remote",
-    "\\src\\DesignEditor",
-    "\\src\\Designs",
-    "\\src\\nav",
-    "\\src\\tools",
-    "\\src\\UI"
+    "\\src\\DB\\Remote"
   ],
+  "SelectedNode": "\\src\\pngs.ts",
   "PreviewInSolutionExplorer": false
 }

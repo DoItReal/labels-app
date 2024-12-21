@@ -24,6 +24,9 @@ import { newCatalog, deleteCatalogLocally, loadCatalog, catalogToLoadedCatalog, 
 import { Icatalog, IloadedCatalog, Icatalogs } from '../DB/Interfaces/Catalogs';
 import CatalogEditor from './CatalogEditor';
 import CatalogPreview from './CatalogPreview';
+import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList';
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
+
 const useStyles = makeStyles((theme) => ({
     buttonStyle: {
         backgroundColor: 'lightgray',
@@ -184,17 +187,19 @@ const Catalogs: React.FC = () => {
                     <Grid item sx={{ border: "1px solid darkslategray", backgroundColor: "ghostwhite" }} >
                 {/* Button to toggle menu */}
                     <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}  >
-                        {menuCollapsed ? <ChevronRight fontSize='medium' /> : <ChevronLeft fontSize='medium'/>}
+                            {menuCollapsed ? <ChevronRight fontSize='small' /> : <ChevronLeft fontSize='small' />}
+                            
                     </IconButton>
 
                     {/* Button for New Catalog */}
-                    <IconButton color="success" size="large" title="New Catalog" onClick={() => setOpen(true)}><NewIcon fontSize="large" /></IconButton>
-                </Grid>
+                        <IconButton sx={{ color: "orange" }} size="large" title="New Catalog" onClick={() => setOpen(true)}><LibraryAddIcon fontSize="large" /></IconButton>
+                        {!menuCollapsed ? <span style={{ fontSize: '2rem', alignSelf: 'center', textAlign: 'center', marginLeft: '10%' }}>Catalogs</span> : <></>}
+                    </Grid>
 
                     {/* CatalogEditor List */}
                     <List>
                         {catalogs && Object.values(catalogs).map((catalog: Icatalog, index) => (
-                            <ListItem key={'newCatalog ' + catalog._id} sx={{ borderBottom: "1px solid gray", background:  index  % 2 ? 'whitesmoke' : "white",borderRight:'1px solid darkslategray' }}>
+                            <ListItem disablePadding key={'newCatalog ' + catalog._id} sx={{ borderBottom: "1px solid gray", background:  index  % 2 ? 'whitesmoke' : "white",borderRight:'1px solid darkslategray', paddingLeft:'2px' }}>
                                 {renamingCatalogId && renamingCatalogId === catalog._id ? (
                                     <TextField
                                         value={renamingCatalogName}
@@ -205,7 +210,7 @@ const Catalogs: React.FC = () => {
                                 ) : (
                                         <span onDoubleClick={() => handleDoubleClick(catalog._id, catalog.name)} style={{
                                             fontSize: menuCollapsed ? '0.6rem' : '1rem',
-                                        } }>{catalog.name}</span>
+                                        }}><FeaturedPlayListIcon fontSize="small" sx={{color:"orange", marginRight:"5px"}} />{catalog.name}</span>
                                 )}
                             
                                 {!menuCollapsed && (
