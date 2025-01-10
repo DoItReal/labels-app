@@ -5,9 +5,7 @@
     "\\src\\Catalogs",
     "\\src\\content",
     "\\src\\content\\UI",
-    "\\src\\CreateNewLabel",
-    "\\src\\DB\\Remote"
+    "\\src\\CreateNewLabel"
   ],
-  "SelectedNode": "\\src\\pngs.ts",
   "PreviewInSolutionExplorer": false
 }

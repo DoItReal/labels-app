@@ -142,7 +142,7 @@ const Designs: React.FC = () => {
             <Grid container>
                 <Grid item xs={menuCollapsed ? 1 : 3} sx={{ transitionDuration:'0.3s' }}>
                     {/* Button to toggle menu */}
-                    <Grid item sx={{ border: "1px solid darkslategray", backgroundColor: "ghostwhite", }} >
+                    <Grid item sx={(theme)=>({ border: "1px solid darkslategray", backgroundColor: theme.palette.background.paper, })} >
                     <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}>
                     {menuCollapsed ? <ChevronRight fontSize='small'/> : <ChevronLeft fontSize='small' />}
                         </IconButton>
@@ -173,7 +173,15 @@ const Designs: React.FC = () => {
                 {/* Design List */}
                 <List>
                     {designs.map((design: Design, index) => (
-                        <ListItem disablePadding key={'design ' + design._id} sx={{ borderBottom: "1px solid gray", background: index % 2 ? 'whitesmoke' : "white", borderRight: '1px solid darkslategray', paddingLeft:'2px' }}>
+                        <ListItem disablePadding key={'design ' + design._id}
+                            sx={(theme) => ({
+                                borderBottom: `1px solid ${theme.palette.divider}`,
+                                background: index % 2
+                                    ? theme.palette.background.default
+                                    : theme.palette.background.paper,
+                                borderRight: `1px solid ${theme.palette.divider}`,
+                                paddingLeft: '2px',
+                            })}>
                             <Grid container alignContent="center" alignItems="center" textAlign="center">
                                 
                             {renamingDesignId === design._id ? (
@@ -190,7 +198,7 @@ const Designs: React.FC = () => {
                             )}
                             
                             {!menuCollapsed && (
-                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor: index % 2 ? 'whitesmoke' : "white" }}>
+                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor:'inherit'}}>
                                     <IconButton title="Edit" color={"info"} onClick={() => handleEditDesign(design)}><EditIcon/></IconButton>
                                     <IconButton title="Delete" color={"warning"} onClick={() => handleDeleteDesign(design._id)}><DeleteForeverIcon /></IconButton>
                                     <IconButton title="Rename" color={"secondary"} onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); }}><RenameIcon /></IconButton>

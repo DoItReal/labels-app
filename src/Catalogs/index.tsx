@@ -184,7 +184,7 @@ const Catalogs: React.FC = () => {
             {/* <Grid container style={{ maxHeight: '100%', overflow: 'auto' }} > */ }
             <Grid container>
                 <Grid item xs={menuCollapsed ? 1 : 3} >
-                    <Grid item sx={{ border: "1px solid darkslategray", backgroundColor: "ghostwhite" }} >
+                    <Grid item sx={(theme)=>({ border: "1px solid darkslategray", backgroundColor: theme.palette.background.paper })} >
                 {/* Button to toggle menu */}
                     <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}  >
                             {menuCollapsed ? <ChevronRight fontSize='small' /> : <ChevronLeft fontSize='small' />}
@@ -199,7 +199,15 @@ const Catalogs: React.FC = () => {
                     {/* CatalogEditor List */}
                     <List>
                         {catalogs && Object.values(catalogs).map((catalog: Icatalog, index) => (
-                            <ListItem disablePadding key={'newCatalog ' + catalog._id} sx={{ borderBottom: "1px solid gray", background:  index  % 2 ? 'whitesmoke' : "white",borderRight:'1px solid darkslategray', paddingLeft:'2px' }}>
+                            <ListItem disablePadding key={'newCatalog ' + catalog._id}
+                                sx={(theme) => ({
+                                    borderBottom: `1px solid ${theme.palette.divider}`,
+                                    background: index % 2
+                                        ? theme.palette.background.default
+                                        : theme.palette.background.paper,
+                                    borderRight: `1px solid ${theme.palette.divider}`,
+                                    paddingLeft: '2px',
+                                })}>
                                 {renamingCatalogId && renamingCatalogId === catalog._id ? (
                                     <TextField
                                         value={renamingCatalogName}
@@ -214,7 +222,7 @@ const Catalogs: React.FC = () => {
                                 )}
                             
                                 {!menuCollapsed && (
-                                    <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor: index % 2 ? 'whitesmoke' : "white" }}>
+                                    <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor: 'inherit' }}>
                                         <IconButton title="Preview" color={"info"} onClick={() => handlePreviewCatalog(catalog)}><VisibilityIcon/></IconButton>
                                         <IconButton title="Edit" color={"info"} onClick={() => handleEditCatalog(catalog)}><EditIcon /></IconButton>
                                         <IconButton title="Delete" color={"warning"} onClick={() => handleDeleteCatalog(catalog._id)}><DeleteForeverIcon /></IconButton>
