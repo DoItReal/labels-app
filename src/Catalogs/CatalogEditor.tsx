@@ -8,7 +8,7 @@ import { saveSelectedCatalog as saveTempCatalog } from '../DB/SessionStorage/Tem
 import { createCatalogDB, updateCatalogDB } from '../DB/Remote/Catalogs';
 import { formatDate } from '../tools/helpers';
 import { debounce } from 'lodash';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import { getLabels, getLocalLabelById } from '../DB/LocalStorage/Labels';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { labelDataType } from '../DB/Interfaces/Labels';
@@ -201,7 +201,7 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
     }
     return (
         <Grid container sx={{ width: '100%', display:'flex', flexDirection:'center', flex:'center' }}>
-            <Grid xs={6} >
+            <Grid size={{ xs: 6 }} >
             <Box>
         <Autocomplete
                     multiple
@@ -227,7 +227,7 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
                     />
                 </Box>
             </Grid>
-            <Grid xs={1}>
+            <Grid size={{ xs: 1 }}>
             <Box>
                 <IconButton onClick={handleSubmit }>
                 <Badge badgeContent={selectedLabels.length} color="primary">
@@ -296,13 +296,13 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
 
     return (
         <Grid container >
-            <Grid xs={6} sm={8} md={10} lg={12} xl={12 }>
+            <Grid size={{ xs: 6, sm: 8, md: 10, lg: 12, xl: 12 }}>
                 <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
             </Grid>
-            <Grid xs={12} sm={12} md={12} lg={12} xl={12 } >
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} >
                 <SearchBar addLabels = {addLabels} />
             </Grid>
-            <Grid xs={6} sm={8} md={10} lg={12} xl={12} >
+            <Grid size={{ xs: 6, sm: 8, md: 10, lg: 12, xl: 12 }} >
         <Box height={1} sx={{
             position: 'relative',
             overflow: 'auto',

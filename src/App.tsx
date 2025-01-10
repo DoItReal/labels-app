@@ -6,7 +6,7 @@ import type { } from '@mui/x-data-grid/themeAugmentation';
 import  Nav from './nav/Nav';
 import Content from './content/Content';
 import './style.css';
-import { useState,createContext} from 'react';
+import { useState,createContext, useMemo} from 'react';
 import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-dom';
 import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
@@ -25,12 +25,7 @@ export interface IenableStates {
     enableStates: Map<string, boolean>,
     updateStates: (key: string, value: boolean) => void
 }
-const defaultTheme:Theme = createTheme();
-const darkTheme = createTheme({
-    palette: {
-        mode: 'dark',   
-    },
-});
+
 
 //@ts-ignore
 export const userContext = createContext<IuseUser[0]>();
@@ -39,14 +34,31 @@ export const enableStatesContext = createContext<IenableStates[0]>();
 
 function App() {
     const { user, setUser, logout } = useUser();
-    const [theme, setTheme] = useState(defaultTheme);
+    //const [theme, setTheme] = useState(defaultTheme);
     const [darkMode, setDarkMode] = useState(false);
     const [enableStates, setEnableStates] = useState<Map<string, boolean>>(new Map());
     const updateStates = (key: string, value: boolean) => {
         setEnableStates(new Map(enableStates.set(key, value)));
-    } 
+    }
+    // Create themes using Material-UI
+    const theme = useMemo(() =>
+        createTheme({
+            palette: {
+                mode: darkMode ? 'dark' : 'light',
+                primary: {
+                    main: '#1976d2', // Customize as needed
+                },
+                secondary: {
+                    main: '#9c27b0', // Customize as needed
+                },
+                background: {
+                    default: darkMode ? '#121212' : '#f5f5f5', // Dark gray for dark mode, light gray for light mode
+                    paper: darkMode ? '#1e1e1e' : '#ffffff', // Slightly lighter gray for dark mode, white for light mode
+                },
+            },
+        }), [darkMode]
+    );
     const toggleMode = () => {
-        darkMode ? setTheme(defaultTheme) : setTheme(darkTheme);
         setDarkMode(!darkMode);
     }
     const navHeight = '4rem'; // Adjust as per your navigation bar height

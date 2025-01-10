@@ -1,5 +1,4 @@
 import { useRef, ReactNode, useEffect } from 'react';
-import { png } from '../../labels';
 import { Box, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
 
 const ITEM_HEIGHT = 48;

@@ -20,8 +20,10 @@ import Editor from '../DesignEditor/Editor';
 import { Design, NewDesign } from '../DB/Interfaces/Designs';
 import { createNewDesign, deleteDesign } from '../DB/Remote/Designs';
 import { getLocalDesigns, setLocalDesigns } from '../DB/LocalStorage/Designs';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, Label } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 
 const useStyles = makeStyles((theme) => ({
     buttonStyle: {
@@ -137,16 +139,20 @@ const Designs: React.FC = () => {
 
     return (
         <>
-        <Grid container>
-            <Grid item xs={menuCollapsed ? 1 : 3}>
-                {/* Button to toggle menu */}
-                <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize' } >
-                    {menuCollapsed ? <ChevronRight fontSize='medium'/> : <ChevronLeft fontSize='medium' />}
-                    </IconButton>
+            <Grid container>
+                <Grid item xs={menuCollapsed ? 1 : 3} sx={{ transitionDuration:'0.3s' }}>
+                    {/* Button to toggle menu */}
+                    <Grid item sx={(theme)=>({ border: "1px solid darkslategray", backgroundColor: theme.palette.background.paper, })} >
+                    <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}>
+                    {menuCollapsed ? <ChevronRight fontSize='small'/> : <ChevronLeft fontSize='small' />}
+                        </IconButton>
+                        <IconButton sx={{ color: "steelblue" }} size="large" title="Add New Design" onClick={() => setOpen(true)}><LibraryAddIcon fontSize="large" /></IconButton>
+                        {!menuCollapsed ? <span style={{fontSize:'2rem', alignSelf: 'center', textAlign:'center',marginLeft:'10%' }}>Designs</span> : <></>}
+                    </Grid>
                     {/* Button to add new design */}
                     {!menuCollapsed && (
                         <>
-                            <IconButton color="success" size="large" title="Add New Design" onClick={() => setOpen(true)}><NewIcon fontSize="large" /></IconButton>
+                         
                             {/* Dialog for adding a new design */}
                             <Dialog open={open} onClose={handleClose}>
                                 <DialogTitle>Add New Design</DialogTitle>
@@ -166,8 +172,18 @@ const Designs: React.FC = () => {
                     )}
                 {/* Design List */}
                 <List>
-                    {designs.map((design: Design) => (
-                        <ListItem key={'design ' + design._id} sx={{borderBottom:"1px solid gray"} }>
+                    {designs.map((design: Design, index) => (
+                        <ListItem disablePadding key={'design ' + design._id}
+                            sx={(theme) => ({
+                                borderBottom: `1px solid ${theme.palette.divider}`,
+                                background: index % 2
+                                    ? theme.palette.background.default
+                                    : theme.palette.background.paper,
+                                borderRight: `1px solid ${theme.palette.divider}`,
+                                paddingLeft: '2px',
+                            })}>
+                            <Grid container alignContent="center" alignItems="center" textAlign="center">
+                                
                             {renamingDesignId === design._id ? (
                                 <TextField
                                     value={renamingDesignName}
@@ -178,18 +194,18 @@ const Designs: React.FC = () => {
                             ) : (
                                     <span onDoubleClick={() => handleDoubleClick(design._id, design.name)} style={{
                                         fontSize: menuCollapsed ? '0.6rem' : '1rem',
-                                    } }>{design.name}</span>
+                                    }}><CollectionsIcon fontSize="small" sx={{ color: 'steelblue', marginRight:'5px' }} />{design.name}</span>
                             )}
                             
                             {!menuCollapsed && (
-                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor:"whitesmoke" } }>
+                                <Grid item xs={6} sx={{ marginRight: "0", marginLeft: "auto", backgroundColor:'inherit'}}>
                                     <IconButton title="Edit" color={"info"} onClick={() => handleEditDesign(design)}><EditIcon/></IconButton>
                                     <IconButton title="Delete" color={"warning"} onClick={() => handleDeleteDesign(design._id)}><DeleteForeverIcon /></IconButton>
                                     <IconButton title="Rename" color={"secondary"} onClick={() => { setRenamingDesignId(design._id); setRenamingDesignName(design.name); }}><RenameIcon /></IconButton>
                                     <IconButton title="Copy" color={"inherit"} onClick={() => copyDesign(design)}><CopyIcon/></IconButton>
                             </Grid>
                             )}
-                        
+                        </Grid>
                         </ListItem>
                     ))}
                 </List>

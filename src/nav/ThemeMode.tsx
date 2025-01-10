@@ -21,12 +21,12 @@ export const DarkModeUISwitch = styled(Switch)(({ theme }) => ({
             },
             '& + .MuiSwitch-track': {
                 opacity: 1,
-                backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+                backgroundColor: theme.palette.mode === 'dark' ? '#aab4be':'#8796A5',
             },
         },
     },
     '& .MuiSwitch-thumb': {
-        backgroundColor: theme.palette.mode === 'dark' ? '#003892' : '#001e3c',
+        backgroundColor: theme.palette.mode === 'dark' ? '#001e3c' : '#003892',
         width: 32,
         height: 32,
         '&:before': {
@@ -45,7 +45,7 @@ export const DarkModeUISwitch = styled(Switch)(({ theme }) => ({
     },
     '& .MuiSwitch-track': {
         opacity: 1,
-        backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+        backgroundColor: theme.palette.mode === 'dark' ? '#aab4be' : '#8796A5',
         borderRadius: 20 / 2,
     },
 }));
