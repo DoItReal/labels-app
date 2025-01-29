@@ -56,7 +56,7 @@ const dataMap = new Map();
 dataMap.set('bg', 'Bulgarian');
 dataMap.set('en', 'English');
 dataMap.set('de', 'Deutsch');
-dataMap.set('rus', 'Russian');
+dataMap.set('ru', 'Russian');
 dataMap.set('allergens', 'Allergens');
 
 

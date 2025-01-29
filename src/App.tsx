@@ -11,7 +11,8 @@ import { Route, Routes, Navigate, useLocation, HashRouter } from 'react-router-d
 import { useUser, Iuser, IuseUser } from './Login/Login';
 import { LoginUI } from './UI/SignIn';
 import { Theme, ThemeProvider } from '@emotion/react';
-import { createTheme, CssBaseline, Grid } from '@mui/material';
+import { createTheme, CssBaseline } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import SignUp from './UI/SignUp';
 import StickyFooter from './UI/Footer';
 import Playground from './Designs/index';
@@ -19,7 +20,7 @@ import Catalogs from './Catalogs';
 import EmailVerification from './Login/EmailVerification';
 import Terms from './Terms/index';
 import Configuration from './Config/index';
-
+import { default as LabelManager } from './LabelManager';
 
 export interface IenableStates {
     enableStates: Map<string, boolean>,
@@ -70,10 +71,10 @@ function App() {
                     <CssBaseline />     
                     <Grid container direction="column" style={{ minHeight: '100vh', overflow: 'hidden' }}>
                         <HashRouter basename="/">    
-                            <Grid item style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
+                            <Grid style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
                                 <Nav toggleMode={toggleMode} /> 
                             </Grid>
-                            <Grid item style={{ marginTop: navHeight, marginBottom: footerHeight, maxHeight: `calc(100vh - ${navHeight} - ${footerHeight})`, overflow: 'auto' }}>
+                            <Grid style={{ marginTop: navHeight, marginBottom: footerHeight, maxHeight: `calc(100vh - ${navHeight} - ${footerHeight})`, overflow: 'auto' }}>
                                 <Routes>
                         <Route path="/verificate/:verificationHash" element={
                             <EmailVerification />
@@ -89,6 +90,10 @@ function App() {
                                                 <Content />        
                         </RequireAuth>
                     } />
+                        <Route path="/manager" element={
+                            <RequireAuth user={user}>
+                                <LabelManager /></RequireAuth>
+                        } />
                         <Route path="/editor" element={
                             <RequireAuth user={user}>
                                 <Playground />
@@ -110,7 +115,7 @@ function App() {
                                 </Routes>
                         </Grid>
                 </HashRouter>
-                        <Grid item style={{ position: 'fixed', bottom: 0, left: 0, right: 0, textAlign: 'center', zIndex: 1000 }}>
+                        <Grid style={{ position: 'fixed', bottom: 0, left: 0, right: 0, textAlign: 'center', zIndex: 1000 }}>
                             <StickyFooter />
                         </Grid>
             </Grid>

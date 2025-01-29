@@ -3,9 +3,14 @@
     "",
     "\\src",
     "\\src\\Catalogs",
-    "\\src\\content",
+    "\\src\\content\\LeftSide",
+    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\content\\UI",
-    "\\src\\CreateNewLabel"
+    "\\src\\CreateNewLabel",
+    "\\src\\DB",
+    "\\src\\DB\\Interfaces",
+    "\\src\\LabelManager"
   ],
+  "SelectedNode": "\\src\\CreateNewLabel\\LabelContent.tsx",
   "PreviewInSolutionExplorer": false
 }
