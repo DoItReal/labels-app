@@ -2,15 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
+    "\\src\\content",
     "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\content\\UI",
     "\\src\\CreateNewLabel",
     "\\src\\DB",
     "\\src\\DB\\Interfaces",
-    "\\src\\LabelManager"
+    "\\src\\LabelManager",
+    "\\src\\LabelManager\\Components"
   ],
-  "SelectedNode": "\\src\\CreateNewLabel\\LabelContent.tsx",
+  "SelectedNode": "\\src\\LabelManager\\Components\\CategoryUI.tsx",
   "PreviewInSolutionExplorer": false
 }
