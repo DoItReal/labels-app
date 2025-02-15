@@ -1,5 +1,6 @@
-import { labelDataType } from '../../DB/Interfaces/Labels';
-import LabelRow from './DataTableComponents/LabelRow';
+import { TableCell, TableRow } from '@mui/material';
+import { labelDataType } from '../../../DB/Interfaces/Labels';
+import LabelRow from './LabelRow';
 import { useRef } from 'react';
 
 const DataTable = ({ labels, selectedLanguages, handleTranslationChange, handleAllergensChange, handleCategoryChange }: { labels: labelDataType[], selectedLanguages: string[], handleTranslationChange: (labelId: string, lang: string,
@@ -10,7 +11,7 @@ const DataTable = ({ labels, selectedLanguages, handleTranslationChange, handleA
     const rowRefs = useRef<{ [rowIndex: number]: (HTMLInputElement | null)[] }>({});
 
     if (labels.length === 0) {
-        return <div>No labels available</div>;  // Placeholder for empty state
+        return <TableRow><TableCell>No labels available</TableCell></TableRow>;  // Placeholder for empty state
     }
     return (
         <>

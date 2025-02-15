@@ -10,7 +10,7 @@ import NewLabels from "./NewLabelsButton";
 
 
 
-const TopNavBar = ({ languages, selectedLanguages, handleLanguageSelection, addNewLabel }: {languages:string[],selectedLanguages:string[],handleLanguageSelection:(lang:string)=>void,addNewLabel:()=>void}) => {
+const TopNavBar = ({ languages, selectedLanguages, handleLanguageSelection, addNewLabels }: {languages:string[],selectedLanguages:string[],handleLanguageSelection:(lang:string)=>void,addNewLabels:()=>void}) => {
     const [search, setSearch] = useState("");
 
   
@@ -21,7 +21,7 @@ const TopNavBar = ({ languages, selectedLanguages, handleLanguageSelection, addN
                 {/* Language Selection Dropdown */}
                 <LanguageSelection languages={languages} selectedLanguages={selectedLanguages} handleLanguageSelection={handleLanguageSelection} />
                 {/* Action Buttons */}
-                <NewLabels addNewLabel={addNewLabel} />
+                <NewLabels addNewLabel={addNewLabels} />
                 <Button startIcon={<EditIcon />} variant="contained" color="secondary">
                     Edit Labels
                 </Button>

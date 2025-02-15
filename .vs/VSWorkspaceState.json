@@ -3,14 +3,15 @@
     "",
     "\\src",
     "\\src\\content",
-    "\\src\\content\\LeftSide",
     "\\src\\content\\UI",
     "\\src\\CreateNewLabel",
     "\\src\\DB",
     "\\src\\DB\\Interfaces",
+    "\\src\\DB\\Remote",
     "\\src\\LabelManager",
-    "\\src\\LabelManager\\Components"
+    "\\src\\LabelManager\\Components",
+    "\\src\\LabelManager\\Components\\TopNavBar"
   ],
-  "SelectedNode": "\\src\\LabelManager\\Components\\CategoryUI.tsx",
+  "SelectedNode": "\\src\\LabelManager\\Components\\TopNavBar\\NewLabelsButton.tsx",
   "PreviewInSolutionExplorer": false
 }

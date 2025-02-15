@@ -1,5 +1,5 @@
 import { address } from "../DB/Remote/server";
-export async function translate(text:string, targetLanguage:string) {
+async function translateDB(text:string, targetLanguage:string) {
 
     return (new Promise<string>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
@@ -17,3 +17,13 @@ export async function translate(text:string, targetLanguage:string) {
         xhr.send(JSON.stringify({ text, targetLanguage }));
     }));
 }
+//mock in case of localhost 
+async function translateMock(text: string, targetLanguage: string) {
+    return (new Promise<string>((resolve, reject) => {
+        setTimeout(() => {
+            resolve("Translated text");
+        }, 100);
+    }));
+}
+//export the function based on the environment
+export const translate = process.env.NODE_ENV === 'production' ? translateDB : translateMock;

@@ -2,8 +2,8 @@ import { TableRow, TableCell, Checkbox, IconButton, TextField } from "@mui/mater
 import { labelDataType, MealTranslation } from "../../../DB/Interfaces/Labels";
 import React from "react";
 import PreviewIcon from "@mui/icons-material/Visibility";
-import { Category } from "../CategoryUI";
-import { Allergens } from "../AllergensUI";
+import { Category } from "./CategoryUI";
+import { Allergens } from "./AllergensUI";
 
 const LabelRow = React.memo(({ label, selectedLanguages, handleTranslationChange, handleAllergensChange, handleCategoryChange, rowIndex, rowRefs }: {
     label: labelDataType,
@@ -215,23 +215,6 @@ const LabelDescriptionCell = ({ labelId, lang, translation, handleTranslationCha
                 onKeyDown={onKeyDown}
                 inputRef={inputRef}
             />
-            {/*
-        <TableCell align='left'>
-            <TextField
-                value={translation?.description || ""}
-                onChange={(e) =>
-                    handleTranslationChange(
-                        labelId,
-                        lang,
-                        "description",
-                        e.target.value
-                    )
-                }
-                variant="outlined"
-                size="small"
-            />
-            </TableCell>
-        */}
         </>
     );
 }

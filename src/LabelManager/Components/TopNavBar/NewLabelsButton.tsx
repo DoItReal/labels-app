@@ -1,6 +1,7 @@
 import { Box, Button, IconButton } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState, useEffect, useRef } from "react";
+import Edit from "@mui/icons-material/Edit";
 
 const NewLabels = ({ addNewLabel }: { addNewLabel: (amount?: number) => void }) => {
     const [amount, setAmount] = useState<number>(1);
@@ -78,9 +79,24 @@ const NewLabels = ({ addNewLabel }: { addNewLabel: (amount?: number) => void }) 
                 <Button
                     variant="text"
                     onClick={() => setEditing(true)}
-                    sx={{ minWidth: 50, fontSize: "1rem", fontWeight: "bold" }}
+                        sx={{
+                            minWidth: 50,
+                            fontSize: "1rem",
+                            fontWeight: "bold",
+                        }}
                 >
-                    {amount}
+                        {amount}
+                        <Edit
+                            fontSize="small"
+                            sx={{
+                                position: "absolute",
+                                top: "0px",
+                                right: "-5px",
+                                color: "grey.500",
+                                cursor: "pointer",
+                                "&:hover": { color: "grey.700" },
+                            }}
+                        />
                 </Button>
             )}
             <Button
@@ -91,6 +107,7 @@ const NewLabels = ({ addNewLabel }: { addNewLabel: (amount?: number) => void }) 
                 disabled={amount < minimum || amount > maximum}
             >
                 Add {amount} Label{amount > 1 ? "s" : ""}
+               
             </Button>
         </Box>
     );
