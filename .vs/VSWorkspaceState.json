@@ -2,16 +2,14 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\content",
     "\\src\\content\\UI",
     "\\src\\CreateNewLabel",
     "\\src\\DB",
     "\\src\\DB\\Interfaces",
-    "\\src\\DB\\Remote",
     "\\src\\LabelManager",
     "\\src\\LabelManager\\Components",
     "\\src\\LabelManager\\Components\\TopNavBar"
   ],
-  "SelectedNode": "\\src\\LabelManager\\Components\\TopNavBar\\NewLabelsButton.tsx",
+  "SelectedNode": "\\src\\content",
   "PreviewInSolutionExplorer": false
 }
