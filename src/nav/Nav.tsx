@@ -45,7 +45,6 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                 navigate('./manager');
             }
         },
-        
         {
             name: 'Catalogs',
             key: 'CatalogsEditor',
