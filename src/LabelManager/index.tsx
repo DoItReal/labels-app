@@ -20,18 +20,24 @@ import { translate } from "../tools/translate";
 import GTranslateIcon from '@mui/icons-material/GTranslate';
 const LabelTable = () => {
     const [labels, setLabels] = useState<labelDataType[]>([]);
+    const [editLabels, setEditLabels] = useState<labelDataType[]>([]);
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([
         "bg",
         "en",
         "de",
         "ru",
     ]);
+    const [edit, setEdit] = useState(false);
 
     //TODO - Fetch languages from API or localDB
     const languages = ["bg", "en", "de", "ru"]; // Available languages
 
+    const toogleEdit = () => {
+        setEdit(!edit);
+    } 
+
     // Add new label/s with default structure
-    
+
     const addNewLabels = (amount: number = 1) => {
         const newLabels: labelDataType[] = [];
         for (let i = 0; i < amount; i++) {
@@ -77,6 +83,23 @@ const LabelTable = () => {
         field: "name" | "description",
         value: string
     ) => {
+                
+        if (edit)
+        setEditLabels((prev) =>
+            prev.map((label) =>
+                label._id === labelId
+                    ? {
+                        ...label,
+                        translations: label.translations.map((translation) =>
+                            translation.lang === lang
+                                ? { ...translation, [field]: value }
+                                : translation
+                        ),
+                    }
+                    : label
+            )
+        );
+        else
         setLabels((prev) =>
             prev.map((label) =>
                 label._id === labelId
@@ -95,6 +118,13 @@ const LabelTable = () => {
 
     // Handle changes in allergens (array of numbers)
     const handleAllergensChange = (labelId: string, allergens: number[]) => {
+        if (edit)
+        setEditLabels((prev) =>
+            prev.map((label) =>
+                label._id === labelId ? { ...label, allergens } : label
+            )
+            );
+        else
         setLabels((prev) =>
             prev.map((label) =>
                 label._id === labelId ? { ...label, allergens } : label
@@ -104,6 +134,13 @@ const LabelTable = () => {
 
     // Handle changes in categories (array of strings)
     const handleCategoryChange = (labelId: string, category: string[]) => {
+        if (edit)
+            setEditLabels((prev) =>
+                prev.map((label) =>
+                    label._id === labelId ? { ...label, category } : label
+                )
+            );
+        else
         setLabels((prev) =>
             prev.map((label) =>
                 label._id === labelId ? { ...label, category } : label
@@ -113,12 +150,22 @@ const LabelTable = () => {
 
     // Save all modified labels
     const saveAll = async () => {
+        // TODO - save in edit mode
+        if (edit || !editLabels.length) {
+            console.log("Cannot save while in edit mode!");
+            return;
+        }
+        if (!labels.length) {
+            console.log("No labels to save!");
+            return
+        }
+       
         // Filter out labels with no translations and remove _id and clear owner fields   
         const modifiedLabels = labels.filter(
             (label) => label.translations.some((translation) => translation.name || translation.description)
         );
      
-        console.log("Saving labels:", modifiedLabels);
+       // console.log("Saving labels:", modifiedLabels);
         if (!modifiedLabels.length) {
             console.log("No modified labels to save!");
             return;
@@ -152,8 +199,9 @@ const LabelTable = () => {
             return;
         }
     };
+    // TODO -  Handle edit mode
     const translateAll = async (sourceLang: string,attr:string, forced: boolean = false) => {
-        const translatedLabels:labelDataType[] = structuredClone(labels);
+        const translatedLabels: labelDataType[] = structuredClone(edit ? editLabels : labels);
         for (let currLang of languages) {
             // Skip the source language
             if (currLang === sourceLang) continue;
@@ -197,7 +245,7 @@ const LabelTable = () => {
 
     return (
         <div>
-            <TopNavBar languages={languages} selectedLanguages={selectedLanguages} handleLanguageSelection={handleLanguageSelection} addNewLabels={addNewLabels} />
+            <TopNavBar languages={languages} selectedLanguages={selectedLanguages} handleLanguageSelection={handleLanguageSelection} addNewLabels={addNewLabels} edit={edit} setEdit={toogleEdit} editLabels={editLabels} setEditLabels={setEditLabels} />
 
             {/* Table */}
             <TableContainer component={Paper}>
@@ -211,7 +259,7 @@ const LabelTable = () => {
                                 <React.Fragment key={lang}>
                                     <TableCell key={`${lang}-name`}>{`Name (${lang.toUpperCase()})`}
                                         <IconButton 
-                                            onClick={() => { translateAll(lang.toLowerCase(), "name").then(translLabels => setLabels(translLabels)) }}
+                                            onClick={() => translateAll(lang.toLowerCase(), "name").then((translLabels) => edit ? setEditLabels(translLabels) : setLabels(translLabels) )}
                                             color="primary"
                                             title="Translate Name"
                                         >
@@ -220,7 +268,7 @@ const LabelTable = () => {
                                     </TableCell>
                                     <TableCell key={`${lang}-desc`}>{`Description (${lang.toUpperCase()})`}
                                         <IconButton
-                                            onClick={() => { translateAll(lang.toLowerCase(), "description").then(translLabels => setLabels(translLabels)) }}
+                                            onClick={() => { translateAll(lang.toLowerCase(), "description").then(translLabels => edit ? setEditLabels(translLabels) : setLabels(translLabels)) }}
                                             color="primary"
                                             title="Translate Description"
                                         >
@@ -233,7 +281,9 @@ const LabelTable = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody >
-                        <DataTable labels={labels} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} />
+                        {edit ? <DataTable labels={editLabels} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} /> :
+                            <DataTable labels={labels} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} />
+                        }
                     </TableBody >
                 </Table>
             </TableContainer>
@@ -244,7 +294,7 @@ const LabelTable = () => {
                 color="primary"
                 startIcon={<SaveIcon />}
                 onClick={saveAll}
-                disabled={labels.every(
+                disabled={!edit && labels.every(
                     (label) =>
                         label.translations.every(
                             (translation) => !translation.name && !translation.description

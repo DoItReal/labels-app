@@ -18,7 +18,7 @@ const DataTable = ({ labels, selectedLanguages, handleTranslationChange, handleA
   {
         labels.map((label, rowIndex) => (
             <LabelRow
-                key={label._id}
+                key={"labelRow"+label._id}
                 label={label}
                 selectedLanguages={selectedLanguages}
                 handleTranslationChange={handleTranslationChange}
