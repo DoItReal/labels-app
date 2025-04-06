@@ -2,17 +2,16 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\content",
+    "\\src\\Catalogs",
     "\\src\\content\\LeftSide",
     "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\DB",
-    "\\src\\DB\\LocalStorage",
-    "\\src\\DB\\Remote",
     "\\src\\LabelManager",
     "\\src\\LabelManager\\Components",
-    "\\src\\LabelManager\\Components\\TopNavBar",
-    "\\src\\nav"
+    "\\src\\LabelManager\\Components\\DataTable",
+    "\\src\\nav",
+    "\\src\\PDF"
   ],
-  "SelectedNode": "\\src\\content\\Content.tsx",
+  "SelectedNode": "\\src\\Catalogs\\CatalogEditor.tsx",
   "PreviewInSolutionExplorer": false
 }

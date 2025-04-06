@@ -12,12 +12,37 @@ import {
 } from "@mui/material";
 
 import SaveIcon from "@mui/icons-material/Save";
-import { isLabelDataTypeArray, labelDataType } from '../DB/Interfaces/Labels';
+import { isLabelDataType, isLabelDataTypeArray, labelDataType } from '../DB/Interfaces/Labels';
 import { createNewLabelDB } from '../DB/Remote/Labels';
 import TopNavBar from "./Components/TopNavBar";
 import DataTable from "./Components/DataTable";
 import { translate } from "../tools/translate";
 import GTranslateIcon from '@mui/icons-material/GTranslate';
+import { editLabelDB } from '../DB/Remote/Labels';
+import { editLabel } from '../DB/LocalStorage/Labels';
+
+//edit label remote on DB and update it locally asynchronicaly
+const updateLabel = async (label: labelDataType) => {
+    try {
+        const updatedLabel = await editLabelDB(label);
+        if (isLabelDataType(updatedLabel)) {
+            editLabel(updatedLabel);
+        //    console.log("Label updated!", updatedLabel);
+        } else {
+            console.error("Error in updating label! Label is not LabelDataType");
+        }
+    } catch (error) {
+        console.error("Error in updating label!", error);
+    }
+}
+const updateLabels = async (labels: labelDataType[]) => {
+    for (const label of labels) {
+        await updateLabel(label);
+    }
+    console.log("Labels updated!");
+    return;
+}
+
 const LabelTable = () => {
     const [labels, setLabels] = useState<labelDataType[]>([]);
     const [editLabels, setEditLabels] = useState<labelDataType[]>([]);
@@ -152,7 +177,7 @@ const LabelTable = () => {
     const saveAll = async () => {
         // TODO - save in edit mode
         if (edit || !editLabels.length) {
-            console.log("Cannot save while in edit mode!");
+            await updateLabels(editLabels);
             return;
         }
         if (!labels.length) {

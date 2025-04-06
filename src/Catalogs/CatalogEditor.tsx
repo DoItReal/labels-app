@@ -176,15 +176,17 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
         }
         const labelCountMap = new Map<string, number>(); // Map to store label counts
 
+        // Count the number of times each label is selected
         labelsArr.forEach(label => {
             const labelId = label._id;
             labelCountMap.set(labelId, (labelCountMap.get(labelId) || 0) + 1);
         });
-
+        // Filter out labels that are selected an odd number of times
         const updatedSelectedLabels = labelsArr.filter((label) => {
             const labelId = label._id;
             const labelCount = labelCountMap.get(labelId) || 0;
 
+            // If the label is selected an odd number of times, keep it in selectedLabels
             if (labelCount >= 1) {
                 let count = labelCount % 2 === 0 ? 0 : 1;
                 labelCountMap.set(labelId, count); // Decrease count by 1
@@ -196,6 +198,7 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
         
         setSelectedLabels(updatedSelectedLabels);  
     };
+
     const handleSubmit = () => {
         addLabels(selectedLabels);
     }
@@ -204,26 +207,28 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) =>
             <Grid size={{ xs: 6 }} >
             <Box>
         <Autocomplete
-                    multiple
-                    id="combo-box-demo"
-                    options={labels}
-                    limitTags={5}
-                    disableCloseOnSelect
-                    getOptionLabel={(option) => {
-                        const opt = option.translations.find((el: any) => el.lang === 'bg');
-                        return opt ? opt.name : '';
-                    }}
-                    renderInput={(params) => <TextField {...params} label="Select Label/s" />}
-                    value={selectedLabels}
-                    onChange={(event, value) => handleAddLabels(value)}
-                    renderOption={(props, option, { selected }) => (
-                        <li {...props} style={{
-                            backgroundColor: selectedLabels.some(label => label._id === option._id) ? 'lightblue' : 'inherit',
-                            border: selectedLabels.some(label => label._id === option._id) ? '1px dotted black' : 'inherit',
-                        }}>
-                                {option.translations.find((el: any) => el.lang === 'bg')?.name}
-                        </li>
-                    )}
+                        multiple
+                        id="combo-box-demo"
+                        options={labels}
+                        limitTags={5}
+                        disableCloseOnSelect
+                        getOptionLabel={(option) => {
+                            const opt = option.translations.find((el: any) => el.lang === 'bg');
+                            return opt ? opt.name : '';
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Select Label/s" />}
+                        value={selectedLabels}
+                        onChange={(event, value) => handleAddLabels(value)}
+                        renderOption={(props, option, { selected }) => 
+                            (
+                                <li {...props} style={{
+                                    backgroundColor: selectedLabels.some(label => label._id === option._id) ? 'lightblue' : 'inherit',
+                                    border: selectedLabels.some(label => label._id === option._id) ? '1px dotted black' : 'inherit',
+                                }}>
+                                    {option.translations.find((el: any) => el.lang === 'bg')?.name}
+                                </li>
+                            )
+                        }
                     />
                 </Box>
             </Grid>

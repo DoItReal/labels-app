@@ -1,8 +1,6 @@
-import { AppBar, Toolbar, IconButton, Button, Box, TextField } from "@mui/material";
+import { AppBar, Toolbar, IconButton, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
 import LanguageSelection from "./LanguageSelection";
 import NewLabels from "./NewLabelsButton";
 import { labelDataType } from "../../../DB/Interfaces/Labels";
