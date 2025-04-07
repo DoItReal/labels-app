@@ -102,10 +102,12 @@ export const editLabelDB = (editedLabel: labelDataType) => {
         xhr.send(JSON.stringify(label));
     }));
 }
+
 export const deleteLabelDB = (id: string) => {
     return (new Promise<string>((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open("DELETE", address + 'signs/' + id);
+        xhr.withCredentials = true;
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
@@ -121,6 +123,6 @@ export const deleteLabelDB = (id: string) => {
                 reject(new Error('Error in deleting Label!'));
             }
         };
-        xhr.send();
+        xhr.send(null);
     }));
 }

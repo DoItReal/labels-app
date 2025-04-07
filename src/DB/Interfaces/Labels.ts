@@ -1,20 +1,5 @@
-/*
-TO DO: 
-labelDataType {
-    _id: string,
-    allergens: Array<number>,
-    category: Array<string>,
-    translations: Array<MealTranslations>,
-    owner: string // id of the user who created the label
-}
-MealTranslations { 
-    lang:string, //bg, en, de, ru...
-    name:string, //name of the meal in the specific language
-    description:string //description of the meal in the specific language
-    }
-*/
 export interface MealTranslation {
-    lang: string, // bg, en, de, rus...
+    lang: string, // bg, en, de, ru...
     name: string, // name of the meal in the specific language
     description: string // description of the meal in the specific language
 }

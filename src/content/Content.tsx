@@ -69,10 +69,10 @@ export default function ContentStates() {
             return structuredClone(array);
         };
         
-        try {
+            try {
             await deleteLabelDB(label._id).then(async(lbl) => {
-                const array = [...dbData];
-                setDbData(array => update(array));
+                const arrayDB = [...dbData];
+                setDbData(array => update(arrayDB));
             });
             resolve();
 
@@ -82,18 +82,26 @@ export default function ContentStates() {
             }
         }));
     }
-    //delete selected catalog 
-    const deleteDBLabels =  (labels: labelDataType[]) => {
-        labels.forEach(async (label) => {
-            try {
-                await deleteDBLabel(label);
-            } catch (error) {
-                const time = 5000;
-                setError(<ErrorUI error={String(error)} time={time} />);
-                setTimeout(()=>setError(null), time);
-            }
-        });
-    }
+    //delete selected labels 
+    const deleteDBLabels = async () => {
+        try {
+            // Get selected labels
+            const labels: labelDataType[] = selectedLabels
+                .map((id) => dbData.find((label) => label._id === id))
+                .filter((label) => label !== undefined) as labelDataType[];
+
+            // Wait for all delete requests to complete
+            await Promise.all(labels.map(label => deleteLabelDB(label._id)));
+
+            // Update dbData state in one go (instead of multiple updates)
+            setDbData(prevData => prevData.filter(label => !selectedLabels.includes(label._id)));
+
+        } catch (error) {
+            const time = 5000;
+            setError(<ErrorUI error={String(error)} time={time} />);
+            setTimeout(() => setError(null), time);
+        }
+    };
     //handle saving label and updating dbData
     const handleSaveLabel = async (label: labelDataType) => {
         try {

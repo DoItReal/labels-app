@@ -38,6 +38,13 @@ export default function ResponsiveAppBar({ toggleMode }: {toggleMode:()=>void}) 
                 navigate('./home');
             }
         },
+        { name: 'Label Manager',
+            key: 'LabelManager',
+            handleClick: () => {
+                handleCloseNavMenu();
+                navigate('./manager');
+            }
+        },
         {
             name: 'Catalogs',
             key: 'CatalogsEditor',

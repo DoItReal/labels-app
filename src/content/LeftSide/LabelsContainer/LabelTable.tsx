@@ -56,7 +56,7 @@ const dataMap = new Map();
 dataMap.set('bg', 'Bulgarian');
 dataMap.set('en', 'English');
 dataMap.set('de', 'Deutsch');
-dataMap.set('rus', 'Russian');
+dataMap.set('ru', 'Russian');
 dataMap.set('allergens', 'Allergens');
 
 
@@ -124,7 +124,11 @@ export default function DataTableStates({ dbData, handleSaveLabel, deleteLabel, 
     }
     const getColsRows = (data: labelDataType[]): [rows: labelTableLabel[], columns: any] => {
         if (data === undefined || data.length === 0) return [[], []];
-        const row = getRows(data);
+        //sort data by LIFO
+        const sortedData = data.map((el, index) => data[data.length - 1 - index]);
+
+        
+        const row = getRows(sortedData);
         const colUnfilteredData = dataColUnfiltered(keys(row));
         colUnfilteredData.push({
             name: 'Actions',
