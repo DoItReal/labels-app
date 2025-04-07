@@ -2,16 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Catalogs",
-    "\\src\\content\\LeftSide",
-    "\\src\\content\\LeftSide\\LabelsContainer",
     "\\src\\DB",
+    "\\src\\DB\\LocalStorage",
+    "\\src\\DB\\Remote",
     "\\src\\LabelManager",
     "\\src\\LabelManager\\Components",
     "\\src\\LabelManager\\Components\\DataTable",
     "\\src\\nav",
     "\\src\\PDF"
   ],
-  "SelectedNode": "\\src\\Catalogs\\CatalogEditor.tsx",
+  "SelectedNode": "\\src\\DB\\Remote\\Labels.ts",
   "PreviewInSolutionExplorer": false
 }

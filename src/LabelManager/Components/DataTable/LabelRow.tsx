@@ -4,15 +4,17 @@ import React from "react";
 import PreviewIcon from "@mui/icons-material/Visibility";
 import { Category } from "./CategoryUI";
 import { Allergens } from "./AllergensUI";
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const LabelRow = React.memo(({ label, selectedLanguages, handleTranslationChange, handleAllergensChange, handleCategoryChange, rowIndex, rowRefs }: {
+const LabelRow = React.memo(({ label, selectedLanguages, handleTranslationChange, handleAllergensChange, handleCategoryChange, rowIndex, rowRefs, removeLabel }: {
     label: labelDataType,
     selectedLanguages: string[],
     handleTranslationChange: (labelId: string, lang: string, field: "name" | "description", value: string) => void,
     handleAllergensChange: (labelId: string, allergens: number[]) => void,
     handleCategoryChange: (labelId: string, categories: string[]) => void,
     rowIndex: number,
-    rowRefs: React.MutableRefObject<{ [rowIndex: number]: { [colIndex: number]: HTMLInputElement | null } }>
+    rowRefs: React.MutableRefObject<{ [rowIndex: number]: { [colIndex: number]: HTMLInputElement | null } }>,
+    removeLabel: (labelId: string) => void
 }) => {
 
     if (!rowRefs.current[rowIndex]) {
@@ -106,9 +108,15 @@ const LabelRow = React.memo(({ label, selectedLanguages, handleTranslationChange
                     </React.Fragment>
                 );
             })}
+            
             <TableCell align='right'>
                 <IconButton>
                     <PreviewIcon />
+                </IconButton>
+            </TableCell>
+            <TableCell align='right'>
+                <IconButton onClick={()=>removeLabel(label._id) }>
+                    <DeleteIcon />
                 </IconButton>
             </TableCell>
         </TableRow>

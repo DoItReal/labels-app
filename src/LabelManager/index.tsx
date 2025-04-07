@@ -21,6 +21,7 @@ import GTranslateIcon from '@mui/icons-material/GTranslate';
 import { editLabelDB } from '../DB/Remote/Labels';
 import { editLabel } from '../DB/LocalStorage/Labels';
 
+
 //edit label remote on DB and update it locally asynchronicaly
 const updateLabel = async (label: labelDataType) => {
     try {
@@ -61,6 +62,13 @@ const LabelTable = () => {
         setEdit(!edit);
     } 
 
+    const removeLabel = (labelId: string) => {
+        if (edit) {
+            setEditLabels((prev) => prev.filter((label) => label._id !== labelId));
+        } else {
+            setLabels((prev) => prev.filter((label) => label._id !== labelId));
+        }
+    }
     // Add new label/s with default structure
 
     const addNewLabels = (amount: number = 1) => {
@@ -176,7 +184,7 @@ const LabelTable = () => {
     // Save all modified labels
     const saveAll = async () => {
         // TODO - save in edit mode
-        if (edit || !editLabels.length) {
+        if (edit && editLabels.length) {
             await updateLabels(editLabels);
             return;
         }
@@ -306,8 +314,8 @@ const LabelTable = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody >
-                        {edit ? <DataTable labels={editLabels} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} /> :
-                            <DataTable labels={labels} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} />
+                        {edit ? <DataTable labels={editLabels} removeLabel={removeLabel} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} /> :
+                            <DataTable labels={labels} removeLabel={removeLabel} selectedLanguages={selectedLanguages} handleTranslationChange={handleTranslationChange} handleAllergensChange={handleAllergensChange} handleCategoryChange={handleCategoryChange} />
                         }
                     </TableBody >
                 </Table>

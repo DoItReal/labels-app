@@ -25,3 +25,15 @@ export const initDB = async () => {
         console.error(error);
     }
 }
+export const isDBInitialized = () => {
+    const labels = localStorage.getItem("labels");
+    const catalogs = localStorage.getItem("catalogs");
+    const designs = localStorage.getItem("designs");
+    const allergens = localStorage.getItem("allergens");
+    const images = localStorage.getItem("images");
+    if (labels && catalogs && designs && allergens && images) {
+        return true;
+    } else {
+        return false;
+    }
+}

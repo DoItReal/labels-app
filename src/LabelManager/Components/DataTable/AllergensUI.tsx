@@ -1,4 +1,4 @@
-import { useRef, ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Box, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
 
 const ITEM_HEIGHT = 48;
@@ -12,8 +12,7 @@ const MenuProps = {
     },
 };
 export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAllergens: number[], setCurrentAllergens: (arg:number[])=>void }) {
-    const currentValue = useRef<string[]>([]);
-    const didMount = useRef(false);
+    const [currentValue, setCurrentValue] = useState<string[]>([]);
     var allAllergensNames: Map<number, string> = new Map([
         [1, "Gluten"],
         [2, "Celery"],
@@ -31,37 +30,35 @@ export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAl
         [14, "Mustard"],
         [15, "Mushrooms"]
     ]);
-
+    
     const handleChange = (event: SelectChangeEvent<string[]>) => {
-        // creates new const ${value} from event.target.value
         const {
             target: { value },
         } = event;
-        var Arr:number[] = [];
-        for (const elem of value) {
+
+        const selectedAllergenNames = typeof value === 'string' ? value.split(',') : value;
+
+        const allergenIds: number[] = [];
+
+        for (const name of selectedAllergenNames) {
             allAllergensNames.forEach((val, key) => {
-                if (elem === val) {
-                   let allergen = key;
-                    if (allergen !== null && !Arr.includes(allergen)) {
-                        Arr.push(allergen);
-                    }
+                if (name === val && !allergenIds.includes(key)) {
+                    allergenIds.push(key);
                 }
             });
         }
-        setCurrentAllergens([...Arr]);                         
-        currentValue.current = typeof value === 'string' ? value.split(',') : value
+
+        setCurrentAllergens([...allergenIds]);
+        setCurrentValue(selectedAllergenNames);
     };
     // if currentAllergens is not empty and didMount is false
     useEffect(() => {
-        if (currentAllergens.length > 0 && !didMount.current) {
-            const uniqueValues = new Set(currentValue.current);
-            for (const allergen of currentAllergens) {
-                const val = allAllergensNames.get(allergen);
-                if (val) uniqueValues.add(val);
-            }
-            currentValue.current = Array.from(uniqueValues);
-            didMount.current = true;
+        const names: string[] = [];
+        for (const id of currentAllergens) {
+            const name = allAllergensNames.get(id);
+            if (name) names.push(name);
         }
+        setCurrentValue(names);
     }, [currentAllergens]);
    
     const MenuItems:ReactNode[] = [];
@@ -80,7 +77,7 @@ export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAl
                 labelId="demo-multiple-chip-label"
                 id="demo-multiple-chip"
                 multiple
-                value={currentValue.current}
+                value={currentValue}
                 onChange={handleChange}
                 input={<OutlinedInput id="select-multiple-chip" label="Allergens" />}
                 renderValue={(selected) => (

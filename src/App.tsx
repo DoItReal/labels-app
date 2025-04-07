@@ -21,6 +21,7 @@ import EmailVerification from './Login/EmailVerification';
 import Terms from './Terms/index';
 import Configuration from './Config/index';
 import { default as LabelManager } from './LabelManager';
+import { initDB, isDBInitialized } from './Init/InitializeDB';
 
 export interface IenableStates {
     enableStates: Map<string, boolean>,
@@ -135,7 +136,9 @@ function RequireAuth({ user, children }: {user:Iuser, children: any }) {
     if (!isAuthenticated) {
         return <Navigate to="../login" state={{ from: location }} />;
     }
-
+    if (isDBInitialized() === false) {
+        initDB();
+    }
     return children;
 }
 export default App;

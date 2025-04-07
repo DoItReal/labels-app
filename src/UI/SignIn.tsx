@@ -24,12 +24,13 @@ export function LoginUI() {
             const user = await loginUser({
                 email,
                 password
-            }); const time = 2000;
+            });
+            const time = 2000;
             setError(<Alert severity="success" handleClose={() => setError(null)}><strong>Logging in...!</strong></Alert>);
-            setTimeout(() => {
+            setTimeout(async () => {
                 setError(null);
                 setUser({ username: user.username, email: user.email, token: user.authentication.sessionToken });
-                initDB();
+                await initDB();
             }, time);
 
 
