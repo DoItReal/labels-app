@@ -6,15 +6,18 @@ import { getLabels } from "../../../DB/LocalStorage/Labels";
 import SendIcon from '@mui/icons-material/Send';
 
 
-export const SearchBar = ({ addLabels }: { addLabels: (label: labelDataType|labelDataType[]) => void }) => {
+export const SearchBar = ({ addLabels }:
+    { addLabels: (label: labelDataType | labelDataType[]) => void }) => {
     const [selectedLabels, setSelectedLabels] = useState<labelDataType[]>([]);
     const [addedLabels, setAddedLabels] = useState<labelDataType[]>([]);
 
     // Fetch all labels but exclude those that were already submitted
-    const availableLabels = getLabels().reverse().filter(label => !addedLabels.some(added => added._id === label._id));
+    const allLabels = getLabels().reverse();
+    const availableLabels = allLabels.filter(
+        (label) => !addedLabels.some(added => added._id === label._id)
+    );
 
     const handleAddLabels = (labelsArr: any[]) => {
-        // const updatedSelectedLabels = [...selectedLabels];
         if (selectedLabels.length === 0) {
             setSelectedLabels(labelsArr);
             return;
@@ -50,9 +53,13 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: labelDataType|labe
         setAddedLabels(prev => [...prev, ...selectedLabels]); // Add to the exclusion list after submission
         setSelectedLabels([]); // Clear selection after submitting
     }
+    //Hard coded function to get label name in Bulgarian *bg*
+    const getLabelName = (label: labelDataType) =>
+        label.translations.find((el) => el.lang === "bg")?.name || "";
+
     return (
         <Grid container sx={{ width: '100%', display: 'flex', flexDirection: 'center', flex: 'center' }}>
-            <Grid size={{ xs: 6 }} >
+            <Grid size={{ xs: 10 }} >
                 <Box>
                     <Autocomplete
                         multiple
@@ -60,10 +67,7 @@ export const SearchBar = ({ addLabels }: { addLabels: (label: labelDataType|labe
                         options={availableLabels}
                         limitTags={5}
                         disableCloseOnSelect
-                        getOptionLabel={(option) => {
-                            const opt = option.translations.find((el: any) => el.lang === 'bg');
-                            return opt ? opt.name : '';
-                        }}
+                        getOptionLabel={getLabelName}
                         renderInput={(params) => <TextField {...params} label="Select Label/s" />}
                         value={selectedLabels }
                         onChange={(event, value) => handleAddLabels(value)}

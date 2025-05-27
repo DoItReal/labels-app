@@ -2,29 +2,29 @@ import { getLabels } from "../../../DB/LocalStorage/Labels";
 import { Icatalog } from "../../../DB/Interfaces/Catalogs";
 import { getCatalogs } from "../../../DB/SessionStorage/Catalogs";
 import { labelDataType } from "../../../DB/Interfaces/Labels";
-import Typography from "@mui/material/Typography/Typography";
-import { Stack, Card, CardContent, Button, Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Button, Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useState } from "react";
 import { SelectChangeEvent } from '@mui/material';
-const CatalogSelection = ({ addLabels }: { addLabels: (labels: labelDataType|labelDataType[]) => void }) => {
+
+const CatalogSelection = ({ addLabels }:
+    { addLabels: (labels: labelDataType | labelDataType[]) => void }) => {
     const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
 
     const handleSelect = (event: SelectChangeEvent) => {
         setSelectedCatalogId(event.target.value as string);
     };
-    const Catalogs = getCatalogs();
+    const catalogs = getCatalogs();
 
     const addCatalogLabels = () => {
-        const selectedCatalog = Catalogs?.[selectedCatalogId];
+        const selectedCatalog = catalogs?.[selectedCatalogId];
         if (!selectedCatalog) return;
 
-        const labelIds = selectedCatalog.labels.map((l) => l._id);
         const allLabels = getLabels();
+        const selectedLabels: labelDataType[] = selectedCatalog.labels
+            .map((labelRef) => allLabels.find((l) => l._id === labelRef._id))
+            .filter((l): l is labelDataType => Boolean(l));
 
-        const labels: labelDataType[] = labelIds
-            .map((id) => allLabels.find((l) => l._id === id))
-            .filter((l): l is labelDataType => !!l);
-        addLabels(labels);
+        addLabels(selectedLabels);
     };
 
 
@@ -38,8 +38,8 @@ const CatalogSelection = ({ addLabels }: { addLabels: (labels: labelDataType|lab
                     onChange={handleSelect}
                     label="Choose Catalog"
                 >
-                    {Catalogs &&
-                        Object.values(Catalogs).map((catalog: Icatalog) => (
+                    {catalogs &&
+                        Object.values(catalogs).map((catalog: Icatalog) => (
                             <MenuItem key={catalog._id} value={catalog._id}>
                                 {catalog.name}
                             </MenuItem>

@@ -3,7 +3,12 @@ import { IconButton, Menu, Typography, MenuItem, ListItemText, ListItemIcon, Che
 import { useState } from "react";
 import LanguageIcon from "@mui/icons-material/Language";
 
-const LanguageSelection = ({ languages, selectedLanguages, handleLanguageSelection }: { languages: string[], selectedLanguages: string[], handleLanguageSelection: Function }) => {
+const LanguageSelection = ({ languages, selectedLanguages, handleLanguageSelection }:
+    {
+        languages: string[],
+        selectedLanguages: string[],
+        handleLanguageSelection: (lang:string)=>void
+    }) => {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

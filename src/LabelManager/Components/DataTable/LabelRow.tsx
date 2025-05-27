@@ -22,9 +22,6 @@ const LabelRow = React.memo(({ label, selectedLanguages, handleTranslationChange
     } 
  
     const handleKeyDown = (event: React.KeyboardEvent, rowIndex: number, colIndex: number) => {
-      //  event.preventDefault();
-    //    event.stopPropagation();
-
         const moveFocus = (nextRow: number, nextCol: number) => {
             if (rowRefs.current[nextRow] && rowRefs.current[nextRow][nextCol]) {
                 rowRefs.current[nextRow][nextCol]?.focus();
@@ -186,9 +183,10 @@ const EditableCell = ({
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void,
     inputRef?: (ref: HTMLInputElement | null) => void
-}) => {
+    }) => {
+    const [focused, setFocused] = React.useState(false);
     return (
-        <TableCell align='left'>
+        <TableCell align='left' sx={{ verticalAlign: "top" }}>
             <TextField
                 value={value}
                 onChange={onChange}
@@ -196,6 +194,25 @@ const EditableCell = ({
                 size="small"
                 onKeyDown={onKeyDown}
                 inputRef={inputRef}
+                multiline
+                minRows={focused ? 2 : 1}
+                maxRows={8}
+                fullWidth
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                sx={{
+                    // When not focused, apply truncation styles
+                    "& .MuiInputBase-input": {
+                        whiteSpace: focused ? "normal" : "nowrap",
+                        overflow: focused ? "visible" : "hidden",
+                        textOverflow: focused ? "unset" : "ellipsis",
+                    },
+                    "& .MuiInputBase-root": {
+                        transition: "all 0.2s",
+                        fontSize: "0.875rem",
+                        padding: "4px",
+                    },
+                }}
             />
         </TableCell>
     );

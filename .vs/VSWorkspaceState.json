@@ -3,14 +3,13 @@
     "",
     "\\src",
     "\\src\\DB",
-    "\\src\\DB\\LocalStorage",
     "\\src\\DB\\Remote",
     "\\src\\LabelManager",
     "\\src\\LabelManager\\Components",
-    "\\src\\LabelManager\\Components\\DataTable",
-    "\\src\\nav",
-    "\\src\\PDF"
+    "\\src\\LabelManager\\Components\\TableHead",
+    "\\src\\LabelManager\\tools",
+    "\\src\\tools"
   ],
-  "SelectedNode": "\\src\\DB\\Remote\\Labels.ts",
+  "SelectedNode": "\\src\\LabelManager\\Components\\TableHead\\translateButton.tsx",
   "PreviewInSolutionExplorer": false
 }

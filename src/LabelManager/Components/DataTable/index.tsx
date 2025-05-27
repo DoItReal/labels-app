@@ -3,9 +3,14 @@ import { labelDataType } from '../../../DB/Interfaces/Labels';
 import LabelRow from './LabelRow';
 import { useRef } from 'react';
 
-const DataTable = ({ labels,removeLabel, selectedLanguages, handleTranslationChange, handleAllergensChange, handleCategoryChange }: { labels: labelDataType[],removeLabel:(label:string)=>void, selectedLanguages: string[], handleTranslationChange: (labelId: string, lang: string,
-    field: "name" | "description",
-    value: string) => void, handleAllergensChange: (labelId: string, allergens: number[]) => void, handleCategoryChange: (labelId: string, categories: string[]) => void
+const DataTable = ({ labels, removeLabel, selectedLanguages, handleTranslationChange, handleAllergensChange, handleCategoryChange }:
+    {
+        labels: labelDataType[],
+        removeLabel: (label: string) => void,
+        selectedLanguages: string[],
+        handleTranslationChange: (labelId: string, lang: string,field: "name" | "description",value: string) => void,
+        handleAllergensChange: (labelId: string, allergens: number[]) => void,
+        handleCategoryChange: (labelId: string, categories: string[]) => void
 }) => {
     
     const rowRefs = useRef<{ [rowIndex: number]: (HTMLInputElement | null)[] }>({});
