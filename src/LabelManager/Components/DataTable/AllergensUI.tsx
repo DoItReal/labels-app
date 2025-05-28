@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Box, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
+import { getLocalAllergensSchemas } from '../../../DB/SessionStorage/AllergensSchemas';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -11,9 +12,17 @@ const MenuProps = {
         },
     },
 };
-export function Allergens({ currentAllergens, setCurrentAllergens }: { currentAllergens: number[], setCurrentAllergens: (arg:number[])=>void }) {
+export function Allergens({ currentAllergens, setCurrentAllergens }:
+    {
+        currentAllergens: number[],
+        setCurrentAllergens: (arg: number[]) => void
+    }) {
     const [currentValue, setCurrentValue] = useState<string[]>([]);
-    var allAllergensNames: Map<number, string> = new Map([
+    // Fetch AllergensSchema from sessionStorage and create a Map of allergen names by their IDs
+    const allergensSchemas = getLocalAllergensSchemas();
+    const allAllergensNames = allergensSchemas ? new Map<number, string>(
+        allergensSchemas[0].allergens.map(allergen => [allergen.number, allergen.name])
+    ): new Map([
         [1, "Gluten"],
         [2, "Celery"],
         [3, "Peanuts"],

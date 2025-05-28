@@ -25,18 +25,20 @@ interface Props {
 const PreviewLabels = ({ catalog, design, qrCode, selectedRows }: Props) => {
     const [labelData, setLabelData] = useState<Map<string, number>>(new Map());
     const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const [isLoading, setIsLoading] = useState(true); // Loading state
+    const [isLoading, setIsLoading] = useState(false); // Loading state
     useLayoutEffect(() => {
         /**
          * Renders labels to data URLs.
          */
+        if (selectedRows.length === 0) {
+            setLabelData(new Map());
+            return;
+        }
+
         const fetchData = async () => {
             setIsLoading(true);
-            const startTime = performance.now();
             const labels = catalog.labels.filter(label => selectedRows.includes(label._id));
             const { newData, unmountMountedComponents } = await renderLabelsToDataUrls(labels, design, qrCode);
-            const endTime = performance.now();
-          //  console.log(`Time taken to render labels to data URLs: ${endTime - startTime} ms`);
             setLabelData(structuredClone(newData));
             setIsLoading(false);
             return unmountMountedComponents;

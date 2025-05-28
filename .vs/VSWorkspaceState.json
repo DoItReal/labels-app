@@ -6,10 +6,10 @@
     "\\src\\DB\\Remote",
     "\\src\\LabelManager",
     "\\src\\LabelManager\\Components",
-    "\\src\\LabelManager\\Components\\TableHead",
-    "\\src\\LabelManager\\tools",
-    "\\src\\tools"
+    "\\src\\LabelManager\\Components\\DataTable",
+    "\\src\\LabelManager\\hooks",
+    "\\src\\LabelManager\\tools"
   ],
-  "SelectedNode": "\\src\\LabelManager\\Components\\TableHead\\translateButton.tsx",
+  "SelectedNode": "\\src\\LabelManager\\Components\\DataTable\\LabelRow.tsx",
   "PreviewInSolutionExplorer": false
 }

@@ -166,7 +166,7 @@ export default function DataTableStates({ catalog,setCatalog}:
 }
 export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
     const [selectedLabels, setSelectedLabels] = useState<any[]>([]);
-    const labels = getLabels();
+    const labels = getLabels().reverse();
 
     const handleAddLabels = (labelsArr: any[]) => {
        // const updatedSelectedLabels = [...selectedLabels];

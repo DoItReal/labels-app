@@ -17,7 +17,11 @@ import { IallergensMap, InewAllergen } from '../DB/Interfaces/Allergens';
 import { createNewAllergenDB, deleteAllergenDB, editAllergenDB } from '../DB/Remote/Allergens';
 import { getLocalAllergens, setLocalAllergens } from '../DB/LocalStorage/Allergens';
 import Editor from './AllergenEditor';
-var allAllergensNames: Map<number, string> = new Map([
+import { getLocalAllergensSchemas } from '../DB/SessionStorage/AllergensSchemas';
+const allergensSchemas = getLocalAllergensSchemas();
+const allAllergensNames = allergensSchemas ? new Map<number, string>(
+    allergensSchemas[0].allergens.map(allergen => [allergen.number, allergen.name])
+) : new Map([
     [1, "Gluten"],
     [2, "Celery"],
     [3, "Peanuts"],

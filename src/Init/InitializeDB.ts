@@ -6,6 +6,8 @@ import { fetchDesigns } from "../DB/Remote/Designs";
 import { setLocalDesigns } from "../DB/LocalStorage/Designs";
 import { setLocalAllergens } from "../DB/LocalStorage/Allergens";
 import { fetchAllergens } from "../DB/Remote/Allergens";
+import { fetchAllergensSchemas } from "../DB/Remote/AllergensSchemas";
+import { setLocalAllergensSchemas } from "../DB/SessionStorage/AllergensSchemas";
 import { fetchImages} from "../DB/Remote/Images";
 import { setLocalImages, initImages} from "../DB/LocalStorage/Images";
 export const initDB = async () => {
@@ -21,6 +23,8 @@ export const initDB = async () => {
         //fetch Images and set them to LocalStorage
         // await initImages();
         fetchImages().then(images => { setLocalImages(images) });
+        //fetch AllergensSchemas and set them to LocalStorage
+        fetchAllergensSchemas().then(allergensSchemas => { setLocalAllergensSchemas(allergensSchemas) });
     } catch (error) {
         console.error(error);
     }
@@ -31,7 +35,8 @@ export const isDBInitialized = () => {
     const designs = localStorage.getItem("designs");
     const allergens = localStorage.getItem("allergens");
     const images = localStorage.getItem("images");
-    if (labels && catalogs && designs && allergens && images) {
+    const allergensSchemas = localStorage.getItem("allergensSchemas");
+    if (labels && catalogs && designs && allergens && images && allergensSchemas) {
         return true;
     } else {
         return false;
