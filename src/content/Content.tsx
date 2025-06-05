@@ -7,7 +7,7 @@ import {createNewLabelDB, deleteLabelDB, editLabelDB } from '../DB/Remote/Labels
 import { findIndexByProperty } from '../tools/helpers';
 import { Box, Grid } from '@mui/material';
 import { enableStatesContext } from '../App';
-import CatalogEditor from '../Catalogs/CatalogEditor';
+import CatalogEditor from '../Catalogs/components/CatalogEditor';
 import { addSelectedLabel, getSelectedCatalog, saveSelectedCatalog } from '../DB/SessionStorage/TempCatalogs';
 import { IloadedCatalog, IloadedLabel, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
 import { IcontentProps } from './InterfacesContent';

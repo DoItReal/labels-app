@@ -180,7 +180,9 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             ...prevSelectedBlock.image,
                             // Type assertion for prevSelectedBlock.image
                             _id: selectedImage._id,
+                            name: selectedImage.name,
                             transperancy: prevSelectedBlock.image.transperancy,
+                            size: selectedImage.size || 1, // Default size if not provided
                         }
                     };
                 }
@@ -193,6 +195,8 @@ const DesignUI: React.FC<DesignUIProps> = ({
                             ...(prevBlock.image || {}),
                             _id: selectedImage._id,
                             transperancy: prevBlock.image.transperancy,
+                            name: selectedImage.name,
+                            size: selectedImage.size || 1, // Default size if not provided
                         };
                         return {
                             ...prevBlock,
@@ -203,12 +207,14 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 })
             ];
             const updatedDesign = { ...design, blocks: updatedBlocks };
-            if (isDesign(updatedDesign))
+            if (isDesign(updatedDesign)) {
                 setDesign(updatedDesign);
+            }
             else {
                 console.log('Err: updatedDesign is not Design type!');
             }
         }
+        /*
         //gets the stored Designs from Local Storage
         const storedDesigns: Design[] | null = getLocalDesigns();
         if (!storedDesigns) {
@@ -223,7 +229,7 @@ const DesignUI: React.FC<DesignUIProps> = ({
                 return;
             }
         }
-
+        */
     };
 
     const handleSelectedTextParameter = (textParameter: TtextParameter) => {
@@ -435,9 +441,11 @@ setOpenDialog(prevOpenDialog => {
     };
 
     const addImageDesign = () => {
+        console.log(isDesign(design));
+        console.log(design);
         const updatedDesign = {
             ...design,
-            blocks: {
+            blocks: [
                 ...design.blocks,
                 ...[{
                     id: design.blocks.length + 1,
@@ -448,8 +456,9 @@ setOpenDialog(prevOpenDialog => {
                     type: 'allergens', // Initialize with an empty string or default value
                     //  allergenParameter: 'allergen_image.jpg', // Set the image parameter here
                 }],
-            }
+            ]
         };
+        console.log(updatedDesign)
         if (isDesign(updatedDesign))
             setDesign(updatedDesign);
         else

@@ -123,10 +123,13 @@ const ImageUpload: React.FC = () => {
     };
 
     const handleSave = async () => {
+
         if (canvasRef.current) {
             setShowHandles(false);
-            setCanvasHeight(imgHeight);
-            setCanvasWidth(imgWidth);
+            canvasRef.current.width = imgWidth;
+            canvasRef.current.height = imgHeight;
+            //setCanvasHeight(imgHeight);
+           // setCanvasWidth(imgWidth);
             
             const ctx = canvasRef.current.getContext('2d');
             if (ctx === null || editingImage === null) return null;

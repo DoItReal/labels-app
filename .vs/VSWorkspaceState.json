@@ -3,13 +3,13 @@
     "",
     "\\src",
     "\\src\\DB",
+    "\\src\\DB\\Interfaces",
+    "\\src\\DB\\LocalStorage",
     "\\src\\DB\\Remote",
-    "\\src\\LabelManager",
-    "\\src\\LabelManager\\Components",
-    "\\src\\LabelManager\\Components\\DataTable",
-    "\\src\\LabelManager\\hooks",
-    "\\src\\LabelManager\\tools"
+    "\\src\\DB\\SessionStorage",
+    "\\src\\DesignEditor",
+    "\\src\\Designs"
   ],
-  "SelectedNode": "\\src\\LabelManager\\Components\\DataTable\\LabelRow.tsx",
+  "SelectedNode": "\\src\\DB\\Remote\\Images.ts",
   "PreviewInSolutionExplorer": false
 }

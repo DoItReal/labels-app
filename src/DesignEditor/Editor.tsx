@@ -3,7 +3,7 @@
  * The Design Editor component is responsible for rendering the UI and handling user interactions
  * for designing labels.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid } from '@mui/material';
 import DesignUI from './EditorUI';
 import Canvas from './EditorCanvas';
@@ -93,10 +93,25 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
  
     const [blocks, setBlocks] = useState<UnifiedBlock[]>(design.blocks);
     const [selectedBlock, setSelectedBlock] = useState<UnifiedBlock | null>(dummyTextBlock);
+
+    useEffect(() => {
+        setBlocks(design.blocks);
+        // If no block is selected, set the first block as selected
+    }, [design.blocks]);
+    const updateBlocks = (newBlocks: UnifiedBlock[]) => {
+        setBlocks(newBlocks);
+        if (!design) return;
+        setDesign({
+            ...design,
+            blocks: newBlocks,
+        });
+    };
     const deleteSelectedBlock = async () => {
         if (selectedBlock && selectedBlock.id > 0) {
-            setBlocks(prevDesigns => prevDesigns.filter(design => design.id !== selectedBlock.id));
-            setSelectedBlock(null); // Clear the selected block after deletion
+            const newBlocks = blocks.filter(block => block.id !== selectedBlock.id);
+            updateBlocks(newBlocks);
+            setSelectedBlock(null);
+/*
             const storedDesigns: Design[] | null = getLocalDesigns();
          
             if (storedDesigns) {
@@ -112,7 +127,8 @@ const DesignPlayground = ({ design = initDesign, setDesign }: { design: Design |
                     }
                 }
             }
-          //  sessionStorage.setItem('blocks', JSON.stringify(blocks)); // Update the session storage)
+            */
+
         }
     };
     const label: labelDataType = {

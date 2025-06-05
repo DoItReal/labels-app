@@ -1,19 +1,15 @@
-import { Autocomplete, Badge, Box, Button, IconButton, Input, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
+import { Box, Stack, Tooltip } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
-import { useState } from 'react';
-import { isNotNullOrUndefined } from '../tools/helpers';
-import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels, loadedCatalogToCatalog, editCatalogLocally } from '../DB/SessionStorage/Catalogs';
-import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
-import { saveSelectedCatalog as saveTempCatalog } from '../DB/SessionStorage/TempCatalogs';
-import { createCatalogDB, updateCatalogDB } from '../DB/Remote/Catalogs';
-import { formatDate } from '../tools/helpers';
-import { debounce } from 'lodash';
+import { isNotNullOrUndefined } from '../../../tools/helpers';
+import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels, editCatalogLocally } from '../../../DB/SessionStorage/Catalogs';
+import { IloadedCatalog, isLoadedCatalog } from '../../../DB/Interfaces/Catalogs';
+import { createCatalogDB, updateCatalogDB } from '../../../DB/Remote/Catalogs';
 import Grid from '@mui/material/Grid2';
-import { getLabels, getLocalLabelById } from '../DB/LocalStorage/Labels';
+import {  getLocalLabelById } from '../../../DB/LocalStorage/Labels';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { labelDataType } from '../DB/Interfaces/Labels';
-import SendIcon from '@mui/icons-material/Send';
-
+import { labelDataType } from '../../../DB/Interfaces/Labels';
+import SearchBar from '../SearchBar'; 
+import InfoBar from '../CatalogInfoBar';
 // TODO: to save in db and fetch it
 const dataMap = new Map();
 dataMap.set('bg', 'Bulgarian');
@@ -164,90 +160,11 @@ export default function DataTableStates({ catalog,setCatalog}:
         </Box>
     )
 }
-export const SearchBar = ({ addLabels }: { addLabels: (label: any) => void }) => {
-    const [selectedLabels, setSelectedLabels] = useState<any[]>([]);
-    const labels = getLabels().reverse();
-
-    const handleAddLabels = (labelsArr: any[]) => {
-       // const updatedSelectedLabels = [...selectedLabels];
-        if (selectedLabels.length === 0) {
-            setSelectedLabels(labelsArr);
-            return;
-        }
-        const labelCountMap = new Map<string, number>(); // Map to store label counts
-
-        // Count the number of times each label is selected
-        labelsArr.forEach(label => {
-            const labelId = label._id;
-            labelCountMap.set(labelId, (labelCountMap.get(labelId) || 0) + 1);
-        });
-        // Filter out labels that are selected an odd number of times
-        const updatedSelectedLabels = labelsArr.filter((label) => {
-            const labelId = label._id;
-            const labelCount = labelCountMap.get(labelId) || 0;
-
-            // If the label is selected an odd number of times, keep it in selectedLabels
-            if (labelCount >= 1) {
-                let count = labelCount % 2 === 0 ? 0 : 1;
-                labelCountMap.set(labelId, count); // Decrease count by 1
-                return labelCount % 2 === 0 ? false : true; // Keep label in selectedLabels
-            }
-
-            return false; // Remove label from selectedLabels
-        });
-        
-        setSelectedLabels(updatedSelectedLabels);  
-    };
-
-    const handleSubmit = () => {
-        addLabels(selectedLabels);
-    }
-    return (
-        <Grid container sx={{ width: '100%', display:'flex', flexDirection:'center', flex:'center' }}>
-            <Grid size={{ xs: 6 }} >
-            <Box>
-        <Autocomplete
-                        multiple
-                        id="combo-box-demo"
-                        options={labels}
-                        limitTags={5}
-                        disableCloseOnSelect
-                        getOptionLabel={(option) => {
-                            const opt = option.translations.find((el: any) => el.lang === 'bg');
-                            return opt ? opt.name : '';
-                        }}
-                        renderInput={(params) => <TextField {...params} label="Select Label/s" />}
-                        value={selectedLabels}
-                        onChange={(event, value) => handleAddLabels(value)}
-                        renderOption={(props, option, { selected }) => 
-                            (
-                                <li {...props} style={{
-                                    backgroundColor: selectedLabels.some(label => label._id === option._id) ? 'lightblue' : 'inherit',
-                                    border: selectedLabels.some(label => label._id === option._id) ? '1px dotted black' : 'inherit',
-                                }}>
-                                    {option.translations.find((el: any) => el.lang === 'bg')?.name}
-                                </li>
-                            )
-                        }
-                    />
-                </Box>
-            </Grid>
-            <Grid size={{ xs: 1 }}>
-            <Box>
-                <IconButton onClick={handleSubmit }>
-                <Badge badgeContent={selectedLabels.length} color="primary">
-                    <SendIcon />
-                </Badge>
-                    </IconButton>
-                </Box>
-            </Grid>
-      </Grid>
-    );
-};
 
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
-    No Labels Loaded
+    Empty Catalog
 </Stack>);
+// this component renders the DataTable with the rows and columns passed as props
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
     var updatedCatalog = { ...catalog };
     /**
@@ -338,35 +255,3 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
     );
 }
 
-const InfoBar = ({ catalog, updateCatalog, saveCatalog }: { catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) => {
-    const [name, setName] = useState(catalog.name);
-
-   // Debounce the handleNameChange function
-    const handleNameChange = debounce((newValue: string) => {
-        updateCatalog({ ...catalog, name: newValue });
-    }, 1000);
-
-    return (
-        <Grid container spacing={1} style={{marginTop:5, minWidth: '100%', height: '100%' }}>
-            <Grid>
-                <InputLabel>Catalog Name</InputLabel>
-                <Input type='text' placeholder='Catalog Name' size='medium' value={name}
-                    onChange={(e) => { setName(e.target.value); handleNameChange(e.target.value) }} />
-                </Grid>
-            <Grid>
-                <InputLabel>Created At</InputLabel>
-                <Input value={formatDate(catalog.date)} disabled />
-            </Grid>
-            <Grid>
-                <InputLabel>Size</InputLabel>
-                <Input value={catalog.size} disabled />
-            </Grid>
-            <Grid>
-                <Button variant='contained' color='primary'
-                    onClick={saveCatalog}>
-                    Save
-                </Button>
-            </Grid>
-        </Grid>
-    );
-}

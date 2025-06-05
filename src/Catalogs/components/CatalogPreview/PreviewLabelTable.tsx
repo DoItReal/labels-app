@@ -3,12 +3,12 @@
  preview of the labels in the catalog
  */
 
-import { Box, Grid, Input, InputLabel, Stack, Tooltip } from '@mui/material';
-import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar, GridRow, GridRowSelectionModel } from '@mui/x-data-grid';
-import { isNotNullOrUndefined } from '../tools/helpers';
-import { addSelectedLabel } from '../DB/SessionStorage/Catalogs';
-import { IloadedCatalog, isLoadedCatalog } from '../DB/Interfaces/Catalogs';
-import { labelDataType } from '../DB/Interfaces/Labels';
+import { Stack, Tooltip } from '@mui/material';
+import { DataGrid, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar, GridRowSelectionModel } from '@mui/x-data-grid';
+import { isNotNullOrUndefined } from '../../../tools/helpers';
+import { addSelectedLabel } from '../../../DB/SessionStorage/Catalogs';
+import { IloadedCatalog, isLoadedCatalog } from '../../../DB/Interfaces/Catalogs';
+import { labelDataType } from '../../../DB/Interfaces/Labels';
 import React from 'react';
 
 // TODO: to save in db and fetch it
@@ -122,7 +122,7 @@ export default function DataTableStates({ catalog, updateCatalog, setSelectedRow
 }
 
 const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
-    No Labels Loaded
+    Empty Catalog
 </Stack>);
 function DataTable({ rows, columns, catalog, rowSelectionModel, setRowSelectionModel }: { rows: any, columns: any, catalog: IloadedCatalog, rowSelectionModel: GridRowSelectionModel, setRowSelectionModel: (arg: GridRowSelectionModel) => void }) {
 
