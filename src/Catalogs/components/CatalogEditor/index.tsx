@@ -1,52 +1,15 @@
-import { Box, Stack, Tooltip } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridEditInputCell, GridPreProcessEditCellProps, GridRenderEditCellParams, GridToolbar } from '@mui/x-data-grid';
-import { isNotNullOrUndefined } from '../../../tools/helpers';
-import { updateSelectedLabel, saveSelectedCatalog, deleteSelectedLabels, editCatalogLocally } from '../../../DB/SessionStorage/Catalogs';
+import { Box} from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { saveSelectedCatalog, deleteSelectedLabels, editCatalogLocally } from '../../../DB/SessionStorage/Catalogs';
 import { IloadedCatalog, isLoadedCatalog } from '../../../DB/Interfaces/Catalogs';
 import { createCatalogDB, updateCatalogDB } from '../../../DB/Remote/Catalogs';
 import Grid from '@mui/material/Grid2';
 import {  getLocalLabelById } from '../../../DB/LocalStorage/Labels';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { labelDataType } from '../../../DB/Interfaces/Labels';
 import SearchBar from '../SearchBar'; 
 import InfoBar from '../CatalogInfoBar';
-// TODO: to save in db and fetch it
-const dataMap = new Map();
-dataMap.set('bg', 'Bulgarian');
-dataMap.set('en', 'English');
-dataMap.set('de', 'Deutsch');
-dataMap.set('ru', 'Russian');
-dataMap.set('allergens', 'Allergens');
-dataMap.set('count', 'Count');
-dataMap.set('actions', 'Actions');
- 
-
-const getRows = (data: labelDataType[]) => data.map(el => {
-    // Modify the object to include the translations as rows
-    const translationObject = Object.fromEntries(
-        el.translations.map((translation, element) => [el.translations[element].lang, el.translations[element].name])
-    );
-    return { ...el, id: el._id, ...translationObject, actions: { name: 'Actions', type: 'actions', width: 50 } };
-});
-const keys = (rows: any[]) => Object.keys(rows[0]);
-const dataColUnfiltered = (keys: string[]) => keys.map((key) => {
-    if (dataMap.get(key))
-        return { name: dataMap.get(key), type: key, width: 150 }
-    return null;
-}).filter(isNotNullOrUndefined);
-function NameEditInputCell(props: GridRenderEditCellParams) {
-    const { error } = props;
-
-    return (
-        <Tooltip open={!!error} title={error}>
-            <GridEditInputCell {...props} />
-        </Tooltip>
-    );
-}
-function renderEditName(params: GridRenderEditCellParams) {
-    return <NameEditInputCell {...params} />;
-}
-
+import { MyCustomNoRowsOverlay, getColsRows, handleCountChangeFactory } from '../DataTable/columns';
+import { boxStyles, dataGridStyles, gridContainerStyle } from '../../styles/dataTableStyles';
+import React from 'react';
 export default function DataTableStates({ catalog,setCatalog}:
     { catalog: IloadedCatalog, setCatalog: (arg: IloadedCatalog) => void }) {
     const updateCatalog = (updatedCatalog: IloadedCatalog) => {
@@ -78,31 +41,10 @@ export default function DataTableStates({ catalog,setCatalog}:
             console.error(e);
         }
     }
-    const handleCountChange = (newValue: number, rowId: string) => {
-        // Update the count value in the catalog.labels array
-        const updatedLabels = catalog.labels.map((label: any) => {
-            if (label._id === rowId) {
-                return { ...label, count: newValue };
-            }
-            return label;
-        });
-        console.log(updatedLabels)
-        updateCatalog({ ...catalog, labels: [...updatedLabels] });
-    };
-    const getColsRows = (catalog: IloadedCatalog): [rows: any, columns: any] => {
-        // If the catalog is not loaded or there are no labels, return empty arrays
-        if (!isLoadedCatalog(catalog) || catalog.labels.length === 0) return [[], []];
-        // Otherwise, return the rows and columns
-        const row = getRows(catalog.labels);
-        const colUnfilteredData = dataColUnfiltered(keys(row));
-        const cols = col(colUnfilteredData);
-        //console.log(cols);
-        return [row, [...cols]];
-
-    }
+  
     const handleDeleteLabel = (row: any) => () => {
         //remove the label from the catalog and setCatalog state
-        const newLabels = catalog.labels.filter((label: any) => label._id !== row._id);
+        const newLabels = catalog.labels.filter((label: any) => label._id !== row.id);
         const updatedCatalog = { ...catalog, size: catalog.size - 1, labels: newLabels };
         updateCatalog(updatedCatalog);
         const label = getLocalLabelById(row._id);
@@ -111,59 +53,19 @@ export default function DataTableStates({ catalog,setCatalog}:
             saveSelectedCatalog(updatedCatalog);
         }
         }
-    const col = (dataColUnfiltered: { name: any, type: string, width: number }[]) => dataColUnfiltered.map(element => {
-        if (element !== null) {
-            if (element.type === 'allergens') {
-                return { field: element.type, headerName: element.name, width: 120, sortable: false, filterable: false };
-            } else if (element.type === 'count') {
-                return {
-                    field: element.type, headerName: element.name, type: 'number', width: 80, max: 20, min: 1, editable: true, sortable: false, filterable: false,
-                    preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-                        const hasError = params.props.value < 1 || params.props.value > 25 ? "The count must be > 0 and < 25" : null;
-                        if (!hasError) {
-                            const lbl = { ...params.row };
-                            lbl.count = params.props.value;
-                            updateSelectedLabel(lbl);
-                            handleCountChange(params.props.value, lbl.id);
-                        }
-                        return { ...params.props, error: hasError };
-                    },
-                    renderEditCell: renderEditName,
-                    hideable:false
-                };
-            } else if (element.type === 'actions') {
-                return {
-                    field: 'actions', headerName: 'Delete', sortable: false, type: "actions",
-                    getActions: (params: any) => [
-                        <GridActionsCellItem
-                            icon={<DeleteIcon />}
-                            onClick={handleDeleteLabel(params.row)}
-                            label="Delete"
-                            showInMenu={false}
-                        />
-                    ]
-                };
-            } else {
-                return { field: element.type, headerName: element.name, width: element.width }
-            }
-        }
-        else {
-            return null;
-        };
-    }).filter(isNotNullOrUndefined);
-
-    const [rows, columns] = getColsRows(catalog);
+    const handleCountChange = React.useMemo(
+        () => handleCountChangeFactory(catalog, updateCatalog),
+        [catalog, updateCatalog]
+    );
+    const [rows, columns] = getColsRows(catalog, handleCountChange, handleDeleteLabel,  { includeActions: true },);
    
     return (
-        <Box sx={{overflow:'auto', maxHeight:'100%'} }>
+        <Box sx={{boxStyles} }>
             <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
         </Box>
     )
 }
 
-const MyCustomNoRowsOverlay = () => (<Stack height="100%" alignItems="center" justifyContent="center">
-    Empty Catalog
-</Stack>);
 // this component renders the DataTable with the rows and columns passed as props
 function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { rows: any, columns: any, catalog: IloadedCatalog, updateCatalog: (catalog: IloadedCatalog) => void, saveCatalog: () => void }) {
     var updatedCatalog = { ...catalog };
@@ -214,8 +116,6 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
         return updatedCatalog;
     }
 
-
-
     return (
         <Grid container >
             <Grid size={{ xs: 6, sm: 8, md: 10, lg: 12, xl: 12 }}>
@@ -225,11 +125,7 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
                 <SearchBar addLabels = {addLabels} />
             </Grid>
             <Grid size={{ xs: 6, sm: 8, md: 10, lg: 12, xl: 12 }} >
-        <Box height={1} sx={{
-            position: 'relative',
-            overflow: 'auto',
-
-        }}>
+        <Box height={1} sx={{ gridContainerStyle }}>
             <DataGrid
                 density='compact'
                 rows={rows}
@@ -240,10 +136,7 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
                     },
                 }}
                 pageSizeOptions={[10, 15, 25, 50, 100]}
-                sx={{
-                    height: 1,
-                    width: 1
-                }}
+                sx={{ dataGridStyles }}
                 slots={{
                     noRowsOverlay: MyCustomNoRowsOverlay,
                     toolbar: GridToolbar

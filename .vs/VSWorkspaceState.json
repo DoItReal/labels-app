@@ -2,14 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\DB",
-    "\\src\\DB\\Interfaces",
-    "\\src\\DB\\LocalStorage",
+    "\\src\\Catalogs",
+    "\\src\\Catalogs\\components",
+    "\\src\\Catalogs\\components\\catalogEditor",
+    "\\src\\Catalogs\\components\\CatalogPreview",
+    "\\src\\Catalogs\\hooks",
     "\\src\\DB\\Remote",
     "\\src\\DB\\SessionStorage",
-    "\\src\\DesignEditor",
-    "\\src\\Designs"
+    "\\src\\LabelManager"
   ],
-  "SelectedNode": "\\src\\DB\\Remote\\Images.ts",
+  "SelectedNode": "\\src\\Catalogs\\components\\CatalogPreview\\OptionsUI.tsx",
   "PreviewInSolutionExplorer": false
 }

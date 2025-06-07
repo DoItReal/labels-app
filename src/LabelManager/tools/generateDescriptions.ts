@@ -13,7 +13,7 @@ export const generateDescriptionsForLabels = async (
     let current = 0;
 
     const generateDescription = async (labelName: string) => {
-        const prompt = `Generate just one description for the following label: ${"labelName"}. The description should be informative, suitable for a meal and to describe it up to 20 words. It must be suitable for use from API without`;
+        const prompt = `Generate just one description for the following label: "${labelName}". The description should be informative, suitable for a meal and to describe it up to 20 words. It must be suitable for use from API without`;
         try {
             const result: string = await generateDescriptionAI(prompt);
             return result.replace(/^"(.*)"$/, "$1");

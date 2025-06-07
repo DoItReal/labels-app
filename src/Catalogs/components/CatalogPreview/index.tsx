@@ -106,6 +106,3 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
         </>
     );
 }
-
-
-
