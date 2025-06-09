@@ -4,13 +4,13 @@
     "\\src",
     "\\src\\Catalogs",
     "\\src\\Catalogs\\components",
-    "\\src\\Catalogs\\components\\catalogEditor",
+    "\\src\\Catalogs\\components\\CatalogEditor",
     "\\src\\Catalogs\\components\\CatalogPreview",
+    "\\src\\Catalogs\\components\\DataTable",
     "\\src\\Catalogs\\hooks",
-    "\\src\\DB\\Remote",
-    "\\src\\DB\\SessionStorage",
-    "\\src\\LabelManager"
+    "\\src\\Catalogs\\styles",
+    "\\src\\LabelManager\\tools"
   ],
-  "SelectedNode": "\\src\\Catalogs\\components\\CatalogPreview\\OptionsUI.tsx",
+  "SelectedNode": "\\src\\Catalogs\\components\\CatalogEditor",
   "PreviewInSolutionExplorer": false
 }

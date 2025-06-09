@@ -1,4 +1,3 @@
-import { Box} from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { saveSelectedCatalog, deleteSelectedLabels, editCatalogLocally } from '../../../DB/SessionStorage/Catalogs';
 import { IloadedCatalog, isLoadedCatalog } from '../../../DB/Interfaces/Catalogs';
@@ -8,7 +7,7 @@ import {  getLocalLabelById } from '../../../DB/LocalStorage/Labels';
 import SearchBar from '../SearchBar'; 
 import InfoBar from '../CatalogInfoBar';
 import { MyCustomNoRowsOverlay, getColsRows, handleCountChangeFactory } from '../DataTable/columns';
-import { boxStyles, dataGridStyles, gridContainerStyle } from '../../styles/dataTableStyles';
+import { dataGridWrapperStyle, gridContainerStyle, topBarWrapperStyle } from '../../styles/dataTableStyles';
 import React from 'react';
 export default function DataTableStates({ catalog,setCatalog}:
     { catalog: IloadedCatalog, setCatalog: (arg: IloadedCatalog) => void }) {
@@ -60,9 +59,7 @@ export default function DataTableStates({ catalog,setCatalog}:
     const [rows, columns] = getColsRows(catalog, handleCountChange, handleDeleteLabel,  { includeActions: true },);
    
     return (
-        <Box sx={{boxStyles} }>
             <DataTable rows={rows} columns={columns} catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
-        </Box>
     )
 }
 
@@ -117,15 +114,19 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
     }
 
     return (
-        <Grid container >
+        <Grid container spacing={0} sx={gridContainerStyle } >
+            {/* Top section: InfoBar + SearchBar */}
+            <Grid container sx={topBarWrapperStyle}>
             <Grid size={{ xs: 6, sm: 8, md: 10, lg: 12, xl: 12 }}>
                 <InfoBar catalog={catalog} updateCatalog={updateCatalog} saveCatalog={saveCatalog} />
             </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} >
+            <Grid size={{ xs: 12 }} >
                 <SearchBar addLabels = {addLabels} />
+                </Grid>
             </Grid>
-            <Grid size={{ xs: 6, sm: 8, md: 10, lg: 12, xl: 12 }} >
-        <Box height={1} sx={{ gridContainerStyle }}>
+
+            {/* Bottom section: DataGrid fills remaining space */}
+            <Grid size={{ xs: 12 }} sx={ dataGridWrapperStyle}>
             <DataGrid
                 density='compact'
                 rows={rows}
@@ -136,13 +137,11 @@ function DataTable({ rows, columns, catalog, updateCatalog, saveCatalog }: { row
                     },
                 }}
                 pageSizeOptions={[10, 15, 25, 50, 100]}
-                sx={{ dataGridStyles }}
                 slots={{
                     noRowsOverlay: MyCustomNoRowsOverlay,
                     toolbar: GridToolbar
                 }}
             />
-                </Box>
             </Grid>
         </Grid>
     );

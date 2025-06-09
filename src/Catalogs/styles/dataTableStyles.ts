@@ -1,15 +1,23 @@
 // styles/dataTableStyles.ts
-export const boxStyles = {
-    overflow: 'auto',
-    maxHeight: '100%',
-};
-
 export const gridContainerStyle = {
-    position: 'relative',
-    overflow: 'auto',
+    maxWidth: '100%',
+    height: '100%',
+    marginBottom: '0vh',
+    overflow: 'hidden'
 };
 
-export const dataGridStyles = {
-    height: 1,
-    width: 1,
+export const topBarWrapperStyle = {
+    flexShrink: 0, // prevent it from growing
+};
+
+export const dataGridWrapperStyle = {
+    maxHeight: '65vh',
+    maxWidth: '100%',
+    overflow: 'auto'
+};
+
+export const boxStyles = {
+    flexGrow: 1,
+    overflow: 'auto',
+    minHeight: 0
 };

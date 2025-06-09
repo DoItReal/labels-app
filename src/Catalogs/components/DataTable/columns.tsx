@@ -103,7 +103,7 @@ export const getColsRows = (catalog: IloadedCatalog, handleCountChange:(newValue
     } else {
         const row = getRows(catalog.labels, true);
         const colsRaw = dataColUnfiltered(keys(row));
-        const cols = getColumnDefs(colsRaw, handleDeleteLabel, handleCountChange, {includeActions:true});
+        const cols = getColumnDefs(colsRaw, handleDeleteLabel, handleCountChange, options);
         return [row, [...cols]];
     }
 

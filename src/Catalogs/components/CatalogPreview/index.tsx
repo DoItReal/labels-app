@@ -13,6 +13,7 @@ import PDF from '../../../PDF/index';
 import { default as SearchBarTest } from '../SearchBar'; 
 import InfoBar from '../CatalogInfoBar';
 import OptionsUI from './OptionsUI';
+import { dataGridWrapperStyle, gridContainerStyle, topBarWrapperStyle } from '../../styles/dataTableStyles';
 export default function DataTableStates({ previewedCatalog }: { previewedCatalog: IloadedCatalog }) {
     const [catalog, setCatalog] = useState<IloadedCatalog>(previewedCatalog);
     const [design, setDesign] = useState<Design | null>(null);
@@ -79,8 +80,8 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
         <>
             {/* Render PDF component if catalog and design are available */}
             {enableStates.get('createPDF') && catalog && design && <PDF labels={catalog.labels.filter(label=>selectedRows.includes(label._id))} design={design} qrCode={qrCode} twoSided={twoSided} />}
-            <Grid container spacing={0} style={{ maxWidth: '100%',height:'100%', marginBottom:'10vh', overflow:'auto' }}>
-                <Grid container>
+            <Grid container spacing={0} sx={ gridContainerStyle}>
+                <Grid container sx={ topBarWrapperStyle }>
                     <Grid size={{ xs: 6 }}>
                         <InfoBar catalog={catalog} />
                     </Grid>
@@ -93,12 +94,12 @@ export default function DataTableStates({ previewedCatalog }: { previewedCatalog
                    
                 </Grid>
                 
-                <Grid size={{ xs: 6 }} sx={{overflow:'auto', maxHeight:'60vh'} }>
+                <Grid size={{ xs: 6 }}>
                     <LabelTable catalog={catalog} updateCatalog={updateCatalog} setSelectedRows={setSelectedRows} />
                 </Grid>
                 {/* Render LabelPreview component if design is available */}
                 {design && (
-                    <Grid size={{ xs: 6 }} style={{ maxHeight: '60vh', maxWidth: '100%', overflow: 'auto' }}>
+                    <Grid size={{ xs: 6 }} sx={ dataGridWrapperStyle }>
                         <LabelPreview catalog={catalog} design={design} qrCode={qrCode} selectedRows={selectedRows }  />
                     </Grid>
                 )}

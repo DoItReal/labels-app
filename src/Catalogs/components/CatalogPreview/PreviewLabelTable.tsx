@@ -3,13 +3,12 @@
  preview of the labels in the catalog
  */
 
-import { Stack } from '@mui/material';
 import { DataGrid, GridToolbar, GridRowSelectionModel } from '@mui/x-data-grid';
-import { IloadedCatalog, isLoadedCatalog } from '../../../DB/Interfaces/Catalogs';
+import { IloadedCatalog } from '../../../DB/Interfaces/Catalogs';
 import React from 'react';
-import { getRows, dataColUnfiltered, keys } from '../DataTable/catalogUtils';
-import { MyCustomNoRowsOverlay, getColsRows, getColumnDefs, handleCountChangeFactory } from '../DataTable/columns';
-import { dataGridStyles } from '../../styles/dataTableStyles';
+import { MyCustomNoRowsOverlay, getColsRows, handleCountChangeFactory } from '../DataTable/columns';
+import { dataGridWrapperStyle } from '../../styles/dataTableStyles';
+import Grid from '@mui/material/Grid2';
 export default function DataTableStates({ catalog, updateCatalog, setSelectedRows }:
     {
         catalog: IloadedCatalog,
@@ -31,15 +30,15 @@ export default function DataTableStates({ catalog, updateCatalog, setSelectedRow
     )
     const [rows, columns] = getColsRows(catalog, handleCountChange);
     return (
-        <div style={{overflow:'auto', height:'100%'} }>
+        
             <DataTable rows={rows} columns={columns} rowSelectionModel={rowSelectionModel} setRowSelectionModel={handleSetRowSelectionModel} />
-        </div>
     )
 }
 
 function DataTable({ rows, columns,  rowSelectionModel, setRowSelectionModel }: { rows: any, columns: any, rowSelectionModel: GridRowSelectionModel, setRowSelectionModel: (arg: GridRowSelectionModel) => void }) {
 
     return (
+        <Grid sx={dataGridWrapperStyle}>
                 <DataGrid
                     density='compact'
                     rows={rows}
@@ -53,11 +52,11 @@ function DataTable({ rows, columns,  rowSelectionModel, setRowSelectionModel }: 
             onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}
             rowSelectionModel={rowSelectionModel}
             checkboxSelection
-                    sx={{ dataGridStyles }}
                     slots={{
                         noRowsOverlay: MyCustomNoRowsOverlay,
                         toolbar: GridToolbar
                     }}
-                />
+            />
+                </Grid>
     );
 }

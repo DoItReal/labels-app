@@ -2,9 +2,10 @@
 import React from 'react';
 import {
     List,
-    Grid,
     IconButton,
+    Box,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import CatalogEditor from './components/CatalogEditor';
@@ -65,8 +66,8 @@ const Catalogs: React.FC = () => {
         <>
             {/* <Grid container style={{ maxHeight: '100%', overflow: 'auto' }} > */ }
             <Grid container>
-                <Grid item xs={menuCollapsed ? 1 : 3} >
-                    <Grid item sx={(theme)=>({ border: "1px solid darkslategray", backgroundColor: theme.palette.background.paper })} >
+                <Grid size={{ xs:  menuCollapsed? 1: 3  }} >
+                    <Grid sx={(theme)=>({ border: "1px solid darkslategray", backgroundColor: theme.palette.background.paper })} >
                 {/* Button to toggle menu */}
                     <IconButton size="small" onClick={toggleMenu} className={classes.buttonStyle} title={menuCollapsed ? 'Expand' : 'Minimize'}  >
                             {menuCollapsed ? <ChevronRight fontSize='small' /> : <ChevronLeft fontSize='small' />}
@@ -79,7 +80,8 @@ const Catalogs: React.FC = () => {
                     </Grid>
 
                     {/* CatalogEditor List */}
-                    <List>
+                    <Box sx={{ height: '75vh', overflow: 'auto' }} >
+                    <List >
                         {catalogs && Object.values(catalogs).map((catalog, i) => (
                             <CatalogListItem
                                 key={catalog._id}
@@ -98,7 +100,7 @@ const Catalogs: React.FC = () => {
                             />
                         ))}
                     </List>
-
+                    </Box>
                     {!menuCollapsed && (
                         <NewCatalogDialog
                             open={open}
@@ -110,7 +112,12 @@ const Catalogs: React.FC = () => {
 
 )}
             </Grid>
-                <Grid item sm={menuCollapsed ? 11 : 9} xs={menuCollapsed ? 11 : 9} sx={{overflow: 'hidden',maxHeight:'80vh'}} >
+                <Grid size={{ sm: menuCollapsed ? 11 : 9, xs: menuCollapsed ? 11 : 9 }} sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%', // give it full viewport height
+                    overflow: 'hidden',
+}} >
                 {editingCatalogId && loadedCatalog && (
                             <CatalogEditor
                         key={'catalog/' + editingCatalogId}

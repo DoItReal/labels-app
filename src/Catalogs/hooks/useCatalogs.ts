@@ -10,7 +10,6 @@ import {
     loadCatalog,
     catalogToLoadedCatalog,
     getSelectedCatalog,
-    loadCatalogsLocally,
     updateCatalogsLocally,
     getCatalogs
 } from '../../DB/SessionStorage/Catalogs';
