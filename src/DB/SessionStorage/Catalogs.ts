@@ -1,5 +1,6 @@
 import { IloadedLabel, isCatalog, isIloadedLabel, Icatalog, IloadedCatalog, isLoadedCatalog, IcatalogLabelPointer, isCatalogLabelPointer, Icatalogs, isIcatalogs } from "../Interfaces/Catalogs";
 import { isLabelDataType, labelDataType } from "../Interfaces/Labels";
+import { getLabels } from "../LocalStorage/Labels";
 import { fetchLabelById } from "../Remote/Labels";
 
 
@@ -120,16 +121,18 @@ const parseLabels = (labelPointers: IcatalogLabelPointer[]): Promise<IloadedLabe
     return new Promise(async (resolve, reject) => {
         try {
             const labelsArr: IloadedLabel[] = [];
+            const localLabels = getLabels();
             for (const labelPointer of labelPointers) {
-                const label = await fetchLabelById(labelPointer._id);
-                if (!isLabelDataType(label)) {
-                    throw new Error('Label is not of type LabelDataType');
+ 
+                    const label = localLabels.find((lbl: labelDataType) => lbl._id === labelPointer._id) || await fetchLabelById(labelPointer._id);
+                    if (!isLabelDataType(label)) {
+                        throw new Error('Label is not of type LabelDataType');
+                    }
+                    const addedLabel = { ...label, count: labelPointer.count };
+                    if (isIloadedLabel(addedLabel)) {
+                        labelsArr.push(addedLabel);
+                    }
                 }
-                const addedLabel = { ...label, count: labelPointer.count };
-                if (isIloadedLabel(addedLabel)) {
-                    labelsArr.push(addedLabel);
-                }
-            }
             resolve(labelsArr);
         } catch (error) {
             reject(error);
@@ -160,11 +163,12 @@ export const loadCatalog = async (id: string) => {
             sessionStorage.setItem('labels', JSON.stringify({ ...dummyCatalog, labels: [] }));
             return { ...dummyCatalog, labels: [] };
         }
+        const localLabels = getLabels();
         for (const labelPointer of selectedCatalog.labels) {
 
             //TO GET LABEL FROM LOCAL STORAGE
             try {
-                const label = await fetchLabelById(labelPointer._id);
+                const label = localLabels.find((lbl: labelDataType) => lbl._id === labelPointer._id) || await fetchLabelById(labelPointer._id);
                 if (!isLabelDataType(label)) {
                     throw new Error('Label is not of type LabelDataType');
                 }

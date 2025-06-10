@@ -76,7 +76,7 @@ const Catalogs: React.FC = () => {
 
                     {/* Button for New Catalog */}
                         <IconButton sx={{ color: "orange" }} size="large" title="New Catalog" onClick={handleOpenDialog}><LibraryAddIcon fontSize="large" /></IconButton>
-                        {!menuCollapsed ? <span style={{ fontSize: '2rem', alignSelf: 'center', textAlign: 'center', marginLeft: '10%' }}>Catalogs</span> : <></>}
+                        {!menuCollapsed && <span style={{ fontSize: '2rem', alignSelf: 'center', textAlign: 'center', marginLeft: '10%' }}>Catalogs</span> }
                     </Grid>
 
                     {/* CatalogEditor List */}

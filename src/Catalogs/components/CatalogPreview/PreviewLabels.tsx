@@ -87,7 +87,7 @@ const renderLabelsToDataUrls = async (labels: IloadedLabel[], design: Design, qr
                 const labelCanvas = <LabelCanvas design={design} blocks={design.blocks} label={label} qrCode={qrCode} />;
                 const root = createRoot(tempDiv);
                 root.render(labelCanvas);
-                await new Promise((resolve) => setTimeout(resolve, 100));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
                 const sourceCanvas = tempDiv.querySelector('canvas') as HTMLCanvasElement | null;
                 if (sourceCanvas) {
                     ctx.drawImage(sourceCanvas, 0, 0);

@@ -8,9 +8,8 @@
     "\\src\\Catalogs\\components\\CatalogPreview",
     "\\src\\Catalogs\\components\\DataTable",
     "\\src\\Catalogs\\hooks",
-    "\\src\\Catalogs\\styles",
-    "\\src\\LabelManager\\tools"
+    "\\src\\Catalogs\\styles"
   ],
-  "SelectedNode": "\\src\\Catalogs\\components\\CatalogEditor",
+  "SelectedNode": "\\src\\Catalogs\\components\\CatalogPreview\\PreviewLabelTable.tsx",
   "PreviewInSolutionExplorer": false
 }
